@@ -1,0 +1,29 @@
+'use client'
+
+import * as Sentry from '@sentry/nextjs'
+import { useTranslations } from 'next-intl'
+import { useEffect } from 'react'
+
+import { Button } from '@/components/ui/button'
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string }
+  reset: () => void
+}) {
+  const t = useTranslations('error')
+
+  useEffect(() => {
+    Sentry.captureException(error)
+  }, [error])
+
+  return (
+    <div className="container flex flex-col items-center gap-4 py-24 text-center">
+      <h1 className="text-3xl font-bold">{t('title')}</h1>
+      <p className="text-muted-foreground">{t('description')}</p>
+      <Button onClick={reset}>{t('retry')}</Button>
+    </div>
+  )
+}

@@ -1,0 +1,230 @@
+{
+  "metadata": {
+    "title": "CryptoGuide",
+    "description": "AI-powered real-time crypto market insights — prices, news, briefings and on-chain data in one place"
+  },
+  "common": {
+    "appName": "CryptoGuide",
+    "language": "Language",
+    "loading": "Loading…",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "comingSoon": "Coming soon",
+    "skipToContent": "Skip to content"
+  },
+  "nav": {
+    "home": "Home",
+    "insights": "Insights",
+    "portfolio": "Portfolio",
+    "reports": "Reports",
+    "sidebar": "Sidebar navigation"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signUp": "Sign up",
+    "profile": "Profile",
+    "consent": {
+      "title": "Service consent",
+      "checkboxLabel": "I understand and agree that all CryptoGuide content is for informational and educational purposes only and is not investment advice.",
+      "description": "CryptoGuide does not provide investment advice, trade solicitation or asset management. For details, see the",
+      "disclaimerLink": "disclaimer.",
+      "requiredNotice": "Please agree to the above to continue with sign-up.",
+      "gateDescription": "Please review and agree to the following to keep using CryptoGuide.",
+      "continue": "Agree and continue"
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "AI-powered crypto market intelligence",
+      "title": "The clearest way to",
+      "titleHighlight": "read the crypto market",
+      "subtitle": "Real-time prices, AI news digests, daily market briefings and on-chain data — the information you need, without the noise.",
+      "ctaPrimary": "Get started for free",
+      "ctaSecondary": "Explore features",
+      "disclaimer": "CryptoGuide is an information service and does not provide investment advice."
+    },
+    "ticker": {
+      "live": "LIVE",
+      "connecting": "Connecting"
+    },
+    "brief": {
+      "title": "AI Market Brief",
+      "subtitle": "Every morning, AI summarizes what is moving the market. Below is a sample preview.",
+      "sampleLabel": "Sample preview",
+      "headline": "Daily Market Briefing — Sample",
+      "generatedNote": "Published daily at 08:00 KST · The content below is a format example",
+      "p1": "Bitcoin continues to trade in a narrow range around key moving averages, with derivatives positioning observed to be close to neutral.",
+      "p2": "On-chain activity across Ethereum layer-2 networks keeps rising, extending the growth in ecosystem-wide usage metrics.",
+      "p3": "Macro calendar: with the US CPI release due this week, broader market volatility may increase and warrants attention.",
+      "disclaimer": "This briefing is an automatically generated summary for informational purposes only and is not investment advice or a solicitation to trade any asset."
+    },
+    "news": {
+      "title": "Live Market News",
+      "subtitle": "Major crypto headlines, collected in real time.",
+      "sampleNotice": "The live feed is unreachable — showing sample data."
+    },
+    "dashboard": {
+      "title": "Market Dashboard",
+      "subtitle": "Real-time prices and 24h volume for major assets at a glance.",
+      "volume24h": "24h volume",
+      "source": "Data: Binance real-time prices (USDT markets). Provided for informational purposes only."
+    },
+    "why": {
+      "title": "Why CryptoGuide",
+      "subtitle": "In a flood of information, only what your decisions need.",
+      "ai": {
+        "title": "AI-digested analysis",
+        "description": "AI reads the endless stream of news and data and distills the essentials. Cut your market catch-up time with a morning briefing."
+      },
+      "realtime": {
+        "title": "Real-time market data",
+        "description": "Prices stream live from global exchanges. Follow the market without hitting refresh."
+      },
+      "onchain": {
+        "title": "On-chain & whale insights",
+        "description": "Track what market participants are doing through wallet flows, exchange inflows/outflows and other on-chain data."
+      },
+      "transparency": {
+        "title": "Transparent by principle",
+        "description": "Data and sources instead of predictions or guarantees. The final call is always yours."
+      }
+    },
+    "preview": {
+      "title": "Dashboard Preview",
+      "subtitle": "A first look at the upcoming dashboard.",
+      "chartLabel": "Live chart (example screen)",
+      "w1": {
+        "title": "AI daily briefing",
+        "description": "Get a market summary before the day starts."
+      },
+      "w2": {
+        "title": "Real-time alerts",
+        "description": "Set alerts for price and on-chain events."
+      },
+      "w3": {
+        "title": "Portfolio tools",
+        "description": "Organize and track your holdings in one place."
+      },
+      "caption": "This screen is a design preview, not real data."
+    },
+    "pricing": {
+      "title": "Pricing",
+      "subtitle": "Pay for what you need. Change plans anytime.",
+      "perMonth": "/mo",
+      "popular": "Popular",
+      "ctaFree": "Start for free",
+      "ctaPaid": "Get started",
+      "currencyNote": "All prices are in USD. Taxes may apply.",
+      "disclaimer": "Subscriptions are fees for an information service. CryptoGuide does not provide investment advice and makes no guarantees regarding investment outcomes.",
+      "tiers": {
+        "free": {
+          "name": "Free",
+          "tagline": "The basics to get into the crypto market",
+          "f1": "Basic real-time prices",
+          "f2": "Limited news feed",
+          "f3": "Limited market briefings"
+        },
+        "standard": {
+          "name": "Standard",
+          "tagline": "Never miss the daily market flow",
+          "f1": "AI news digests",
+          "f2": "Daily market briefing",
+          "f3": "Basic dashboard"
+        },
+        "professional": {
+          "name": "Professional",
+          "tagline": "A toolkit for active market analysis",
+          "f1": "Everything in Standard",
+          "f2": "Detailed AI briefings",
+          "f3": "AI pattern analysis",
+          "f4": "Portfolio tools",
+          "f5": "Real-time alerts"
+        },
+        "institutional": {
+          "name": "Institutional",
+          "tagline": "For teams that need deeper data",
+          "f1": "Everything in Professional",
+          "f2": "Advanced on-chain / whale data",
+          "f3": "Premium research reports (weekly/monthly/quarterly)"
+        },
+        "legendary": {
+          "name": "Legendary",
+          "tagline": "Every feature and dataset, unlimited",
+          "f1": "Everything included",
+          "f2": "API Center",
+          "f3": "Data export"
+        }
+      }
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "subtitle": "Answers to the questions we hear most.",
+      "q1": {
+        "question": "What is CryptoGuide?",
+        "answer": "A crypto market information platform that brings real-time prices, AI news digests, daily market briefings and on-chain data together in one place."
+      },
+      "q2": {
+        "question": "Do you provide investment advice?",
+        "answer": "No. CryptoGuide is an informational service and does not provide investment advice, trade solicitation or asset management. All decisions and their consequences are your own responsibility."
+      },
+      "q3": {
+        "question": "Is the price data real-time?",
+        "answer": "We stream public data from global exchanges over WebSocket, updating second by second. Slight delays may occur depending on network conditions."
+      },
+      "q4": {
+        "question": "How do billing and cancellation work?",
+        "answer": "All plans are billed monthly in USD and can be cancelled anytime. After cancelling, you keep access until the end of the current billing period."
+      },
+      "q5": {
+        "question": "Can I change plans later?",
+        "answer": "Yes — upgrade or downgrade anytime; the difference is applied to your next bill."
+      },
+      "q6": {
+        "question": "Do you offer an API?",
+        "answer": "The API Center is available on the Legendary plan, together with data export."
+      }
+    }
+  },
+  "pages": {
+    "insights": {
+      "title": "Insights",
+      "description": "Market analysis and crypto insights will be published here."
+    },
+    "portfolio": {
+      "title": "Portfolio",
+      "description": "Portfolio composition and tracking tools are on the way."
+    },
+    "reports": {
+      "title": "Reports",
+      "description": "Periodic reports and in-depth research are on the way."
+    }
+  },
+  "legal": {
+    "placeholder": "This document is being prepared. The official legal document will be published later.",
+    "terms": {
+      "title": "Terms of Service"
+    },
+    "privacy": {
+      "title": "Privacy Policy"
+    },
+    "disclaimer": {
+      "title": "Disclaimer"
+    }
+  },
+  "footer": {
+    "disclaimer": "All information on this site is provided for general informational purposes only and does not constitute investment advice, a solicitation to buy or sell any financial product, or legal/tax advice. Investing in crypto assets involves the risk of principal loss; you are solely responsible for your own investment decisions and their outcomes.",
+    "navigation": "Menu",
+    "legal": "Legal",
+    "rights": "All rights reserved."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "description": "The page you requested does not exist or has been moved.",
+    "backHome": "Back to home"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "description": "This is a temporary error. Please try again in a moment.",
+    "retry": "Try again"
+  }
+}

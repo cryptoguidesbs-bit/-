@@ -1,0 +1,230 @@
+{
+  "metadata": {
+    "title": "CryptoGuide",
+    "description": "AI 기반 실시간 크립토 마켓 인사이트 — 시세, 뉴스, 브리핑, 온체인 데이터를 한 곳에서"
+  },
+  "common": {
+    "appName": "CryptoGuide",
+    "language": "언어",
+    "loading": "불러오는 중…",
+    "openMenu": "메뉴 열기",
+    "closeMenu": "메뉴 닫기",
+    "comingSoon": "준비 중",
+    "skipToContent": "본문으로 건너뛰기"
+  },
+  "nav": {
+    "home": "홈",
+    "insights": "인사이트",
+    "portfolio": "포트폴리오",
+    "reports": "리포트",
+    "sidebar": "사이드 메뉴"
+  },
+  "auth": {
+    "signIn": "로그인",
+    "signUp": "회원가입",
+    "profile": "프로필",
+    "consent": {
+      "title": "서비스 이용 동의",
+      "checkboxLabel": "본인은 CryptoGuide의 모든 콘텐츠가 투자자문이 아닌 정보 제공·교육 목적임을 이해하고 이에 동의합니다.",
+      "description": "CryptoGuide는 투자 자문, 매매 권유, 자산 운용 서비스를 제공하지 않습니다. 자세한 내용은",
+      "disclaimerLink": "면책조항을 확인하세요.",
+      "requiredNotice": "가입을 진행하려면 위 내용에 동의해 주세요.",
+      "gateDescription": "CryptoGuide를 계속 이용하려면 아래 내용을 확인하고 동의해 주세요.",
+      "continue": "동의하고 계속하기"
+    }
+  },
+  "home": {
+    "hero": {
+      "badge": "AI 기반 크립토 마켓 인텔리전스",
+      "title": "크립토 시장을 읽는",
+      "titleHighlight": "가장 명확한 방법",
+      "subtitle": "실시간 시세, AI 뉴스 요약, 데일리 마켓 브리핑, 온체인 데이터까지. 판단에 필요한 정보를 노이즈 없이 전달합니다.",
+      "ctaPrimary": "무료로 시작하기",
+      "ctaSecondary": "기능 살펴보기",
+      "disclaimer": "CryptoGuide는 정보 제공 서비스이며 투자 자문을 제공하지 않습니다."
+    },
+    "ticker": {
+      "live": "LIVE",
+      "connecting": "연결 중"
+    },
+    "brief": {
+      "title": "AI Market Brief",
+      "subtitle": "매일 아침, AI가 시장 흐름을 요약해 전달합니다. 아래는 샘플 프리뷰입니다.",
+      "sampleLabel": "샘플 프리뷰",
+      "headline": "데일리 마켓 브리핑 — 샘플",
+      "generatedNote": "매일 오전 8시(KST) 발행 · 아래 내용은 형식 예시입니다",
+      "p1": "비트코인은 주요 이동평균선 부근에서 좁은 범위의 흐름을 이어가고 있으며, 파생상품 시장의 포지션은 중립에 가까운 상태로 관측됩니다.",
+      "p2": "이더리움 레이어2 네트워크의 온체인 활동이 증가하면서 생태계 전반의 사용량 지표가 확대되는 흐름이 이어지고 있습니다.",
+      "p3": "매크로 일정: 이번 주 미국 소비자물가지수(CPI) 발표를 앞두고 시장 전반의 변동성 확대 가능성에 유의할 필요가 있습니다.",
+      "disclaimer": "본 브리핑은 정보 제공 목적으로 자동 생성된 요약이며, 투자 자문이나 특정 자산의 매매 권유가 아닙니다."
+    },
+    "news": {
+      "title": "Live Market News",
+      "subtitle": "주요 크립토 뉴스를 실시간으로 모아 보여드립니다. (영문 원문 피드)",
+      "sampleNotice": "실시간 피드에 연결할 수 없어 샘플 데이터를 표시하고 있습니다."
+    },
+    "dashboard": {
+      "title": "Market Dashboard",
+      "subtitle": "주요 자산의 실시간 시세와 24시간 거래대금을 한눈에.",
+      "volume24h": "24시간 거래대금",
+      "source": "데이터: Binance 실시간 시세 (USDT 마켓 기준). 정보 제공 목적으로만 제공됩니다."
+    },
+    "why": {
+      "title": "Why CryptoGuide",
+      "subtitle": "정보의 홍수 속에서, 판단에 필요한 것만.",
+      "ai": {
+        "title": "AI 분석 요약",
+        "description": "쏟아지는 뉴스와 데이터를 AI가 읽고 핵심만 정리합니다. 매일 아침 브리핑으로 시장 파악 시간을 줄이세요."
+      },
+      "realtime": {
+        "title": "실시간 마켓 데이터",
+        "description": "글로벌 거래소의 시세를 실시간 스트리밍으로 반영합니다. 새로고침 없이 시장을 따라갑니다."
+      },
+      "onchain": {
+        "title": "온체인 & 웨일 인사이트",
+        "description": "지갑 흐름, 거래소 유출입 등 온체인 데이터를 바탕으로 시장 참여자의 움직임을 추적합니다."
+      },
+      "transparency": {
+        "title": "투명한 정보 원칙",
+        "description": "예측이나 보장 대신 데이터와 출처를 제시합니다. 최종 판단은 언제나 사용자에게 있습니다."
+      }
+    },
+    "preview": {
+      "title": "Dashboard Preview",
+      "subtitle": "출시 예정 대시보드를 미리 만나보세요.",
+      "chartLabel": "실시간 차트 (예시 화면)",
+      "w1": {
+        "title": "AI 데일리 브리핑",
+        "description": "장 시작 전, 시장 흐름 요약을 받아보세요."
+      },
+      "w2": {
+        "title": "실시간 알림",
+        "description": "가격·온체인 이벤트 알림을 설정할 수 있습니다."
+      },
+      "w3": {
+        "title": "포트폴리오 도구",
+        "description": "보유 자산을 한 곳에서 정리하고 추적합니다."
+      },
+      "caption": "위 화면은 디자인 프리뷰이며 실제 데이터가 아닙니다."
+    },
+    "pricing": {
+      "title": "요금제",
+      "subtitle": "필요한 만큼만. 모든 플랜은 언제든 변경할 수 있습니다.",
+      "perMonth": "/월",
+      "popular": "인기",
+      "ctaFree": "무료로 시작",
+      "ctaPaid": "시작하기",
+      "currencyNote": "모든 가격은 USD 기준이며, 부가세가 별도로 부과될 수 있습니다.",
+      "disclaimer": "구독은 정보 서비스 이용 요금입니다. CryptoGuide는 투자 자문을 제공하지 않으며, 투자 결과에 대해 어떠한 보장도 하지 않습니다.",
+      "tiers": {
+        "free": {
+          "name": "Free",
+          "tagline": "크립토 마켓 입문을 위한 기본 기능",
+          "f1": "기본 실시간 시세",
+          "f2": "제한된 뉴스 피드",
+          "f3": "제한된 마켓 브리핑"
+        },
+        "standard": {
+          "name": "Standard",
+          "tagline": "매일의 시장 흐름을 놓치지 않도록",
+          "f1": "AI 뉴스 요약",
+          "f2": "데일리 마켓 브리핑",
+          "f3": "기본 대시보드"
+        },
+        "professional": {
+          "name": "Professional",
+          "tagline": "적극적인 시장 분석을 위한 도구 모음",
+          "f1": "Standard 전 기능 포함",
+          "f2": "상세 AI 브리핑",
+          "f3": "AI 패턴 분석",
+          "f4": "포트폴리오 도구",
+          "f5": "실시간 알림"
+        },
+        "institutional": {
+          "name": "Institutional",
+          "tagline": "깊이 있는 데이터가 필요한 팀을 위해",
+          "f1": "Professional 전 기능 포함",
+          "f2": "고급 온체인/웨일 데이터",
+          "f3": "프리미엄 리서치 리포트 (주간/월간/분기)"
+        },
+        "legendary": {
+          "name": "Legendary",
+          "tagline": "모든 데이터와 기능을 제한 없이",
+          "f1": "전 기능 포함",
+          "f2": "API Center",
+          "f3": "데이터 내보내기"
+        }
+      }
+    },
+    "faq": {
+      "title": "자주 묻는 질문",
+      "subtitle": "궁금한 점이 있다면 먼저 확인해 보세요.",
+      "q1": {
+        "question": "CryptoGuide는 어떤 서비스인가요?",
+        "answer": "실시간 시세, AI 뉴스 요약, 데일리 마켓 브리핑, 온체인 데이터를 한 곳에서 제공하는 크립토 마켓 정보 플랫폼입니다."
+      },
+      "q2": {
+        "question": "투자 자문을 제공하나요?",
+        "answer": "아니요. CryptoGuide는 정보 제공 목적의 서비스이며, 투자 자문·매매 권유·자산 운용 서비스를 제공하지 않습니다. 모든 판단과 그에 따른 책임은 이용자 본인에게 있습니다."
+      },
+      "q3": {
+        "question": "시세 데이터는 실시간인가요?",
+        "answer": "글로벌 거래소의 공개 데이터를 웹소켓 스트리밍으로 받아 초 단위로 갱신합니다. 네트워크 상황에 따라 약간의 지연이 있을 수 있습니다."
+      },
+      "q4": {
+        "question": "결제와 해지는 어떻게 하나요?",
+        "answer": "모든 플랜은 월 단위 USD 결제이며 언제든지 해지할 수 있습니다. 해지하더라도 현재 결제 주기가 끝날 때까지는 계속 이용할 수 있습니다."
+      },
+      "q5": {
+        "question": "플랜은 중간에 변경할 수 있나요?",
+        "answer": "네, 언제든 업그레이드 또는 다운그레이드할 수 있으며 차액은 다음 결제에 반영됩니다."
+      },
+      "q6": {
+        "question": "API를 제공하나요?",
+        "answer": "API Center는 Legendary 플랜에서 제공됩니다. 데이터 내보내기 기능도 함께 이용할 수 있습니다."
+      }
+    }
+  },
+  "pages": {
+    "insights": {
+      "title": "인사이트",
+      "description": "시장 분석과 크립토 인사이트가 이곳에 제공될 예정입니다."
+    },
+    "portfolio": {
+      "title": "포트폴리오",
+      "description": "포트폴리오 구성과 추적 도구가 준비 중입니다."
+    },
+    "reports": {
+      "title": "리포트",
+      "description": "정기 리포트와 심층 분석 자료가 준비 중입니다."
+    }
+  },
+  "legal": {
+    "placeholder": "이 문서는 준비 중입니다. 정식 법적 문서는 추후 게시될 예정입니다.",
+    "terms": {
+      "title": "이용약관"
+    },
+    "privacy": {
+      "title": "개인정보처리방침"
+    },
+    "disclaimer": {
+      "title": "면책조항"
+    }
+  },
+  "footer": {
+    "disclaimer": "본 사이트에서 제공되는 모든 정보는 일반적인 정보 제공 목적으로만 제공되며, 투자 자문, 금융상품의 매매 권유 또는 법률·세무 자문에 해당하지 않습니다. 가상자산 투자에는 원금 손실의 위험이 따르며, 모든 투자 판단과 그 결과에 대한 책임은 이용자 본인에게 있습니다.",
+    "navigation": "메뉴",
+    "legal": "법적 고지",
+    "rights": "All rights reserved."
+  },
+  "notFound": {
+    "title": "페이지를 찾을 수 없습니다",
+    "description": "요청하신 페이지가 존재하지 않거나 이동되었습니다.",
+    "backHome": "홈으로 돌아가기"
+  },
+  "error": {
+    "title": "문제가 발생했습니다",
+    "description": "일시적인 오류입니다. 잠시 후 다시 시도해 주세요.",
+    "retry": "다시 시도"
+  }
+}

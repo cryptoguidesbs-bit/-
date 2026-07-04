@@ -1,0 +1,256 @@
+// Prisma schema draft — Stage 1
+// Convention: all DateTime values are stored in UTC (Prisma default).
+// Client-side rendering converts to the user's local timezone.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum UserRole {
+  USER
+  EDITOR
+  ADMIN
+}
+
+enum SubscriptionPlan {
+  FREE
+  BASIC
+  PRO
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  EXPIRED
+}
+
+enum ContentStatus {
+  DRAFT
+  IN_REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum ConsentType {
+  TERMS_OF_SERVICE
+  PRIVACY_POLICY
+  MARKETING
+  INVESTMENT_DISCLAIMER
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  PUBLISH
+  UNPUBLISH
+  REVIEW
+}
+
+enum ContentType {
+  ARTICLE
+  REPORT
+}
+
+// ---------------------------------------------------------------------------
+// Core models
+// ---------------------------------------------------------------------------
+
+model User {
+  id        String   @id @default(cuid())
+  // Clerk user ID — the source of truth for authentication.
+  clerkId   String   @unique
+  email     String   @unique
+  name      String?
+  image     String?
+  role      UserRole @default(USER)
+  locale    String   @default("ko")
+  // Display-only preference. Persisted data stays in UTC.
+  timezone  String   @default("Asia/Seoul")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  subscription Subscription?
+  portfolios   Portfolio[]
+  watchlists   Watchlist[]
+  articles     Article[]
+  consentLogs  ConsentLog[]
+  auditLogs    ContentAuditLog[]
+}
+
+model Subscription {
+  id                 String             @id @default(cuid())
+  userId             String             @unique
+  plan               SubscriptionPlan   @default(FREE)
+  status             SubscriptionStatus @default(ACTIVE)
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  cancelAtPeriodEnd  Boolean            @default(false)
+  // ID from the external payment provider (e.g. Stripe, Toss Payments).
+  externalId         String?            @unique
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+}
+
+model Portfolio {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  currency    String   @default("KRW")
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items PortfolioItem[]
+
+  @@index([userId])
+}
+
+model PortfolioItem {
+  id          String   @id @default(cuid())
+  portfolioId String
+  symbol      String
+  market      String? // e.g. KRX, NASDAQ, NYSE
+  quantity    Decimal  @default(0)
+  avgCost     Decimal  @default(0)
+  currency    String   @default("KRW")
+  note        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+
+  @@unique([portfolioId, symbol])
+}
+
+model Watchlist {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items WatchlistItem[]
+
+  @@index([userId])
+}
+
+model WatchlistItem {
+  id          String   @id @default(cuid())
+  watchlistId String
+  symbol      String
+  market      String?
+  note        String?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  watchlist Watchlist @relation(fields: [watchlistId], references: [id], onDelete: Cascade)
+
+  @@unique([watchlistId, symbol])
+}
+
+// ---------------------------------------------------------------------------
+// Content
+// ---------------------------------------------------------------------------
+
+model Article {
+  id          String        @id @default(cuid())
+  slug        String
+  locale      String        @default("ko")
+  title       String
+  summary     String?
+  content     String
+  status      ContentStatus @default(DRAFT)
+  tags        String[]      @default([])
+  authorId    String?
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  author    User?             @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  auditLogs ContentAuditLog[]
+
+  @@unique([slug, locale])
+  @@index([status, publishedAt])
+}
+
+model Report {
+  id          String        @id @default(cuid())
+  slug        String
+  locale      String        @default("ko")
+  title       String
+  summary     String?
+  content     String
+  status      ContentStatus @default(DRAFT)
+  isPremium   Boolean       @default(true)
+  fileUrl     String?
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  auditLogs ContentAuditLog[]
+
+  @@unique([slug, locale])
+  @@index([status, publishedAt])
+}
+
+// ---------------------------------------------------------------------------
+// Compliance / audit — append-only logs, never updated or deleted in app code
+// ---------------------------------------------------------------------------
+
+model ConsentLog {
+  id        String      @id @default(cuid())
+  userId    String
+  type      ConsentType
+  // Version of the document the user consented to (e.g. "2026-07-01").
+  version   String
+  granted   Boolean
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime    @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, type, createdAt])
+}
+
+model ContentAuditLog {
+  id          String      @id @default(cuid())
+  // Actor. Null when performed by system jobs.
+  userId      String?
+  action      AuditAction
+  contentType ContentType
+  contentId   String
+  articleId   String?
+  reportId    String?
+  // Snapshot / diff of the change for traceability.
+  diff        Json?
+  reason      String?
+  ipAddress   String?
+  createdAt   DateTime    @default(now())
+
+  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  article Article? @relation(fields: [articleId], references: [id], onDelete: SetNull)
+  report  Report?  @relation(fields: [reportId], references: [id], onDelete: SetNull)
+
+  @@index([contentType, contentId, createdAt])
+  @@index([userId, createdAt])
+}
