@@ -44,3 +44,6 @@ next-env.d.ts
 
 # manual backups
 /.backup-stage4/
+
+# machine-local Claude Code settings
+.claude/settings.local.json
