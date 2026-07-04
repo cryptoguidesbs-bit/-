@@ -53,7 +53,12 @@
       "PowerShell(git config --global user.email)",
       "PowerShell(git config user.name \"korea\")",
       "PowerShell(git config user.email \"koreatime51@gmail.com\")",
-      "PowerShell(git add -A)"
+      "PowerShell(git add -A)",
+      "PowerShell(git branch -M main)",
+      "PowerShell(git remote add origin https://github.com/cryptoguidesbs-bit/-.git)",
+      "PowerShell(git push -u origin main)",
+      "PowerShell(git add .claude/settings.local.json)",
+      "PowerShell(git push)"
     ]
   }
 }
