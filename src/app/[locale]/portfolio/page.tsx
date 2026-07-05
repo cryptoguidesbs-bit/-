@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { checkFeature } from '@/lib/entitlements'
-import { PagePlaceholder } from '@/components/page-placeholder'
+import { PortfolioManager } from '@/components/portfolio/portfolio-manager'
 import { UpgradeRequired } from '@/components/entitlements/upgrade-required'
 import { pageAlternates } from '@/lib/seo'
 
@@ -26,6 +26,14 @@ export default async function PortfolioPage({ params: { locale } }: Props) {
     return <UpgradeRequired gate={gate} />
   }
 
-  const t = await getTranslations({ locale, namespace: 'pages.portfolio' })
-  return <PagePlaceholder title={t('title')} description={t('description')} />
+  const t = await getTranslations({ locale, namespace: 'dashboard.portfolio' })
+  return (
+    <div className="space-y-6 py-6">
+      <div className="space-y-1.5">
+        <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
+        <p className="text-muted-foreground">{t('subtitle')}</p>
+      </div>
+      <PortfolioManager />
+    </div>
+  )
 }

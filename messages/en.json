@@ -72,13 +72,67 @@
     "summaryHeld": "Summary held — did not pass quality checks",
     "empty": "No news matches your filters.",
     "loadMore": "Load more",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "save": "Save article",
+    "unsave": "Remove bookmark"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "greeting": "Your watchlist, saved content and notifications in one place.",
+    "greetingNamed": "Welcome back, {name}.",
+    "portfolio": {
+      "title": "Portfolio",
+      "subtitle": "Track your holdings with live valuations.",
+      "open": "Track your holdings with live prices.",
+      "locked": "Portfolio tools are available from the Professional plan.",
+      "cta": "Open portfolio",
+      "upgrade": "Upgrade",
+      "totalValue": "Total value",
+      "totalCost": "Total cost basis",
+      "symbol": "Symbol",
+      "quantity": "Quantity",
+      "avgCost": "Avg cost (USD)",
+      "price": "Price",
+      "value": "Value",
+      "diff": "Difference",
+      "add": "Add",
+      "save": "Save",
+      "remove": "Remove",
+      "empty": "Add your first holding.",
+      "invalid": "Please check your input.",
+      "note": "Valuations use Binance USDT market prices and are provided for informational purposes only."
+    },
+    "watchlist": {
+      "title": "Watchlist",
+      "placeholder": "Symbol (e.g. BTC)",
+      "duplicate": "Already in your watchlist.",
+      "invalid": "Please check the symbol.",
+      "empty": "Add assets you want to follow.",
+      "remove": "Remove"
+    },
+    "notifications": {
+      "title": "Notifications",
+      "markAllRead": "Mark all read",
+      "dismiss": "Dismiss",
+      "empty": "No new notifications."
+    },
+    "savedArticles": {
+      "title": "Saved articles",
+      "empty": "Save articles from the News page.",
+      "remove": "Remove"
+    },
+    "savedReports": {
+      "title": "Saved reports",
+      "empty": "No saved reports yet.",
+      "remove": "Remove"
+    }
   },
   "auth": {
     "signIn": "Sign in",
     "signUp": "Sign up",
     "profile": "Profile",
     "billing": "Billing",
+    "dashboard": "Dashboard",
     "consent": {
       "title": "Service consent",
       "checkboxLabel": "I understand and agree that all CryptoGuide content is for informational and educational purposes only and is not investment advice.",

@@ -72,13 +72,67 @@
     "summaryHeld": "요약 보류됨 — 품질 검증을 통과하지 못했습니다",
     "empty": "조건에 맞는 뉴스가 없습니다.",
     "loadMore": "더 보기",
-    "loading": "불러오는 중…"
+    "loading": "불러오는 중…",
+    "save": "기사 저장",
+    "unsave": "저장 해제"
+  },
+  "dashboard": {
+    "title": "대시보드",
+    "greeting": "워치리스트, 저장 콘텐츠, 알림을 한 곳에서 관리하세요.",
+    "greetingNamed": "{name}님, 다시 오신 것을 환영합니다.",
+    "portfolio": {
+      "title": "포트폴리오",
+      "subtitle": "보유 자산을 기록하고 실시간 가치로 추적하세요.",
+      "open": "보유 자산을 실시간 시세로 추적할 수 있습니다.",
+      "locked": "포트폴리오 도구는 Professional 플랜부터 이용할 수 있습니다.",
+      "cta": "포트폴리오 열기",
+      "upgrade": "업그레이드",
+      "totalValue": "총 평가액",
+      "totalCost": "총 매입금액",
+      "symbol": "심볼",
+      "quantity": "수량",
+      "avgCost": "평균단가 (USD)",
+      "price": "현재가",
+      "value": "평가액",
+      "diff": "평가 차액",
+      "add": "추가",
+      "save": "저장",
+      "remove": "삭제",
+      "empty": "보유 자산을 추가해 보세요.",
+      "invalid": "입력값을 확인해 주세요.",
+      "note": "평가액은 Binance USDT 마켓 시세 기준이며 정보 제공 목적으로만 제공됩니다."
+    },
+    "watchlist": {
+      "title": "워치리스트",
+      "placeholder": "심볼 (예: BTC)",
+      "duplicate": "이미 워치리스트에 있습니다.",
+      "invalid": "심볼을 확인해 주세요.",
+      "empty": "관심 자산을 추가해 보세요.",
+      "remove": "삭제"
+    },
+    "notifications": {
+      "title": "알림",
+      "markAllRead": "모두 읽음",
+      "dismiss": "삭제",
+      "empty": "새 알림이 없습니다."
+    },
+    "savedArticles": {
+      "title": "저장한 기사",
+      "empty": "뉴스 페이지에서 기사를 저장해 보세요.",
+      "remove": "삭제"
+    },
+    "savedReports": {
+      "title": "저장한 리포트",
+      "empty": "저장한 리포트가 없습니다.",
+      "remove": "삭제"
+    }
   },
   "auth": {
     "signIn": "로그인",
     "signUp": "회원가입",
     "profile": "프로필",
     "billing": "구독",
+    "dashboard": "대시보드",
     "consent": {
       "title": "서비스 이용 동의",
       "checkboxLabel": "본인은 CryptoGuide의 모든 콘텐츠가 투자자문이 아닌 정보 제공·교육 목적임을 이해하고 이에 동의합니다.",

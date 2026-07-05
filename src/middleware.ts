@@ -12,6 +12,8 @@ const isProtectedRoute = createRouteMatcher([
   '/profile(.*)',
   '/:locale/billing(.*)',
   '/billing(.*)',
+  '/:locale/dashboard(.*)',
+  '/dashboard(.*)',
 ])
 
 // Region-based locale mapping: visitors from these countries default to

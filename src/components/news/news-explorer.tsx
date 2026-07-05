@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { ExternalLink, Search, Sparkles } from 'lucide-react'
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query'
+import { Bookmark, ExternalLink, Search, Sparkles } from 'lucide-react'
+import { useAuth } from '@clerk/nextjs'
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useFormatter, useLocale, useTranslations } from 'next-intl'
 
 import { Badge } from '@/components/ui/badge'
@@ -117,7 +118,15 @@ function Chip({
   )
 }
 
-function ArticleCard({ item }: { item: NewsApiItem }) {
+function ArticleCard({
+  item,
+  saved,
+  onToggleSave,
+}: {
+  item: NewsApiItem
+  saved?: boolean
+  onToggleSave?: () => void
+}) {
   const t = useTranslations('news')
   const locale = useLocale()
   const format = useFormatter()
@@ -139,6 +148,17 @@ function ArticleCard({ item }: { item: NewsApiItem }) {
           <span className="text-muted-foreground">
             {format.relativeTime(new Date(item.publishedAt))}
           </span>
+          {onToggleSave && (
+            <button
+              type="button"
+              aria-label={saved ? t('unsave') : t('save')}
+              aria-pressed={saved}
+              onClick={onToggleSave}
+              className="ml-auto text-muted-foreground transition-colors hover:text-primary"
+            >
+              <Bookmark className={saved ? 'h-4 w-4 fill-primary text-primary' : 'h-4 w-4'} />
+            </button>
+          )}
         </div>
 
         <a href={item.url} target="_blank" rel="noreferrer" className="group block">
@@ -191,10 +211,39 @@ function ArticleCard({ item }: { item: NewsApiItem }) {
 
 export function NewsExplorer() {
   const t = useTranslations('news')
+  const { isSignedIn } = useAuth()
+  const queryClient = useQueryClient()
   const [input, setInput] = useState('')
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState<string>('')
   const [region, setRegion] = useState<string>('')
+
+  // Bookmarks (signed-in only)
+  const savedQuery = useQuery({
+    queryKey: ['me', 'saved-articles'],
+    queryFn: async () => {
+      const res = await fetch('/api/me/saved-articles')
+      if (!res.ok) throw new Error('saved fetch failed')
+      return (await res.json()) as { items: { newsItemId: string }[] }
+    },
+    enabled: !!isSignedIn,
+  })
+  const savedIds = new Set(savedQuery.data?.items.map((i) => i.newsItemId) ?? [])
+
+  const toggleSave = useMutation({
+    mutationFn: async ({ id, saved }: { id: string; saved: boolean }) => {
+      if (saved) {
+        await fetch(`/api/me/saved-articles/${id}`, { method: 'DELETE' })
+      } else {
+        await fetch('/api/me/saved-articles', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ newsItemId: id }),
+        })
+      }
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['me', 'saved-articles'] }),
+  })
 
   // Debounced search
   useEffect(() => {
@@ -275,7 +324,16 @@ export function NewsExplorer() {
           ))}
 
         {items.map((item) => (
-          <ArticleCard key={item.id} item={item} />
+          <ArticleCard
+            key={item.id}
+            item={item}
+            saved={savedIds.has(item.id)}
+            onToggleSave={
+              isSignedIn
+                ? () => toggleSave.mutate({ id: item.id, saved: savedIds.has(item.id) })
+                : undefined
+            }
+          />
         ))}
 
         {!isLoading && items.length === 0 && (
