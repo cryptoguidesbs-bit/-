@@ -50,11 +50,34 @@ export type BriefGenInput = {
   mockScenario?: string
 }
 
+// --- Portfolio educational commentary (stage 11, principle A-2-7) ----------
+// Privacy: input carries structural metrics only (weights %, indices) —
+// never monetary amounts or user identifiers.
+
+export const portfolioCommentarySchema = z.object({
+  ko: z.string(),
+  en: z.string(),
+})
+
+export type PortfolioCommentary = z.infer<typeof portfolioCommentarySchema>
+
+export type PortfolioExplainInput = {
+  weights: { symbol: string; weightPct: number }[]
+  hhi: number
+  effectiveAssets: number
+  topSymbol: string
+  topWeightPct: number
+  concentration: 'diversified' | 'moderate' | 'concentrated'
+  /** Non-production test hook for the mock provider. */
+  mockScenario?: string
+}
+
 export interface AiProvider {
   /** Model label persisted with each result (AI-generated content label). */
   readonly model: string
   analyzeArticle(input: AnalyzeInput): Promise<ArticleAnalysis>
   generateBrief(input: BriefGenInput): Promise<BriefSectionsOutput>
+  explainPortfolio(input: PortfolioExplainInput): Promise<PortfolioCommentary>
 }
 
 export class AiRateLimitError extends Error {}
@@ -156,7 +179,49 @@ Write the five sections (btc, eth, altcoin, macro, today) in BOTH Korean (ko) an
       throw error
     }
   }
+
+  async explainPortfolio(input: PortfolioExplainInput): Promise<PortfolioCommentary> {
+    const weightLines = input.weights
+      .map((w) => `${w.symbol}: ${w.weightPct.toFixed(1)}%`)
+      .join(', ')
+    try {
+      const response = await this.client.messages.parse({
+        model: this.model,
+        max_tokens: 1200,
+        system: PORTFOLIO_SYSTEM_PROMPT,
+        messages: [
+          {
+            role: 'user',
+            content: `Allocation weights: ${weightLines}
+HHI: ${input.hhi.toFixed(3)}
+Effective number of assets: ${input.effectiveAssets.toFixed(2)}
+Largest position: ${input.topSymbol} at ${input.topWeightPct.toFixed(1)}%
+Concentration label: ${input.concentration}
+
+Explain what these diversification metrics mean, educationally.`,
+          },
+        ],
+        output_config: { format: zodOutputFormat(portfolioCommentarySchema) },
+      })
+      if (!response.parsed_output) throw new Error('model returned unparseable output')
+      return response.parsed_output
+    } catch (error) {
+      if (error instanceof Anthropic.RateLimitError) {
+        throw new AiRateLimitError('anthropic rate limited')
+      }
+      throw error
+    }
+  }
 }
+
+const PORTFOLIO_SYSTEM_PROMPT = `You explain portfolio diversification metrics for an educational, informational platform.
+
+Hard rules (principle A-2-7):
+- EXPLAIN the metrics only — what HHI, effective asset count, and concentration mean, and what the given values indicate descriptively.
+- NEVER give advice or directives: no "rebalance", no "you should", no "we recommend", no "consider buying/selling/reducing", no suggestions to change the portfolio in any way.
+- Do not predict prices or outcomes. Neutral, educational tone.
+- The input contains percentages and index values only — do not invent amounts, currencies, or personal details.
+- ko: 3-5 Korean sentences. en: 3-5 English sentences.`
 
 const BRIEF_SYSTEM_PROMPT = `You write a daily crypto market brief for an informational platform (not an advisory service). It is published identically to all subscribers — never personalized.
 
@@ -282,6 +347,28 @@ class MockProvider implements AiProvider {
       },
     }
     return sections
+  }
+
+  async explainPortfolio(input: PortfolioExplainInput): Promise<PortfolioCommentary> {
+    if (input.mockScenario === 'directive') {
+      // Deliberately advisory — must be blocked by the portfolio guidelines.
+      return {
+        ko: `현재 포트폴리오의 ${input.topSymbol} 비중이 ${input.topWeightPct.toFixed(0)}%로 매우 높은 편입니다. 분산 지표(HHI ${input.hhi.toFixed(2)})를 개선하려면 지금 바로 리밸런싱하세요. 해당 자산의 비중을 줄이세요.`,
+        en: `Your portfolio's ${input.topSymbol} weight is ${input.topWeightPct.toFixed(0)}%, which is very high for the HHI metric of ${input.hhi.toFixed(2)}. You should rebalance the allocation now, and we recommend reducing that position immediately.`,
+      }
+    }
+
+    const labelKo =
+      input.concentration === 'diversified'
+        ? '분산형'
+        : input.concentration === 'moderate'
+          ? '보통'
+          : '집중형'
+
+    return {
+      ko: `이 포트폴리오의 허핀달 지수(HHI)는 ${input.hhi.toFixed(3)}으로, 지표상 ${labelKo} 구간에 해당하는 것으로 관측됩니다. HHI는 각 자산 비중의 제곱을 합한 값으로, 숫자가 클수록 소수 자산에 대한 집중도가 높다는 뜻입니다. 유효 자산 수는 약 ${input.effectiveAssets.toFixed(1)}개로, 동일 비중 기준으로 환산한 분산 수준을 나타냅니다. 가장 큰 비중은 ${input.topSymbol}(${input.topWeightPct.toFixed(1)}%)로 집계되며, 이 수치는 배분 구조를 이해하는 참고 지표로 활용될 수 있습니다.`,
+      en: `This portfolio's Herfindahl index (HHI) reads ${input.hhi.toFixed(3)}, which falls in the "${input.concentration}" range descriptively. HHI sums the squares of each asset's weight, so higher values indicate the allocation is concentrated in fewer assets. The effective number of assets is about ${input.effectiveAssets.toFixed(1)}, a way of expressing diversification as an equal-weight equivalent. The largest weight is ${input.topSymbol} at ${input.topWeightPct.toFixed(1)}%, a metric that may help in understanding the allocation structure.`,
+    }
   }
 }
 

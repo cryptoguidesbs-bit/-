@@ -76,6 +76,29 @@
     "save": "Save article",
     "unsave": "Remove bookmark"
   },
+  "portfolioAnalytics": {
+    "pnl": "Total P&L",
+    "assetChart": "Asset weights",
+    "allocation": "Allocation",
+    "diversification": "Diversification metrics",
+    "concentration": {
+      "diversified": "Diversified",
+      "moderate": "Moderate",
+      "concentrated": "Concentrated"
+    },
+    "hhiExplain": "HHI (Herfindahl index) sums the squares of each asset's weight — a measure of how concentrated the portfolio is in a few assets. Higher values indicate higher concentration. (Shown as diversified below 0.15 · concentrated above 0.25.)",
+    "effectiveAssets": "Effective assets",
+    "effectiveExplain": "Effective assets (1/HHI) expresses the current allocation as the equivalent number of equally-weighted assets.",
+    "topWeight": "Largest weight",
+    "aiTitle": "AI educational commentary",
+    "aiGenerate": "Generate",
+    "aiGenerating": "Generating…",
+    "aiEmpty": "Generate an educational explanation of your current diversification metrics.",
+    "aiLabel": "AI-generated ({model})",
+    "aiBlocked": "The generated commentary did not pass the no-advice expression check and was not shown. Please try again.",
+    "aiFailed": "Generation failed. Please try again shortly.",
+    "aiDisclaimer": "This commentary is an educational explanation of the metrics only — not investment advice, a rebalancing recommendation, or a solicitation to trade. Interpretation and all decisions remain yours."
+  },
   "dashboard": {
     "title": "Dashboard",
     "greeting": "Your watchlist, saved content and notifications in one place.",

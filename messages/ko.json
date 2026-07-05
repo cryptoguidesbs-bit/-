@@ -76,6 +76,29 @@
     "save": "기사 저장",
     "unsave": "저장 해제"
   },
+  "portfolioAnalytics": {
+    "pnl": "총 평가손익",
+    "assetChart": "자산별 비중",
+    "allocation": "자산 배분",
+    "diversification": "분산 지표",
+    "concentration": {
+      "diversified": "분산형",
+      "moderate": "보통",
+      "concentrated": "집중형"
+    },
+    "hhiExplain": "HHI(허핀달 지수)는 각 자산 비중의 제곱을 합한 값으로, 포트폴리오가 소수 자산에 집중된 정도를 나타내는 지표입니다. 값이 클수록 집중도가 높습니다. (0.15 미만 분산형 · 0.25 초과 집중형 구간으로 표시)",
+    "effectiveAssets": "유효 자산 수",
+    "effectiveExplain": "유효 자산 수(1/HHI)는 현재의 배분을 동일 비중 포트폴리오로 환산했을 때 몇 개 자산에 해당하는지를 나타내는 지표입니다.",
+    "topWeight": "최대 비중",
+    "aiTitle": "AI 교육 해설",
+    "aiGenerate": "해설 생성",
+    "aiGenerating": "생성 중…",
+    "aiEmpty": "버튼을 누르면 현재 분산 지표에 대한 교육적 설명을 생성합니다.",
+    "aiLabel": "AI 생성 ({model})",
+    "aiBlocked": "생성된 해설이 표현 기준(권고 금지)을 통과하지 못해 표시하지 않습니다. 다시 시도해 주세요.",
+    "aiFailed": "해설 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+    "aiDisclaimer": "본 해설은 지표에 대한 교육적 설명으로, 투자 자문·리밸런싱 권고·매매 권유가 아닙니다. 지표 해석과 모든 판단은 이용자 본인의 몫입니다."
+  },
   "dashboard": {
     "title": "대시보드",
     "greeting": "워치리스트, 저장 콘텐츠, 알림을 한 곳에서 관리하세요.",
