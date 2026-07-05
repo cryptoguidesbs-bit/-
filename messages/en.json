@@ -192,6 +192,17 @@
       }
     }
   },
+  "entitlements": {
+    "lockedTitle": "Upgrade required",
+    "lockedDescription": "This feature is available from the {plan} plan.",
+    "currentPlanLabel": "Current plan:",
+    "viewPricing": "View pricing",
+    "signInTitle": "Sign in required",
+    "signInDescription": "Please sign in first to use this feature.",
+    "signIn": "Sign in",
+    "regionTitle": "Not available in your region",
+    "regionDescription": "For regulatory compliance, this feature is only offered in certain regions and is not available where you are connecting from."
+  },
   "billing": {
     "title": "Billing",
     "description": "Review and manage your plan and payment status.",

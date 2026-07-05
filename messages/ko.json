@@ -192,6 +192,17 @@
       }
     }
   },
+  "entitlements": {
+    "lockedTitle": "업그레이드가 필요합니다",
+    "lockedDescription": "{plan} 플랜부터 이용할 수 있는 기능입니다.",
+    "currentPlanLabel": "현재 플랜:",
+    "viewPricing": "요금제 보기",
+    "signInTitle": "로그인이 필요합니다",
+    "signInDescription": "이 기능을 이용하려면 먼저 로그인해 주세요.",
+    "signIn": "로그인",
+    "regionTitle": "지역 제한 안내",
+    "regionDescription": "규제 준수를 위해 이 기능은 일부 지역에서만 제공됩니다. 현재 접속 지역에서는 이용할 수 없습니다."
+  },
   "billing": {
     "title": "구독 관리",
     "description": "현재 플랜과 결제 상태를 확인하고 관리하세요.",
