@@ -19,6 +19,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.110.0",
     "@clerk/localizations": "^4.12.0",
     "@clerk/nextjs": "^6.39.5",
     "@clerk/themes": "^2.4.57",
@@ -38,7 +39,7 @@
     "server-only": "^0.0.1",
     "stripe": "^22.3.0",
     "tailwind-merge": "^2.6.0",
-    "zod": "^3.24.1"
+    "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",

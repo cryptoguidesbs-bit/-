@@ -57,6 +57,36 @@ enum ConsentType {
   INVESTMENT_DISCLAIMER
 }
 
+enum NewsRegion {
+  US
+  EUROPE
+  ASIA
+  GLOBAL
+}
+
+enum NewsCategory {
+  MARKET
+  REGULATION
+  TECHNOLOGY
+  DEFI
+  MACRO
+  GENERAL
+}
+
+// AI enrichment lifecycle: PENDING → PUBLISHED, or HELD when the output
+// fails sanity checks after retries.
+enum NewsAiStatus {
+  PENDING
+  PUBLISHED
+  HELD
+}
+
+enum NewsSentiment {
+  BULLISH
+  NEUTRAL
+  BEARISH
+}
+
 enum AuditAction {
   CREATE
   UPDATE
@@ -220,6 +250,38 @@ model Report {
 
   @@unique([slug, locale])
   @@index([status, publishedAt])
+}
+
+// ---------------------------------------------------------------------------
+// News system (stage 8) — ingested articles + AI enrichment
+// ---------------------------------------------------------------------------
+
+model NewsItem {
+  id          String       @id @default(cuid())
+  // Dedupe key: sha256 of the normalized article URL.
+  urlHash     String       @unique
+  title       String
+  url         String
+  source      String
+  region      NewsRegion
+  category    NewsCategory @default(GENERAL)
+  publishedAt DateTime
+  ingestedAt  DateTime     @default(now())
+
+  // AI enrichment (news-tone analysis, not investment advice)
+  aiStatus     NewsAiStatus   @default(PENDING)
+  summaryKo    String?
+  summaryEn    String?
+  sentiment    NewsSentiment?
+  confidence   Int?
+  aiModel      String?
+  aiAttempts   Int            @default(0)
+  aiHoldReason String?
+
+  @@index([publishedAt])
+  @@index([aiStatus, publishedAt])
+  @@index([category, publishedAt])
+  @@index([region, publishedAt])
 }
 
 // ---------------------------------------------------------------------------

@@ -14,10 +14,47 @@
   },
   "nav": {
     "home": "Home",
+    "news": "News",
     "insights": "Insights",
     "portfolio": "Portfolio",
     "reports": "Reports",
     "sidebar": "Sidebar navigation"
+  },
+  "news": {
+    "title": "News",
+    "subtitle": "Real-time crypto news balanced across US, European and Asian sources, with AI summaries.",
+    "searchPlaceholder": "Search news…",
+    "sentimentTitle": "Market sentiment (news tone)",
+    "sentimentMethod": "based on {count} articles from the last 24h",
+    "sentimentDisclaimer": "Derived from news-headline tone analysis — not an investment signal.",
+    "sentiment": {
+      "bullish": "Bullish",
+      "neutral": "Neutral",
+      "bearish": "Bearish"
+    },
+    "confidence": "Confidence",
+    "categoryAll": "All",
+    "category": {
+      "MARKET": "Market",
+      "REGULATION": "Regulation",
+      "TECHNOLOGY": "Technology",
+      "DEFI": "DeFi",
+      "MACRO": "Macro",
+      "GENERAL": "General"
+    },
+    "region": {
+      "ALL": "All regions",
+      "US": "US",
+      "EUROPE": "Europe",
+      "ASIA": "Asia",
+      "GLOBAL": "Global"
+    },
+    "aiLabel": "AI-generated summary",
+    "summaryPending": "AI summary in progress…",
+    "summaryHeld": "Summary held — did not pass quality checks",
+    "empty": "No news matches your filters.",
+    "loadMore": "Load more",
+    "loading": "Loading…"
   },
   "auth": {
     "signIn": "Sign in",
