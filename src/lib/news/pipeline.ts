@@ -5,6 +5,7 @@ import type { NewsCategory } from '@prisma/client'
 
 import { MAX_ITEMS_PER_SOURCE, newsSources } from '@/config/news-sources'
 import { getAiProvider, AiRateLimitError } from '@/lib/ai/provider'
+import { consumeAiBudget, AiBudgetExceededError } from '@/lib/ai/budget'
 import { sanityCheck } from '@/lib/ai/sanity'
 import { prisma } from '@/lib/prisma'
 import { fetchRss } from './rss'
@@ -155,6 +156,7 @@ export async function summarizePending(limit = 15): Promise<SummarizeReport> {
     while (attempts < MAX_AI_ATTEMPTS && !published && !deferred) {
       attempts += 1
       try {
+        await consumeAiBudget()
         const analysis = await provider.analyzeArticle({
           title: item.title,
           source: item.source,
@@ -186,8 +188,8 @@ export async function summarizePending(limit = 15): Promise<SummarizeReport> {
           lastReason = sanity.reason
         }
       } catch (error) {
-        if (error instanceof AiRateLimitError) {
-          // Back off: keep PENDING and let a later run retry.
+        if (error instanceof AiRateLimitError || error instanceof AiBudgetExceededError) {
+          // Back off (rate limit / daily cost cap): keep PENDING for a later run.
           await prisma.newsItem.update({
             where: { id: item.id },
             data: { aiAttempts: attempts },

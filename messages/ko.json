@@ -15,10 +15,28 @@
   "nav": {
     "home": "홈",
     "news": "뉴스",
+    "brief": "AI 브리핑",
     "insights": "인사이트",
     "portfolio": "포트폴리오",
     "reports": "리포트",
     "sidebar": "사이드 메뉴"
+  },
+  "brief": {
+    "title": "AI Market Brief",
+    "subtitle": "시장 데이터와 최신 뉴스를 바탕으로 매일 자동 생성되는 마켓 브리핑입니다.",
+    "disclaimer": "본 브리핑은 AI가 자동 생성한 정보 제공·교육 목적의 콘텐츠로, 투자 자문이나 매매 권유가 아닙니다. 모든 투자 판단과 그 결과에 대한 책임은 이용자 본인에게 있습니다.",
+    "nonPersonalized": "모든 구독자에게 동일하게 제공되는 비개인화 콘텐츠",
+    "aiLabel": "AI 생성 ({model})",
+    "tierStandard": "기본",
+    "tierDetailed": "상세",
+    "notPublished": "아직 발행된 브리핑이 없습니다. 잠시 후 다시 확인해 주세요.",
+    "sections": {
+      "btc": "BTC 분석",
+      "eth": "ETH 분석",
+      "altcoin": "알트코인 분석",
+      "macro": "매크로 요약",
+      "today": "오늘의 마켓 브리핑"
+    }
   },
   "news": {
     "title": "뉴스",

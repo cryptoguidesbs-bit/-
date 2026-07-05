@@ -99,6 +99,17 @@ enum AuditAction {
 enum ContentType {
   ARTICLE
   REPORT
+  BRIEF
+}
+
+enum BriefTier {
+  STANDARD
+  DETAILED
+}
+
+enum BriefStatus {
+  PUBLISHED
+  HELD
 }
 
 // ---------------------------------------------------------------------------
@@ -282,6 +293,41 @@ model NewsItem {
   @@index([aiStatus, publishedAt])
   @@index([category, publishedAt])
   @@index([region, publishedAt])
+}
+
+// ---------------------------------------------------------------------------
+// AI Market Brief (stage 9) — non-personalized, tiered daily briefings
+// ---------------------------------------------------------------------------
+
+model MarketBrief {
+  id String @id @default(cuid())
+  // UTC date of the brief, YYYY-MM-DD.
+  briefDate String
+  tier      BriefTier
+  status    BriefStatus
+  // { btc, eth, altcoin, macro, today } — each { ko, en }.
+  sections Json
+  // Market data + headlines the generation was grounded in (traceability).
+  inputsSnapshot Json?
+  aiModel        String
+  attempts       Int     @default(0)
+  holdReason     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([briefDate, tier])
+  @@index([status, briefDate])
+}
+
+// Daily LLM usage counter — cost / rate-limit management.
+model AiUsage {
+  id           String   @id @default(cuid())
+  // UTC day, YYYY-MM-DD.
+  day          String   @unique
+  calls        Int      @default(0)
+  inputTokens  Int      @default(0)
+  outputTokens Int      @default(0)
+  updatedAt    DateTime @updatedAt
 }
 
 // ---------------------------------------------------------------------------

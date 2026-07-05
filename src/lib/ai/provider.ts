@@ -26,10 +26,35 @@ export type AnalyzeInput = {
   category: string
 }
 
+// --- Market brief generation (stage 9) -------------------------------------
+
+const localizedText = z.object({ ko: z.string(), en: z.string() })
+
+export const briefSectionsSchema = z.object({
+  btc: localizedText,
+  eth: localizedText,
+  altcoin: localizedText,
+  macro: localizedText,
+  today: localizedText,
+})
+
+export type BriefSectionsOutput = z.infer<typeof briefSectionsSchema>
+
+export type BriefGenInput = {
+  tier: 'standard' | 'detailed'
+  date: string
+  market: { id: string; name: string; price: number; changePct: number }[]
+  fearGreed: { value: number; classification: string } | null
+  headlines: { title: string; category: string; sentiment: string | null }[]
+  /** Non-production test hook for the mock provider. */
+  mockScenario?: string
+}
+
 export interface AiProvider {
   /** Model label persisted with each result (AI-generated content label). */
   readonly model: string
   analyzeArticle(input: AnalyzeInput): Promise<ArticleAnalysis>
+  generateBrief(input: BriefGenInput): Promise<BriefSectionsOutput>
 }
 
 export class AiRateLimitError extends Error {}
@@ -82,7 +107,72 @@ class AnthropicProvider implements AiProvider {
       throw error
     }
   }
+
+  async generateBrief(input: BriefGenInput): Promise<BriefSectionsOutput> {
+    const lengthGuide =
+      input.tier === 'detailed'
+        ? 'Each section: 4-7 sentences with deeper context (drivers, on-chain/derivatives angles where relevant, what to watch).'
+        : 'Each section: 2-3 concise sentences.'
+
+    const marketLines = input.market
+      .map((m) => `${m.id} (${m.name}): $${m.price} (${m.changePct.toFixed(2)}% 24h)`)
+      .join('\n')
+    const headlineLines = input.headlines
+      .map((h) => `- [${h.category}${h.sentiment ? `/${h.sentiment}` : ''}] ${h.title}`)
+      .join('\n')
+
+    try {
+      const response = await this.client.messages.parse({
+        model: this.model,
+        max_tokens: input.tier === 'detailed' ? 4000 : 2000,
+        system: BRIEF_SYSTEM_PROMPT,
+        messages: [
+          {
+            role: 'user',
+            content: `Date: ${input.date} (UTC)
+Tier: ${input.tier}. ${lengthGuide}
+
+Market data:
+${marketLines || '(unavailable — say so where relevant)'}
+
+Fear & Greed index: ${input.fearGreed ? `${input.fearGreed.value} (${input.fearGreed.classification})` : 'unavailable'}
+
+Recent headlines (last 24h):
+${headlineLines || '(none)'}
+
+Write the five sections (btc, eth, altcoin, macro, today) in BOTH Korean (ko) and English (en).`,
+          },
+        ],
+        output_config: { format: zodOutputFormat(briefSectionsSchema) },
+      })
+      if (!response.parsed_output) {
+        throw new Error('model returned unparseable output')
+      }
+      return response.parsed_output
+    } catch (error) {
+      if (error instanceof Anthropic.RateLimitError) {
+        throw new AiRateLimitError('anthropic rate limited')
+      }
+      throw error
+    }
+  }
 }
+
+const BRIEF_SYSTEM_PROMPT = `You write a daily crypto market brief for an informational platform (not an advisory service). It is published identically to all subscribers — never personalized.
+
+Hard rules:
+- Ground every statement in the provided market data and headlines only. No invented facts, numbers, or events.
+- NO definitive predictions. Never state that a price WILL rise/fall/reach a level. Use probabilistic, hedged language in every section (Korean: "~할 가능성", "~수 있습니다", "~로 보입니다", "전망입니다"; English: "may", "could", "appears", "suggests", "likely").
+- NO action directives. Never tell readers to buy, sell, enter, exit, or recommend any position.
+- NO profit guarantees or risk-free claims.
+- Neutral, analytical, factual tone. Information and education purpose only.
+
+Sections:
+- btc: Bitcoin price action and context
+- eth: Ethereum price action and ecosystem context
+- altcoin: notable altcoin/market-breadth observations (SOL and others from the data)
+- macro: traditional markets / macro backdrop (indices, dollar, commodities)
+- today: "Today's Market Brief" — a synthesis of the above with what to watch (events, levels framed as observations, not targets)`
 
 // ---------------------------------------------------------------------------
 // Mock provider — deterministic, key-free. Supports test markers:
@@ -133,6 +223,65 @@ class MockProvider implements AiProvider {
       sentiment,
       confidence,
     }
+  }
+
+  async generateBrief(input: BriefGenInput): Promise<BriefSectionsOutput> {
+    if (input.mockScenario === 'violation') {
+      // Deliberately breaks every guideline — must be caught and HELD.
+      const bad = {
+        ko: '비트코인은 반드시 급등할 것입니다. 지금 바로 매수하세요. 수익이 보장됩니다.',
+        en: 'Bitcoin will surge tomorrow. Buy now — guaranteed profit with zero risk.',
+      }
+      return { btc: bad, eth: bad, altcoin: bad, macro: bad, today: bad }
+    }
+    if (input.mockScenario === 'malformed') {
+      const bad = { ko: '짧음', en: 'short' }
+      return { btc: bad, eth: bad, altcoin: bad, macro: bad, today: bad }
+    }
+
+    const find = (id: string) => input.market.find((m) => m.id === id)
+    const btc = find('BTC')
+    const eth = find('ETH')
+    const sol = find('SOL')
+    const fng = input.fearGreed
+    const dir = (pct?: number) =>
+      pct === undefined ? '보합' : pct >= 0.5 ? '상승' : pct <= -0.5 ? '하락' : '보합'
+    const dirEn = (pct?: number) =>
+      pct === undefined ? 'flat' : pct >= 0.5 ? 'higher' : pct <= -0.5 ? 'lower' : 'flat'
+    const price = (m?: { price: number }) => (m ? `$${Math.round(m.price).toLocaleString('en-US')}` : 'N/A')
+    const pct = (m?: { changePct: number }) => (m ? `${m.changePct.toFixed(2)}%` : 'N/A')
+    const detailed = input.tier === 'detailed'
+
+    const extraKo = detailed
+      ? ' 파생상품 포지션과 온체인 흐름을 함께 살펴보면, 단기 변동성 확대 가능성에 유의할 필요가 있어 보입니다. 주요 지지·저항 구간에서의 거래량 변화가 관전 포인트로 관측됩니다.'
+      : ''
+    const extraEn = detailed
+      ? ' Derivatives positioning and on-chain flows suggest that short-term volatility could stay elevated, and volume behavior around key levels appears worth watching.'
+      : ''
+
+    const sections: BriefSectionsOutput = {
+      btc: {
+        ko: `비트코인은 ${price(btc)} 부근에서 24시간 기준 ${pct(btc)}의 ${dir(btc?.changePct)} 흐름을 보이고 있습니다. 현재 구간에서는 방향성 탐색이 이어질 가능성이 있어 보입니다.${extraKo}`,
+        en: `Bitcoin is trading near ${price(btc)}, ${dirEn(btc?.changePct)} by ${pct(btc)} over 24h. Price action suggests the market may continue searching for direction around this range.${extraEn}`,
+      },
+      eth: {
+        ko: `이더리움은 ${price(eth)} 수준에서 ${pct(eth)}의 변동을 기록 중입니다. 생태계 활동 지표와 함께 보면 수요 흐름이 유지될 가능성이 관측됩니다.${extraKo}`,
+        en: `Ethereum stands near ${price(eth)} with a ${pct(eth)} 24h move. Ecosystem activity indicates demand could remain steady, though follow-through remains to be seen.${extraEn}`,
+      },
+      altcoin: {
+        ko: `솔라나(${price(sol)}, ${pct(sol)})를 비롯한 주요 알트코인은 비트코인 흐름에 연동된 모습입니다. 시장 폭 지표를 감안하면 종목별 차별화가 이어질 수 있습니다.${extraKo}`,
+        en: `Solana (${price(sol)}, ${pct(sol)}) and other major altcoins appear to track bitcoin's lead. Breadth suggests dispersion across names may persist.${extraEn}`,
+      },
+      macro: {
+        ko: `전통 시장에서는 지수와 달러, 원자재 흐름이 위험자산 선호도에 영향을 줄 수 있는 상황입니다. 공포·탐욕 지수는 ${fng ? `${fng.value}(${fng.classification})` : '집계 불가'} 수준으로, 심리 지표상 신중한 접근이 시사됩니다.${extraKo}`,
+        en: `In traditional markets, index, dollar and commodity moves could influence risk appetite. The Fear & Greed index reads ${fng ? `${fng.value} (${fng.classification})` : 'unavailable'}, suggesting sentiment remains a factor to watch.${extraEn}`,
+      },
+      today: {
+        ko: `오늘의 마켓 브리핑: 주요 자산은 ${dir(btc?.changePct)} 흐름 속에 방향성을 모색하는 모습입니다. 최근 헤드라인(${input.headlines.length}건)을 감안하면 규제·매크로 이슈가 변동성 요인이 될 가능성이 있습니다. 데이터 기준으로는 주요 가격대 부근의 움직임을 지켜볼 필요가 있어 보입니다.${extraKo}`,
+        en: `Today's market brief: major assets appear to be seeking direction amid ${dirEn(btc?.changePct)} tape. Given recent headlines (${input.headlines.length}), regulatory and macro developments could act as volatility catalysts. Watching behavior around key price areas seems warranted.${extraEn}`,
+      },
+    }
+    return sections
   }
 }
 

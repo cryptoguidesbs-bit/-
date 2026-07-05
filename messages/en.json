@@ -15,10 +15,28 @@
   "nav": {
     "home": "Home",
     "news": "News",
+    "brief": "AI Brief",
     "insights": "Insights",
     "portfolio": "Portfolio",
     "reports": "Reports",
     "sidebar": "Sidebar navigation"
+  },
+  "brief": {
+    "title": "AI Market Brief",
+    "subtitle": "A daily market briefing generated automatically from market data and the latest news.",
+    "disclaimer": "This briefing is AI-generated content for informational and educational purposes only. It is not investment advice or a solicitation to trade. You are solely responsible for your own investment decisions and their outcomes.",
+    "nonPersonalized": "Non-personalized — identical for every subscriber",
+    "aiLabel": "AI-generated ({model})",
+    "tierStandard": "Standard",
+    "tierDetailed": "Detailed",
+    "notPublished": "No briefing has been published yet. Please check back soon.",
+    "sections": {
+      "btc": "BTC Analysis",
+      "eth": "ETH Analysis",
+      "altcoin": "Altcoin Analysis",
+      "macro": "Macro Summary",
+      "today": "Today's Market Brief"
+    }
   },
   "news": {
     "title": "News",
