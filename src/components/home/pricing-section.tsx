@@ -1,10 +1,14 @@
 'use client'
 
+import { useState } from 'react'
 import { Check } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { useTranslations } from 'next-intl'
+import { useAuth } from '@clerk/nextjs'
+import { useLocale, useTranslations } from 'next-intl'
 
-import { pricingTiers } from '@/config/pricing'
+import { pricingTiers, tierAmount, type PricingTierKey } from '@/config/pricing'
+import type { BillingInterval } from '@/lib/payments/plans'
+import { useRouter } from '@/i18n/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -19,9 +23,73 @@ const usd = new Intl.NumberFormat('en-US', {
 
 export function PricingSection() {
   const t = useTranslations('home.pricing')
+  const locale = useLocale()
+  const router = useRouter()
+  const { isSignedIn } = useAuth()
+  const [interval, setInterval] = useState<BillingInterval>('monthly')
+  const [loadingTier, setLoadingTier] = useState<PricingTierKey | null>(null)
+  const [checkoutError, setCheckoutError] = useState(false)
+
+  const startCheckout = async (tier: PricingTierKey) => {
+    setCheckoutError(false)
+
+    if (tier === 'free' || !isSignedIn) {
+      router.push('/sign-up')
+      return
+    }
+
+    setLoadingTier(tier)
+    try {
+      const res = await fetch('/api/billing/checkout', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ plan: tier, interval, locale }),
+      })
+      if (res.status === 401) {
+        router.push('/sign-in')
+        return
+      }
+      if (res.status === 409) {
+        // Already subscribed — manage it instead.
+        router.push('/billing')
+        return
+      }
+      if (!res.ok) throw new Error('checkout failed')
+      const { url } = (await res.json()) as { url: string }
+      window.location.href = url
+    } catch {
+      setCheckoutError(true)
+      setLoadingTier(null)
+    }
+  }
 
   return (
     <Section id="pricing" title={t('title')} subtitle={t('subtitle')}>
+      {/* Billing interval toggle */}
+      <div className="mb-8 flex items-center justify-center gap-1 rounded-lg border bg-card p-1 md:w-fit">
+        {(['monthly', 'yearly'] as const).map((i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => setInterval(i)}
+            aria-pressed={interval === i}
+            className={cn(
+              'flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors',
+              interval === i
+                ? 'bg-secondary text-foreground'
+                : 'text-muted-foreground hover:text-foreground',
+            )}
+          >
+            {t(i === 'monthly' ? 'intervalMonthly' : 'intervalYearly')}
+            {i === 'yearly' && (
+              <Badge variant="outline" className="text-emerald-500">
+                {t('yearlySave')}
+              </Badge>
+            )}
+          </button>
+        ))}
+      </div>
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {pricingTiers.map((tier, index) => (
           <motion.div
@@ -46,9 +114,11 @@ export function PricingSection() {
                 <p className="font-semibold">{t(`tiers.${tier.key}.name`)}</p>
                 <div className="flex items-baseline gap-1">
                   <span className="text-3xl font-bold tabular-nums">
-                    {usd.format(tier.priceMonthly)}
+                    {usd.format(tierAmount(tier.key, interval))}
                   </span>
-                  <span className="text-sm text-muted-foreground">{t('perMonth')}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {t(interval === 'monthly' ? 'perMonth' : 'perYear')}
+                  </span>
                 </div>
                 <p className="text-xs text-muted-foreground">{t(`tiers.${tier.key}.tagline`)}</p>
               </CardHeader>
@@ -63,8 +133,18 @@ export function PricingSection() {
                     </li>
                   ))}
                 </ul>
-                <Button variant={tier.popular ? 'default' : 'outline'} className="w-full">
-                  {tier.priceMonthly === 0 ? t('ctaFree') : t('ctaPaid')}
+                <Button
+                  variant={tier.popular ? 'default' : 'outline'}
+                  className="w-full"
+                  disabled={loadingTier !== null}
+                  onClick={() => void startCheckout(tier.key)}
+                  data-testid={`checkout-${tier.key}`}
+                >
+                  {loadingTier === tier.key
+                    ? t('processing')
+                    : tier.key === 'free'
+                      ? t('ctaFree')
+                      : t('ctaPaid')}
                 </Button>
               </CardContent>
             </Card>
@@ -72,6 +152,7 @@ export function PricingSection() {
         ))}
       </div>
       <div className="mt-6 space-y-1 text-center">
+        {checkoutError && <p className="text-sm text-red-500">{t('checkoutError')}</p>}
         <p className="text-xs text-muted-foreground">{t('currencyNote')}</p>
         <p className="text-xs text-muted-foreground">{t('disclaimer')}</p>
       </div>

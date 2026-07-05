@@ -66,4 +66,12 @@ export interface PaymentProvider {
   cancelSubscription(subscriptionId: string, opts?: CancelOptions): Promise<SubscriptionData>
   /** Verify a webhook signature and normalize the event. */
   parseWebhook(rawBody: string, signature: string): Promise<WebhookEvent>
+  /**
+   * Optional: resolve a completed checkout back to its user + subscription.
+   * Used to reconcile right after the success redirect, without waiting for
+   * the webhook.
+   */
+  getCheckoutSession?(
+    sessionId: string,
+  ): Promise<{ userId: string | null; subscription: SubscriptionData | null }>
 }

@@ -7,7 +7,12 @@ import { routing, type Locale } from './i18n/routing'
 const intlMiddleware = createIntlMiddleware(routing)
 
 // Routes that require a signed-in user.
-const isProtectedRoute = createRouteMatcher(['/:locale/profile(.*)', '/profile(.*)'])
+const isProtectedRoute = createRouteMatcher([
+  '/:locale/profile(.*)',
+  '/profile(.*)',
+  '/:locale/billing(.*)',
+  '/billing(.*)',
+])
 
 // Region-based locale mapping: visitors from these countries default to
 // Korean; everyone else defaults to English. The country comes from the

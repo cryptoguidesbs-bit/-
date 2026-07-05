@@ -23,8 +23,10 @@ enum UserRole {
 
 enum SubscriptionPlan {
   FREE
-  BASIC
-  PRO
+  STANDARD
+  PROFESSIONAL
+  INSTITUTIONAL
+  LEGENDARY
 }
 
 enum SubscriptionStatus {
@@ -33,6 +35,12 @@ enum SubscriptionStatus {
   PAST_DUE
   CANCELED
   EXPIRED
+  INCOMPLETE
+}
+
+enum SubscriptionInterval {
+  MONTHLY
+  YEARLY
 }
 
 enum ContentStatus {
@@ -90,17 +98,19 @@ model User {
 }
 
 model Subscription {
-  id                 String             @id @default(cuid())
-  userId             String             @unique
-  plan               SubscriptionPlan   @default(FREE)
-  status             SubscriptionStatus @default(ACTIVE)
+  id                 String                @id @default(cuid())
+  userId             String                @unique
+  plan               SubscriptionPlan      @default(FREE)
+  status             SubscriptionStatus    @default(ACTIVE)
+  interval           SubscriptionInterval?
   currentPeriodStart DateTime?
   currentPeriodEnd   DateTime?
-  cancelAtPeriodEnd  Boolean            @default(false)
-  // ID from the external payment provider (e.g. Stripe, Toss Payments).
-  externalId         String?            @unique
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
+  cancelAtPeriodEnd  Boolean               @default(false)
+  // IDs from the external payment provider (e.g. Stripe).
+  externalId         String?               @unique
+  externalCustomerId String?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

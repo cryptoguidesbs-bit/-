@@ -23,6 +23,9 @@ export function AuthButtons() {
         </Button>
       </SignedOut>
       <SignedIn>
+        <Button variant="ghost" size="sm" asChild className="hidden md:inline-flex">
+          <Link href="/billing">{t('billing')}</Link>
+        </Button>
         <UserButton userProfileMode="navigation" userProfileUrl={`/${locale}/profile`} />
       </SignedIn>
     </div>

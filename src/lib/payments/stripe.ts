@@ -106,6 +106,18 @@ export class StripePaymentProvider implements PaymentProvider {
     return this.toSubscriptionData(sub)
   }
 
+  async getCheckoutSession(
+    sessionId: string,
+  ): Promise<{ userId: string | null; subscription: SubscriptionData | null }> {
+    const session = await this.stripe.checkout.sessions.retrieve(sessionId)
+    const userId = session.client_reference_id ?? session.metadata?.userId ?? null
+    const subscription =
+      typeof session.subscription === 'string'
+        ? await this.getSubscription(session.subscription)
+        : null
+    return { userId, subscription }
+  }
+
   async parseWebhook(rawBody: string, signature: string): Promise<WebhookEvent> {
     if (!this.webhookSecret) throw new Error('STRIPE_WEBHOOK_SECRET is not set')
     const event = this.stripe.webhooks.constructEvent(rawBody, signature, this.webhookSecret)

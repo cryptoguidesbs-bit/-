@@ -23,6 +23,7 @@
     "signIn": "로그인",
     "signUp": "회원가입",
     "profile": "프로필",
+    "billing": "구독",
     "consent": {
       "title": "서비스 이용 동의",
       "checkboxLabel": "본인은 CryptoGuide의 모든 콘텐츠가 투자자문이 아닌 정보 제공·교육 목적임을 이해하고 이에 동의합니다.",
@@ -111,6 +112,12 @@
       "title": "요금제",
       "subtitle": "필요한 만큼만. 모든 플랜은 언제든 변경할 수 있습니다.",
       "perMonth": "/월",
+      "perYear": "/년",
+      "intervalMonthly": "월간",
+      "intervalYearly": "연간",
+      "yearlySave": "2개월 무료",
+      "processing": "이동 중…",
+      "checkoutError": "결제 페이지로 이동하지 못했습니다. 잠시 후 다시 시도해 주세요.",
       "popular": "인기",
       "ctaFree": "무료로 시작",
       "ctaPaid": "시작하기",
@@ -184,6 +191,35 @@
         "answer": "API Center는 Legendary 플랜에서 제공됩니다. 데이터 내보내기 기능도 함께 이용할 수 있습니다."
       }
     }
+  },
+  "billing": {
+    "title": "구독 관리",
+    "description": "현재 플랜과 결제 상태를 확인하고 관리하세요.",
+    "currentPlan": "현재 플랜",
+    "status": {
+      "TRIALING": "체험 중",
+      "ACTIVE": "이용 중",
+      "PAST_DUE": "결제 지연",
+      "CANCELED": "해지됨",
+      "EXPIRED": "만료됨",
+      "INCOMPLETE": "결제 미완료"
+    },
+    "interval": {
+      "MONTHLY": "월간 결제",
+      "YEARLY": "연간 결제"
+    },
+    "renewsOn": "다음 결제일:",
+    "endsOn": "이용 종료일:",
+    "cancel": "구독 해지",
+    "cancelConfirm": "구독을 해지하시겠어요? 현재 결제 기간이 끝날 때까지는 계속 이용할 수 있습니다.",
+    "cancelYes": "해지하기",
+    "cancelNo": "돌아가기",
+    "cancelError": "해지 처리에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+    "cancelScheduled": "현재 결제 기간 종료 시 해지되도록 예약되어 있습니다.",
+    "checkoutSuccess": "결제가 완료되었습니다. 구독이 활성화되었어요!",
+    "noSubscription": "활성 구독이 없습니다. 요금제에서 플랜을 선택해 보세요.",
+    "viewPricing": "요금제 보기",
+    "billingNote": "영수증과 결제 내역은 결제 시 입력한 이메일로 발송됩니다. 카드 변경 등 자세한 문의는 지원 채널을 이용해 주세요."
   },
   "pages": {
     "insights": {

@@ -23,6 +23,7 @@
     "signIn": "Sign in",
     "signUp": "Sign up",
     "profile": "Profile",
+    "billing": "Billing",
     "consent": {
       "title": "Service consent",
       "checkboxLabel": "I understand and agree that all CryptoGuide content is for informational and educational purposes only and is not investment advice.",
@@ -111,6 +112,12 @@
       "title": "Pricing",
       "subtitle": "Pay for what you need. Change plans anytime.",
       "perMonth": "/mo",
+      "perYear": "/yr",
+      "intervalMonthly": "Monthly",
+      "intervalYearly": "Yearly",
+      "yearlySave": "2 months free",
+      "processing": "Redirecting…",
+      "checkoutError": "Could not open the checkout page. Please try again shortly.",
       "popular": "Popular",
       "ctaFree": "Start for free",
       "ctaPaid": "Get started",
@@ -184,6 +191,35 @@
         "answer": "The API Center is available on the Legendary plan, together with data export."
       }
     }
+  },
+  "billing": {
+    "title": "Billing",
+    "description": "Review and manage your plan and payment status.",
+    "currentPlan": "Current plan",
+    "status": {
+      "TRIALING": "Trialing",
+      "ACTIVE": "Active",
+      "PAST_DUE": "Past due",
+      "CANCELED": "Canceled",
+      "EXPIRED": "Expired",
+      "INCOMPLETE": "Incomplete"
+    },
+    "interval": {
+      "MONTHLY": "Billed monthly",
+      "YEARLY": "Billed yearly"
+    },
+    "renewsOn": "Next billing date:",
+    "endsOn": "Access ends on:",
+    "cancel": "Cancel subscription",
+    "cancelConfirm": "Cancel your subscription? You keep access until the end of the current billing period.",
+    "cancelYes": "Cancel it",
+    "cancelNo": "Keep it",
+    "cancelError": "Cancellation failed. Please try again shortly.",
+    "cancelScheduled": "Your subscription is scheduled to end at the close of the current billing period.",
+    "checkoutSuccess": "Payment complete — your subscription is active!",
+    "noSubscription": "No active subscription. Pick a plan from the pricing section.",
+    "viewPricing": "View pricing",
+    "billingNote": "Receipts and payment history are sent to the email used at checkout. For card changes and other requests, contact support."
   },
   "pages": {
     "insights": {
