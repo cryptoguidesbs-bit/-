@@ -18,8 +18,28 @@
     "brief": "AI 브리핑",
     "insights": "인사이트",
     "portfolio": "포트폴리오",
+    "onchain": "온체인",
     "reports": "리포트",
     "sidebar": "사이드 메뉴"
+  },
+  "onchain": {
+    "title": "Whale & On-chain",
+    "subtitle": "대형 트랜잭션, 거래소 자금 흐름, 네트워크 활동 지표를 한눈에.",
+    "whaleTitle": "Whale Tracker",
+    "whaleSubtitle": "최근 대형 비트코인 트랜잭션 (Blockchair $5M+ 기준, 장애 시 멤풀 대형 거래로 대체)",
+    "whaleEmpty": "최근 대형 트랜잭션이 없습니다.",
+    "flowTitle": "Exchange Flow",
+    "inflow": "거래소 유입",
+    "outflow": "거래소 유출",
+    "netflow": "순유입",
+    "flowMethod": "메모리풀 대형 거래 표본({sample}건 중 {matched}건 매칭) × 공개 거래소 지갑 목록 기반 추정치입니다. 실제 전체 흐름과 다를 수 있습니다.",
+    "networkTitle": "Network Activity (BTC, 30일)",
+    "activeAddresses": "활성 주소",
+    "transactions": "일일 트랜잭션",
+    "hashRate": "해시레이트",
+    "minerRevenue": "채굴 수입 (Miner Flow)",
+    "stablecoinTitle": "Stablecoin Supply (시가총액)",
+    "sources": "데이터: Blockchair · blockchain.info · CoinGecko. 정보 제공 목적으로만 제공되며 지연·오차가 있을 수 있습니다."
   },
   "brief": {
     "title": "AI Market Brief",

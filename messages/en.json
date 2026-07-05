@@ -18,8 +18,28 @@
     "brief": "AI Brief",
     "insights": "Insights",
     "portfolio": "Portfolio",
+    "onchain": "On-chain",
     "reports": "Reports",
     "sidebar": "Sidebar navigation"
+  },
+  "onchain": {
+    "title": "Whale & On-chain",
+    "subtitle": "Large transactions, exchange flows and network activity at a glance.",
+    "whaleTitle": "Whale Tracker",
+    "whaleSubtitle": "Recent large Bitcoin transactions (Blockchair $5M+; falls back to largest mempool txs)",
+    "whaleEmpty": "No recent large transactions.",
+    "flowTitle": "Exchange Flow",
+    "inflow": "Exchange inflow",
+    "outflow": "Exchange outflow",
+    "netflow": "Net flow",
+    "flowMethod": "Estimate based on a mempool sample of large transactions ({matched} of {sample} matched) against a public exchange-wallet list. Actual total flows may differ.",
+    "networkTitle": "Network Activity (BTC, 30d)",
+    "activeAddresses": "Active addresses",
+    "transactions": "Daily transactions",
+    "hashRate": "Hash rate",
+    "minerRevenue": "Miner revenue (Miner Flow)",
+    "stablecoinTitle": "Stablecoin Supply (market cap)",
+    "sources": "Data: Blockchair · blockchain.info · CoinGecko. Informational purposes only; delays and inaccuracies possible."
   },
   "brief": {
     "title": "AI Market Brief",
