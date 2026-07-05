@@ -66,9 +66,22 @@
     },
     "dashboard": {
       "title": "Market Dashboard",
-      "subtitle": "Real-time prices and 24h volume for major assets at a glance.",
-      "volume24h": "24h volume",
-      "source": "Data: Binance real-time prices (USDT markets). Provided for informational purposes only."
+      "subtitle": "Crypto and global assets at a glance — last values are kept even during outages.",
+      "crypto": "Crypto",
+      "traditional": "Global markets",
+      "live": "LIVE",
+      "fngTitle": "Fear & Greed Index",
+      "classification": {
+        "extremeFear": "Extreme fear",
+        "fear": "Fear",
+        "neutral": "Neutral",
+        "greed": "Greed",
+        "extremeGreed": "Extreme greed"
+      },
+      "staleNotice": "Delayed — last value as of {time}",
+      "unavailable": "Data is temporarily unavailable. We will retry automatically.",
+      "retry": "Retry",
+      "source": "Data: Binance · CryptoCompare · Yahoo Finance · Alternative.me. Provided for informational purposes only."
     },
     "why": {
       "title": "Why CryptoGuide",
