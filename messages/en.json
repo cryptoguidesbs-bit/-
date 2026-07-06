@@ -22,7 +22,60 @@
     "onchain": "On-chain",
     "reports": "Reports",
     "education": "Education",
+    "alerts": "Alerts",
     "sidebar": "Sidebar navigation"
+  },
+  "alerts": {
+    "title": "Realtime Alerts",
+    "subtitle": "Set price, whale, pattern, and macro conditions — we notify you when the event occurs.",
+    "disclaimer": "Alerts are informational notices that a condition you configured has occurred. They do not instruct any trading action and do not guarantee investment outcomes; all investment decisions and responsibility remain yours.",
+    "newRule": "New alert rule",
+    "typeLabel": "Alert type",
+    "channelLabel": "Delivery channel",
+    "types": {
+      "PRICE": "Price",
+      "WHALE": "Whale movement",
+      "PATTERN": "Pattern detected",
+      "MACRO": "Fear & Greed"
+    },
+    "channels": {
+      "INAPP": "In-app",
+      "TELEGRAM": "Telegram",
+      "EMAIL": "Email",
+      "PUSH": "Browser push"
+    },
+    "fields": {
+      "symbol": "Symbol",
+      "direction": "Condition",
+      "above": "Reaches above",
+      "below": "Reaches below",
+      "threshold": "Threshold (USD)",
+      "minUsd": "Minimum size (USD)",
+      "interval": "Interval",
+      "minConfidence": "Min confidence (%)",
+      "low": "Lower bound (≤)",
+      "high": "Upper bound (≥)",
+      "telegramChatId": "Telegram chat ID",
+      "emailAddress": "Recipient email"
+    },
+    "create": "Add rule",
+    "myRules": "My alert rules",
+    "noRules": "No rules yet — create your first one on the left.",
+    "active": "Active",
+    "paused": "Paused",
+    "delete": "Delete",
+    "channelSettings": "Channel settings",
+    "configured": "Configured",
+    "save": "Save",
+    "pushHint": "Browser push activates in the deployed environment. In-app alerts work immediately with no setup.",
+    "history": "Delivery history",
+    "noHistory": "No alerts delivered yet.",
+    "status": {
+      "SENT": "Sent",
+      "FAILED": "Failed",
+      "SKIPPED": "Skipped"
+    },
+    "devTransport": "Dev-mode log"
   },
   "education": {
     "title": "Education",

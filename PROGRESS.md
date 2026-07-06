@@ -1,8 +1,8 @@
 # CryptoGuide 빌드 진행 상황
 
-> 최종 업데이트: 2026-07-06
+> 최종 업데이트: 2026-07-07
 
-## 완료된 단계 (1~15)
+## 완료된 단계 (1~16)
 
 | 단계 | 내용 | 자동 테스트 | 핵심 구현 |
 |---|---|---|---|
@@ -21,27 +21,22 @@
 | 13 | AI Pattern | 19/19 | 피벗 기반 7종 패턴 감지(삼각형/깃발/컵/이중천장·바닥/H&S/지지저항), Confidence=형태 일치 명시, 매매 지시(진입·목표·손절가) 금지 자동 검사, Professional 게이트 |
 | 14 | Premium Research | 23/23 | 주간/월간/분기 × ETF/매크로/온체인 리포트, 생성→자동 검수→발행 파이프라인(위반 시 IN_REVIEW 보류), REVIEW+PUBLISH 감사 로그, Institutional 게이트 |
 | 15 | Education | 21/21 | 4트랙(Trading/TA/Risk/Psychology) × 3레벨 = 12레슨(한/영 실콘텐츠), 전환 퍼널(입문 무료→중급 회원→고급 Standard+), 전 플랜 커리큘럼 노출 |
+| 16 | 알림 시스템 | 34/34 | Price/Whale/Pattern/Macro 규칙 × INAPP/Telegram/Email/Push 채널, 규칙·채널 CRUD API, 알림 엔진(규칙당 시간당 1회 쿨다운, 발송 시점 플랜 재확인), "이벤트 발생 통지" 전용 — 지시형 문구 필터가 발송 전 차단(위반 시 SKIPPED 기록), 자격증명 없는 채널은 dev transport로 기록만, /alerts 알림 센터(Professional+ 게이트), 발송 이력 로그 |
 
-**누적 자동 테스트: 283건 전부 통과** (각 `scripts/test-*.mjs`로 재실행 가능)
-
-## 진행 중
-
-| 단계 | 내용 | 상태 |
-|---|---|---|
-| 16 | 알림 시스템 (Telegram/Email/Browser Push, Price/Whale/Pattern/Macro Alert) | **스키마만 작성됨** — AlertRule/AlertChannelConfig/AlertDelivery 모델 추가(마이그레이션 미적용). 채널 어댑터·엔진·API·UI·테스트 미착수 |
+**누적 자동 테스트: 317건 전부 통과** (각 `scripts/test-*.mjs`로 재실행 가능)
 
 ## 남은 단계
 
 | 단계 | 내용 | 비고 |
 |---|---|---|
-| 16 | 알림 시스템 마무리 | 위 참조 |
 | 17~21 | (사용자 플랜 문서 참조) | 단계 정의가 대화로 전달되는 방식이라 미확정 |
 | 22 | 법적 문서 | 이용약관/개인정보처리방침/면책조항 정식 작성 — `/legal/*` 자리 페이지 교체, docs/legal-review.md 체크리스트 반영, 지역 제한 국가 목록 확정 |
 
 ## 배포 전 처리 목록 (단계 외 누적 과제)
 
 - [ ] ANTHROPIC_API_KEY 발급 → AI 기능(뉴스 요약·브리핑·리포트·포트폴리오 해설)을 mock에서 실제 Claude로 전환 (`.env.local`에 키만 입력하면 자동 전환)
-- [ ] 파이프라인 자동 실행 cron 연결 (뉴스 수집/요약, 브리핑 일간, 리포트 주간·월간·분기 — 현재 `x-cron-secret` 헤더로 수동 트리거)
+- [ ] 파이프라인 자동 실행 cron 연결 (뉴스 수집/요약, 브리핑 일간, 리포트 주간·월간·분기, 알림 엔진 `/api/alerts/run` 주기 실행 — 현재 `x-cron-secret` 헤더로 수동 트리거)
+- [ ] 알림 라이브 채널 자격증명: `TELEGRAM_BOT_TOKEN`(봇 생성), `RESEND_API_KEY`+`ALERT_EMAIL_FROM`(이메일), `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY`(브라우저 푸시, `npx web-push generate-vapid-keys`) — 미설정 시 dev transport로 기록만 됨
 - [ ] Stripe 라이브 전환: 계정 활성화, 라이브 키 교체, 실제 웹훅 엔드포인트 등록
 - [ ] Clerk 프로덕션 인스턴스 전환 + X(Twitter) 소셜 로그인 활성화(개발자 앱 자격증명 필요)
 - [ ] Next 14 dev의 중첩 notFound() 200 이슈 — 프로덕션 빌드에서 404 상태 재확인

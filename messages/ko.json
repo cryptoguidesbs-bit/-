@@ -22,7 +22,60 @@
     "onchain": "온체인",
     "reports": "리포트",
     "education": "교육",
+    "alerts": "알림",
     "sidebar": "사이드 메뉴"
+  },
+  "alerts": {
+    "title": "실시간 알림",
+    "subtitle": "가격·웨일·패턴·매크로 조건을 설정하면 이벤트 발생 시 알려드립니다.",
+    "disclaimer": "알림은 설정하신 조건이 발생했다는 사실만 통지하는 정보 제공 서비스입니다. 매매 행동을 지시하거나 투자 성과를 보장하지 않으며, 모든 투자 판단과 책임은 이용자 본인에게 있습니다.",
+    "newRule": "새 알림 규칙",
+    "typeLabel": "알림 유형",
+    "channelLabel": "수신 채널",
+    "types": {
+      "PRICE": "가격",
+      "WHALE": "웨일 이동",
+      "PATTERN": "패턴 감지",
+      "MACRO": "공포·탐욕 지수"
+    },
+    "channels": {
+      "INAPP": "앱 내 알림",
+      "TELEGRAM": "텔레그램",
+      "EMAIL": "이메일",
+      "PUSH": "브라우저 푸시"
+    },
+    "fields": {
+      "symbol": "심볼",
+      "direction": "조건",
+      "above": "이상 도달",
+      "below": "이하 도달",
+      "threshold": "기준가 (USD)",
+      "minUsd": "최소 규모 (USD)",
+      "interval": "차트 주기",
+      "minConfidence": "최소 신뢰도 (%)",
+      "low": "하단 (이하)",
+      "high": "상단 (이상)",
+      "telegramChatId": "텔레그램 Chat ID",
+      "emailAddress": "수신 이메일 주소"
+    },
+    "create": "규칙 추가",
+    "myRules": "내 알림 규칙",
+    "noRules": "아직 등록된 규칙이 없습니다. 왼쪽에서 첫 규칙을 만들어 보세요.",
+    "active": "활성",
+    "paused": "일시중지",
+    "delete": "삭제",
+    "channelSettings": "채널 설정",
+    "configured": "설정됨",
+    "save": "저장",
+    "pushHint": "브라우저 푸시는 서비스 배포 환경에서 활성화됩니다. 앱 내 알림은 별도 설정 없이 바로 사용할 수 있습니다.",
+    "history": "발송 이력",
+    "noHistory": "아직 발송된 알림이 없습니다.",
+    "status": {
+      "SENT": "발송됨",
+      "FAILED": "실패",
+      "SKIPPED": "건너뜀"
+    },
+    "devTransport": "개발 모드 기록"
   },
   "education": {
     "title": "Education",

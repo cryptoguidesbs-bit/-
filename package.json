@@ -39,12 +39,14 @@
     "server-only": "^0.0.1",
     "stripe": "^22.3.0",
     "tailwind-merge": "^2.6.0",
+    "web-push": "^3.6.7",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@types/node": "^22.10.5",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
+    "@types/web-push": "^3.6.4",
     "autoprefixer": "^10.4.20",
     "embedded-postgres": "^18.4.0-beta.17",
     "eslint": "^8.57.1",

@@ -1,4 +1,5 @@
 import {
+  Bell,
   Briefcase,
   FileText,
   Fish,
@@ -21,6 +22,7 @@ export type NavKey =
   | 'onchain'
   | 'reports'
   | 'education'
+  | 'alerts'
 
 export type NavItem = {
   key: NavKey
@@ -38,6 +40,7 @@ export const navItems: NavItem[] = [
   { key: 'onchain', href: '/onchain', icon: Fish },
   { key: 'reports', href: '/reports', icon: FileText },
   { key: 'education', href: '/education', icon: GraduationCap },
+  { key: 'alerts', href: '/alerts', icon: Bell },
 ]
 
 export function isNavActive(pathname: string, href: string) {
