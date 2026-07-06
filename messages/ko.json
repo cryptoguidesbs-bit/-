@@ -21,7 +21,49 @@
     "portfolio": "포트폴리오",
     "onchain": "온체인",
     "reports": "리포트",
+    "education": "교육",
     "sidebar": "사이드 메뉴"
+  },
+  "education": {
+    "title": "Education",
+    "subtitle": "트레이딩 기초부터 심리까지 — 수준별 커리큘럼으로 배우는 크립토 기본기.",
+    "levels": {
+      "beginner": "입문",
+      "intermediate": "중급",
+      "advanced": "고급"
+    },
+    "tracks": {
+      "trading": {
+        "name": "Trading 기초",
+        "description": "거래소, 주문, 유동성, 파생상품까지 거래의 구조를 이해합니다."
+      },
+      "technical": {
+        "name": "Technical Analysis",
+        "description": "차트 읽기에서 패턴의 확률적 해석까지 기술적 분석의 기본기를 다집니다."
+      },
+      "risk": {
+        "name": "Risk Management",
+        "description": "변동성, 포지션 사이징, 리스크 지표로 손실 관리의 원칙을 배웁니다."
+      },
+      "psychology": {
+        "name": "Psychology",
+        "description": "편향과 감정이 의사결정을 흔드는 방식과 대응 프레임워크를 다룹니다."
+      }
+    },
+    "access": {
+      "free": "무료",
+      "member": "회원 무료",
+      "standard": "Standard+"
+    },
+    "minutes": "{count}분",
+    "backToCurriculum": "커리큘럼으로 돌아가기",
+    "gateAuthTitle": "무료 회원이면 볼 수 있어요",
+    "gateAuthDescription": "이 레슨은 무료 계정만 만들면 바로 이용할 수 있습니다. 입문 레슨은 로그인 없이도 열려 있어요.",
+    "gateAuthCta": "무료로 가입하고 이어서 배우기",
+    "gatePlanTitle": "Standard 플랜부터 열리는 레슨입니다",
+    "gatePlanDescription": "고급 레슨은 Standard 이상 구독자에게 제공됩니다. 입문·중급 레슨은 계속 무료로 이용할 수 있어요.",
+    "gatePlanCta": "요금제 살펴보기",
+    "note": "본 교육 콘텐츠는 개념 설명을 위한 정보 제공 목적 자료이며, 투자 자문이나 특정 행동의 권유가 아닙니다."
   },
   "reports": {
     "title": "Premium Research",

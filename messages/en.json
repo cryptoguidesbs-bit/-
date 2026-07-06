@@ -21,7 +21,49 @@
     "portfolio": "Portfolio",
     "onchain": "On-chain",
     "reports": "Reports",
+    "education": "Education",
     "sidebar": "Sidebar navigation"
+  },
+  "education": {
+    "title": "Education",
+    "subtitle": "Crypto fundamentals taught level by level — from trading basics to psychology.",
+    "levels": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "tracks": {
+      "trading": {
+        "name": "Trading Basics",
+        "description": "Understand how trading works — exchanges, orders, liquidity, derivatives."
+      },
+      "technical": {
+        "name": "Technical Analysis",
+        "description": "From reading charts to interpreting patterns probabilistically."
+      },
+      "risk": {
+        "name": "Risk Management",
+        "description": "Volatility, position sizing and risk metrics — the principles of managing losses."
+      },
+      "psychology": {
+        "name": "Psychology",
+        "description": "How biases and emotions distort decisions, and frameworks to counter them."
+      }
+    },
+    "access": {
+      "free": "Free",
+      "member": "Free account",
+      "standard": "Standard+"
+    },
+    "minutes": "{count} min",
+    "backToCurriculum": "Back to curriculum",
+    "gateAuthTitle": "Free members can read this",
+    "gateAuthDescription": "This lesson unlocks with a free account. Beginner lessons stay open without signing in.",
+    "gateAuthCta": "Sign up free and continue",
+    "gatePlanTitle": "This lesson opens with the Standard plan",
+    "gatePlanDescription": "Advanced lessons are for Standard subscribers and above. Beginner and intermediate lessons remain free.",
+    "gatePlanCta": "View pricing",
+    "note": "This educational content explains concepts for informational purposes — it is not investment advice or a recommendation to take any action."
   },
   "reports": {
     "title": "Premium Research",
