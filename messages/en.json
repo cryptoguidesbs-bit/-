@@ -23,6 +23,28 @@
     "reports": "Reports",
     "sidebar": "Sidebar navigation"
   },
+  "reports": {
+    "title": "Premium Research",
+    "subtitle": "ETF / Macro / On-chain research reports published weekly, monthly and quarterly.",
+    "disclaimer": "These reports are AI-generated, pass an automated expression review, and are non-personalized informational content — not investment advice or a solicitation to trade. You are solely responsible for your own investment decisions.",
+    "nonPersonalized": "Identical for every subscriber",
+    "aiLabel": "AI-generated ({model})",
+    "all": "All",
+    "cadence": {
+      "WEEKLY": "Weekly",
+      "MONTHLY": "Monthly",
+      "QUARTERLY": "Quarterly"
+    },
+    "category": {
+      "ETF": "ETF",
+      "MACRO": "Macro",
+      "ONCHAIN": "On-chain"
+    },
+    "backToList": "Back to reports",
+    "save": "Save report",
+    "unsave": "Remove bookmark",
+    "empty": "No reports published yet."
+  },
   "patterns": {
     "title": "AI Pattern",
     "subtitle": "Automatic detection of chart patterns and support/resistance levels from candle data.",

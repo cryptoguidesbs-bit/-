@@ -72,12 +72,41 @@ export type PortfolioExplainInput = {
   mockScenario?: string
 }
 
+// --- Premium research reports (stage 14) ------------------------------------
+
+export const reportContentSchema = z.object({
+  title: z.object({ ko: z.string(), en: z.string() }),
+  summary: z.object({ ko: z.string(), en: z.string() }),
+  content: z.object({ ko: z.string(), en: z.string() }),
+})
+
+export type ReportContent = z.infer<typeof reportContentSchema>
+
+export type ReportGenInput = {
+  category: 'ETF' | 'MACRO' | 'ONCHAIN'
+  cadence: 'WEEKLY' | 'MONTHLY' | 'QUARTERLY'
+  periodKey: string
+  market: { id: string; name: string; price: number; changePct: number }[]
+  fearGreed: { value: number; classification: string } | null
+  headlines: { title: string; category: string }[]
+  network: {
+    activeAddresses: number | null
+    transactions: number | null
+    hashRateEh: number | null
+    minerRevenueUsd: number | null
+  }
+  stablecoins: { symbol: string; marketCapB: number }[]
+  /** Non-production test hook for the mock provider. */
+  mockScenario?: string
+}
+
 export interface AiProvider {
   /** Model label persisted with each result (AI-generated content label). */
   readonly model: string
   analyzeArticle(input: AnalyzeInput): Promise<ArticleAnalysis>
   generateBrief(input: BriefGenInput): Promise<BriefSectionsOutput>
   explainPortfolio(input: PortfolioExplainInput): Promise<PortfolioCommentary>
+  generateReport(input: ReportGenInput): Promise<ReportContent>
 }
 
 export class AiRateLimitError extends Error {}
@@ -212,7 +241,59 @@ Explain what these diversification metrics mean, educationally.`,
       throw error
     }
   }
+
+  async generateReport(input: ReportGenInput): Promise<ReportContent> {
+    const marketLines = input.market
+      .map((m) => `${m.id}: $${m.price} (${m.changePct.toFixed(2)}% 24h)`)
+      .join('\n')
+    try {
+      const response = await this.client.messages.parse({
+        model: this.model,
+        max_tokens: 6000,
+        system: REPORT_SYSTEM_PROMPT,
+        messages: [
+          {
+            role: 'user',
+            content: `Report type: ${input.category} / cadence: ${input.cadence} / period: ${input.periodKey}
+
+Market data:
+${marketLines || '(unavailable)'}
+Fear & Greed: ${input.fearGreed ? `${input.fearGreed.value} (${input.fearGreed.classification})` : 'unavailable'}
+Network: active addresses ${input.network.activeAddresses ?? 'N/A'}, daily txs ${input.network.transactions ?? 'N/A'}, hash rate ${input.network.hashRateEh ?? 'N/A'} EH/s, miner revenue $${input.network.minerRevenueUsd ?? 'N/A'}
+Stablecoins: ${input.stablecoins.map((s) => `${s.symbol} $${s.marketCapB}B`).join(', ') || 'N/A'}
+Recent headlines:
+${input.headlines.map((h) => `- [${h.category}] ${h.title}`).join('\n') || '(none)'}
+
+Write the ${input.cadence.toLowerCase()} ${input.category} research report in BOTH Korean (ko) and English (en). Markdown content with ## section headings, 500-900 words per language.`,
+          },
+        ],
+        output_config: { format: zodOutputFormat(reportContentSchema) },
+      })
+      if (!response.parsed_output) throw new Error('model returned unparseable output')
+      return response.parsed_output
+    } catch (error) {
+      if (error instanceof Anthropic.RateLimitError) {
+        throw new AiRateLimitError('anthropic rate limited')
+      }
+      throw error
+    }
+  }
 }
+
+const REPORT_SYSTEM_PROMPT = `You write periodic crypto research reports for an informational platform (not an advisory service). Reports are published identically to all subscribers — never personalized.
+
+Hard rules:
+- Ground every statement in the provided data and headlines. No invented facts, figures, or events.
+- NO definitive predictions; use probabilistic, hedged language throughout (Korean: "~할 가능성", "~로 보입니다"; English: "may", "could", "suggests").
+- NO action directives (buy/sell/rebalance/enter/exit) and NO entry/target/stop levels.
+- NO profit guarantees. Neutral, analytical tone. Information and education purpose only.
+
+Report focus by type:
+- ETF: spot/derivative ETF landscape, flows context from headlines, structural observations
+- MACRO: rates, inflation, dollar, equity backdrop and their observed relation to crypto
+- ONCHAIN: network activity, stablecoin supply, miner and whale context
+
+Structure the markdown content with ## headings: 개요/Overview, 주요 관찰/Key observations, 데이터 하이라이트/Data highlights, 지켜볼 요소/What to watch, and a closing note that the report is informational.`
 
 const PORTFOLIO_SYSTEM_PROMPT = `You explain portfolio diversification metrics for an educational, informational platform.
 
@@ -368,6 +449,62 @@ class MockProvider implements AiProvider {
     return {
       ko: `이 포트폴리오의 허핀달 지수(HHI)는 ${input.hhi.toFixed(3)}으로, 지표상 ${labelKo} 구간에 해당하는 것으로 관측됩니다. HHI는 각 자산 비중의 제곱을 합한 값으로, 숫자가 클수록 소수 자산에 대한 집중도가 높다는 뜻입니다. 유효 자산 수는 약 ${input.effectiveAssets.toFixed(1)}개로, 동일 비중 기준으로 환산한 분산 수준을 나타냅니다. 가장 큰 비중은 ${input.topSymbol}(${input.topWeightPct.toFixed(1)}%)로 집계되며, 이 수치는 배분 구조를 이해하는 참고 지표로 활용될 수 있습니다.`,
       en: `This portfolio's Herfindahl index (HHI) reads ${input.hhi.toFixed(3)}, which falls in the "${input.concentration}" range descriptively. HHI sums the squares of each asset's weight, so higher values indicate the allocation is concentrated in fewer assets. The effective number of assets is about ${input.effectiveAssets.toFixed(1)}, a way of expressing diversification as an equal-weight equivalent. The largest weight is ${input.topSymbol} at ${input.topWeightPct.toFixed(1)}%, a metric that may help in understanding the allocation structure.`,
+    }
+  }
+
+  async generateReport(input: ReportGenInput): Promise<ReportContent> {
+    if (input.mockScenario === 'violation') {
+      const bad = '비트코인은 반드시 급등할 것입니다. 지금 매수하세요. 목표가는 10만 달러, 손절가는 5만 달러입니다. 수익이 보장됩니다.'
+      const badEn = 'Bitcoin will surge — buy now with a target price of $100k and a stop-loss at $50k. Guaranteed profit.'
+      return {
+        title: {
+          ko: `${input.category} ${input.periodKey} 리포트 — 지금 매수하세요`,
+          en: `${input.category} ${input.periodKey} Report — buy now`,
+        },
+        summary: { ko: bad, en: badEn },
+        content: { ko: `## 개요\n${bad}\n${bad}`, en: `## Overview\n${badEn}\n${badEn}` },
+      }
+    }
+
+    const catKo = { ETF: 'ETF', MACRO: '매크로', ONCHAIN: '온체인' }[input.category]
+    const cadKo = { WEEKLY: '주간', MONTHLY: '월간', QUARTERLY: '분기' }[input.cadence]
+    const cadEn = { WEEKLY: 'Weekly', MONTHLY: 'Monthly', QUARTERLY: 'Quarterly' }[input.cadence]
+    const btc = input.market.find((m) => m.id === 'BTC')
+    const price = btc ? `$${Math.round(btc.price).toLocaleString('en-US')}` : 'N/A'
+    const chg = btc ? `${btc.changePct.toFixed(2)}%` : 'N/A'
+    const fng = input.fearGreed
+    const net = input.network
+    const stables = input.stablecoins.map((s) => `${s.symbol} $${s.marketCapB}B`).join(', ')
+    const heads = input.headlines.slice(0, 4)
+
+    const focusKo =
+      input.category === 'ETF'
+        ? `최근 헤드라인 흐름을 보면 ETF 관련 논의가 이어지고 있는 것으로 관측됩니다. 승인·자금 유입 관련 보도는 시장 구조에 영향을 줄 수 있는 요소로 평가됩니다.`
+        : input.category === 'MACRO'
+          ? `금리·물가·달러 흐름은 위험자산 선호도에 영향을 줄 수 있는 변수로 관측됩니다. 공포·탐욕 지수는 ${fng ? `${fng.value}(${fng.classification})` : '집계 불가'} 수준으로, 심리 지표상 신중한 접근이 시사됩니다.`
+          : `활성 주소 약 ${net.activeAddresses?.toLocaleString('en-US') ?? 'N/A'}개, 일일 트랜잭션 약 ${net.transactions?.toLocaleString('en-US') ?? 'N/A'}건, 해시레이트 ${net.hashRateEh ?? 'N/A'} EH/s 수준으로 네트워크 활동이 유지되는 모습입니다. 스테이블코인 공급(${stables || 'N/A'})은 유동성 환경을 이해하는 참고 지표로 활용될 수 있습니다.`
+    const focusEn =
+      input.category === 'ETF'
+        ? `Recent headlines suggest continued ETF-related developments; approval and flow coverage may act as structural factors worth monitoring.`
+        : input.category === 'MACRO'
+          ? `Rates, inflation and dollar dynamics could influence risk appetite. The Fear & Greed index reads ${fng ? `${fng.value} (${fng.classification})` : 'N/A'}, suggesting sentiment remains a variable to watch.`
+          : `Active addresses near ${net.activeAddresses?.toLocaleString('en-US') ?? 'N/A'}, daily transactions around ${net.transactions?.toLocaleString('en-US') ?? 'N/A'} and hash rate at ${net.hashRateEh ?? 'N/A'} EH/s indicate sustained network activity. Stablecoin supply (${stables || 'N/A'}) may serve as a liquidity context indicator.`
+
+    const headListKo = heads.map((h) => `- [${h.category}] ${h.title}`).join('\n')
+
+    return {
+      title: {
+        ko: `${cadKo} ${catKo} 리포트 (${input.periodKey})`,
+        en: `${cadEn} ${input.category} Report (${input.periodKey})`,
+      },
+      summary: {
+        ko: `${input.periodKey} 기간의 ${catKo} 동향을 데이터 중심으로 정리했습니다. BTC는 ${price} 부근에서 ${chg}의 흐름을 보이고 있으며, 관련 지표들은 방향성 탐색 국면을 시사하는 것으로 보입니다.`,
+        en: `A data-driven review of ${input.category} developments for ${input.periodKey}. BTC trades near ${price} (${chg} 24h), and related indicators appear to suggest a range-finding phase.`,
+      },
+      content: {
+        ko: `## 개요\n${input.periodKey} 기간 동안 시장은 BTC ${price}(${chg}) 부근에서 등락을 이어갔습니다. 본 ${cadKo} 리포트는 ${catKo} 관점의 주요 관찰을 데이터 기준으로 정리합니다.\n\n## 주요 관찰\n${focusKo}\n\n## 데이터 하이라이트\n- BTC: ${price} (${chg}, 24시간)\n- 공포·탐욕 지수: ${fng ? `${fng.value} (${fng.classification})` : '집계 불가'}\n- 스테이블코인 시총: ${stables || 'N/A'}\n\n## 관련 헤드라인\n${headListKo || '- 해당 기간 수집된 헤드라인 없음'}\n\n## 지켜볼 요소\n규제·매크로 일정과 온체인 지표의 변화가 변동성 요인이 될 가능성이 있어 보입니다. 주요 가격대 부근의 거래량 변화는 시장 참여도를 이해하는 참고 지표로 관측됩니다.\n\n## 안내\n본 리포트는 정보 제공 목적의 비개인화 콘텐츠로, 투자 자문이나 매매 권유가 아닙니다.`,
+        en: `## Overview\nDuring ${input.periodKey}, the market oscillated with BTC near ${price} (${chg}). This ${cadEn.toLowerCase()} report organizes key ${input.category} observations on a data basis.\n\n## Key observations\n${focusEn}\n\n## Data highlights\n- BTC: ${price} (${chg}, 24h)\n- Fear & Greed: ${fng ? `${fng.value} (${fng.classification})` : 'N/A'}\n- Stablecoin market caps: ${stables || 'N/A'}\n\n## What to watch\nRegulatory and macro calendars, together with shifts in on-chain indicators, could act as volatility factors. Volume behavior around key price areas may serve as a participation gauge.\n\n## Note\nThis report is non-personalized informational content — not investment advice or a solicitation to trade.`,
+      },
     }
   }
 }

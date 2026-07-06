@@ -102,6 +102,18 @@ enum ContentType {
   BRIEF
 }
 
+enum ReportCadence {
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+}
+
+enum ReportCategory {
+  ETF
+  MACRO
+  ONCHAIN
+}
+
 enum BriefTier {
   STANDARD
   DETAILED
@@ -257,6 +269,12 @@ model Report {
   isPremium   Boolean       @default(true)
   fileUrl     String?
   publishedAt DateTime?
+  // Premium research metadata (stage 14)
+  cadence    ReportCadence?
+  category   ReportCategory?
+  periodKey  String?
+  aiModel    String?
+  reviewNote String?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
 

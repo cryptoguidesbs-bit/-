@@ -42,25 +42,42 @@ export type BriefSectionKey = (typeof BRIEF_SECTION_KEYS)[number]
 export type LocalizedText = { ko: string; en: string }
 export type BriefSections = Record<BriefSectionKey, LocalizedText>
 
-function checkText(text: string, lang: 'ko' | 'en', section: string): GuidelineResult {
+/**
+ * Reusable narrative checker (briefs, research reports): length bounds,
+ * banned definitive/directive/guarantee phrasing, probabilistic language
+ * required (unless requireProbabilistic is false — e.g. titles).
+ */
+export function checkNarrativeText(
+  text: string,
+  lang: 'ko' | 'en',
+  label: string,
+  opts: { minLen?: number; maxLen?: number; requireProbabilistic?: boolean } = {},
+): GuidelineResult {
+  const { minLen = 40, maxLen = 3000, requireProbabilistic = true } = opts
   const trimmed = text.trim()
-  if (trimmed.length < 40) {
-    return { ok: false, reason: `${section}.${lang}: too short (${trimmed.length} chars)` }
+  if (trimmed.length < minLen) {
+    return { ok: false, reason: `${label}.${lang}: too short (${trimmed.length} chars)` }
   }
-  if (trimmed.length > 3000) {
-    return { ok: false, reason: `${section}.${lang}: too long (${trimmed.length} chars)` }
+  if (trimmed.length > maxLen) {
+    return { ok: false, reason: `${label}.${lang}: too long (${trimmed.length} chars)` }
   }
-  for (const { pattern, label } of BANNED) {
+  for (const { pattern, label: banLabel } of BANNED) {
     const match = trimmed.match(pattern)
     if (match) {
-      return { ok: false, reason: `${section}.${lang}: ${label} — "${match[0].slice(0, 40)}"` }
+      return { ok: false, reason: `${label}.${lang}: ${banLabel} — "${match[0].slice(0, 40)}"` }
     }
   }
-  const probabilistic = lang === 'ko' ? PROBABILISTIC_KO : PROBABILISTIC_EN
-  if (!probabilistic.test(trimmed)) {
-    return { ok: false, reason: `${section}.${lang}: missing probabilistic language` }
+  if (requireProbabilistic) {
+    const probabilistic = lang === 'ko' ? PROBABILISTIC_KO : PROBABILISTIC_EN
+    if (!probabilistic.test(trimmed)) {
+      return { ok: false, reason: `${label}.${lang}: missing probabilistic language` }
+    }
   }
   return { ok: true }
+}
+
+function checkText(text: string, lang: 'ko' | 'en', section: string): GuidelineResult {
+  return checkNarrativeText(text, lang, section)
 }
 
 export function checkGuidelines(sections: BriefSections): GuidelineResult {
