@@ -16,11 +16,30 @@
     "home": "Home",
     "news": "News",
     "brief": "AI Brief",
+    "patterns": "AI Patterns",
     "insights": "Insights",
     "portfolio": "Portfolio",
     "onchain": "On-chain",
     "reports": "Reports",
     "sidebar": "Sidebar navigation"
+  },
+  "patterns": {
+    "title": "AI Pattern",
+    "subtitle": "Automatic detection of chart patterns and support/resistance levels from candle data.",
+    "disclaimer": "Pattern detections on this page are non-personalized information served identically to all users — not investment advice or a solicitation to trade. No trade instructions (entry, target, or stop levels) are provided.",
+    "confidenceNote": "Confidence is a SHAPE-match score for the detected pattern — not a prediction of price direction or outcome.",
+    "detectedTitle": "Detected patterns",
+    "levelsTitle": "Support · Resistance levels",
+    "types": {
+      "triangle": "Triangle",
+      "flag": "Flag",
+      "cup": "Cup",
+      "doubleTop": "Double Top",
+      "doubleBottom": "Double Bottom",
+      "headShoulders": "Head & Shoulders"
+    },
+    "empty": "Nothing detected in the current window.",
+    "unavailable": "Candle data is unavailable. Please try again shortly."
   },
   "onchain": {
     "title": "Whale & On-chain",
