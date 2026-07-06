@@ -42,7 +42,8 @@ export default clerkMiddleware(async (auth, request) => {
   const { pathname } = request.nextUrl
 
   // API routes only need Clerk's auth context, not locale routing.
-  if (pathname.startsWith('/api')) {
+  // /r/* are referral landing redirects (no locale prefix by design).
+  if (pathname.startsWith('/api') || pathname.startsWith('/r/')) {
     return NextResponse.next()
   }
 

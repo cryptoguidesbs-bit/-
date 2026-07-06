@@ -18,6 +18,10 @@ export const FEATURE_MIN_PLAN = {
   'market.basic': 'FREE',
   'news.limited': 'FREE',
   'brief.limited': 'FREE',
+  // Referral: the program itself is open to every signed-in member
+  // (growth funnel); monetary rewards are additionally region-gated below.
+  'referral.program': 'FREE',
+  'referral.rewards': 'FREE',
   // Standard
   'news.full': 'STANDARD',
   'brief.daily': 'STANDARD',
@@ -70,6 +74,14 @@ export const featureRegionPolicy: Partial<Record<FeatureKey, RegionPolicy>> = {
     allowUnknown: true,
   },
   'data.export': {
+    whitelist: ['KR', 'US', 'JP', 'SG', 'GB', 'DE', 'FR', 'NL', 'CA', 'AU'],
+    allowUnknown: true,
+  },
+  // Monetary referral rewards — several jurisdictions regulate paid
+  // referral/finder arrangements. The program (link/ranking) stays global;
+  // commission accrual only happens in whitelisted countries. Placeholder
+  // list pending the stage-22 legal review (docs/legal-review.md).
+  'referral.rewards': {
     whitelist: ['KR', 'US', 'JP', 'SG', 'GB', 'DE', 'FR', 'NL', 'CA', 'AU'],
     allowUnknown: true,
   },

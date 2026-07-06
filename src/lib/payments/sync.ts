@@ -5,6 +5,7 @@ import type {
 } from '@prisma/client'
 
 import { prisma } from '@/lib/prisma'
+import { qualifyReferral } from '@/lib/referral/qualify'
 import type { PaidPlanKey, SubscriptionData, SubscriptionStatus } from './types'
 
 const PLAN_MAP: Record<PaidPlanKey, DbPlan> = {
@@ -42,9 +43,17 @@ export async function syncSubscriptionToDb(userId: string, sub: SubscriptionData
     externalCustomerId: sub.customerId,
   }
 
-  return prisma.subscription.upsert({
+  const saved = await prisma.subscription.upsert({
     where: { userId },
     update: data,
     create: { userId, ...data },
   })
+
+  // First paid subscription may qualify a pending referral (stage 17).
+  // Never let referral bookkeeping break payment sync.
+  if (data.plan !== 'FREE' && ['ACTIVE', 'TRIALING'].includes(data.status)) {
+    await qualifyReferral(userId).catch(() => {})
+  }
+
+  return saved
 }

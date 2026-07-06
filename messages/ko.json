@@ -23,7 +23,31 @@
     "reports": "리포트",
     "education": "교육",
     "alerts": "알림",
+    "referral": "리퍼럴",
     "sidebar": "사이드 메뉴"
+  },
+  "referral": {
+    "title": "리퍼럴 프로그램",
+    "subtitle": "추천 링크로 친구를 초대하고, 유료 구독 전환 시 커미션을 받으세요.",
+    "disclaimer": "리퍼럴 보상은 추천받은 회원이 유료 구독을 시작한 경우에만 지급 검토되며, 어뷰징(본인 추천·중복 계정 등)으로 판단되면 무효 처리됩니다. 프로그램 조건은 사전 고지 후 변경될 수 있습니다.",
+    "regionBlocked": "현재 지역에서는 관련 규제 검토에 따라 금전 보상이 제공되지 않습니다. 추천 링크와 랭킹 참여는 계속 이용할 수 있습니다.",
+    "myLink": "내 추천 링크",
+    "clicks": "클릭",
+    "pending": "가입 대기",
+    "qualified": "전환 완료",
+    "howItWorks": "친구가 내 링크로 방문 후 30일 안에 가입하고 유료 플랜을 시작하면 전환으로 집계됩니다. 커미션은 첫 결제 플랜 월 요금의 10%입니다.",
+    "rewards": "보상 내역",
+    "noRewards": "아직 보상 내역이 없습니다.",
+    "rewardsUnavailable": "현재 지역에서는 금전 보상이 비활성화되어 있습니다.",
+    "rewardStatus": {
+      "PENDING": "검토 중",
+      "APPROVED": "승인됨",
+      "PAID": "지급 완료",
+      "VOID": "무효"
+    },
+    "leaderboard": "추천 랭킹",
+    "noLeaders": "아직 랭킹 데이터가 없습니다.",
+    "qualifiedCount": "전환 {count}건"
   },
   "alerts": {
     "title": "실시간 알림",

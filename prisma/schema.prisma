@@ -139,6 +139,10 @@ model User {
   locale    String   @default("ko")
   // Display-only preference. Persisted data stays in UTC.
   timezone  String   @default("Asia/Seoul")
+  // ISO 3166-1 alpha-2, captured from the geo header at consent time.
+  // Used for region policies that must be evaluated outside a request
+  // context (e.g. referral reward accrual in webhooks).
+  country   String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -154,6 +158,77 @@ model User {
   alertRules    AlertRule[]
   alertChannels AlertChannelConfig[]
   alertDeliveries AlertDelivery[]
+  referralCode    ReferralCode?
+  referralsMade   Referral[]       @relation("referralsMade")
+  referralReceived Referral?       @relation("referralReceived")
+  referralRewards ReferralReward[]
+}
+
+// ---------------------------------------------------------------------------
+// Referral program (stage 17) — codes, attributions, reward ledger.
+// Monetary rewards are region-gated ('referral.rewards' policy); rejected
+// attributions are kept as REJECTED rows for abuse auditing.
+// ---------------------------------------------------------------------------
+
+enum ReferralStatus {
+  PENDING
+  QUALIFIED
+  REJECTED
+}
+
+enum RewardStatus {
+  PENDING
+  APPROVED
+  PAID
+  VOID
+}
+
+model ReferralCode {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  code      String   @unique
+  clicks    Int      @default(0)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Referral {
+  id             String         @id @default(cuid())
+  referrerId     String
+  referredUserId String         @unique
+  code           String
+  status         ReferralStatus @default(PENDING)
+  // Hashed signup IP (sha256 + salt) — for duplicate/self-signup detection.
+  ipHash      String?
+  // Why a REJECTED attribution was refused (audit trail).
+  reason      String?
+  qualifiedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  referrer User             @relation("referralsMade", fields: [referrerId], references: [id], onDelete: Cascade)
+  referred User             @relation("referralReceived", fields: [referredUserId], references: [id], onDelete: Cascade)
+  rewards  ReferralReward[]
+
+  @@index([referrerId, status])
+  @@index([ipHash])
+}
+
+model ReferralReward {
+  id         String       @id @default(cuid())
+  // The referrer receiving the reward.
+  userId     String
+  referralId String
+  amountUsd  Decimal      @db.Decimal(10, 2)
+  status     RewardStatus @default(PENDING)
+  note       String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  referral Referral @relation(fields: [referralId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
 }
 
 model Subscription {

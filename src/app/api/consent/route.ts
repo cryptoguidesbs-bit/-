@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth, clerkClient } from '@clerk/nextjs/server'
 
 import { CONSENT_VERSION } from '@/config/consent'
+import { REFERRAL } from '@/config/referral'
 import { routing } from '@/i18n/routing'
+import { attributeReferral } from '@/lib/referral/attribution'
 import { prisma } from '@/lib/prisma'
 
 // Records the "not investment advice · informational/educational purposes"
@@ -29,15 +31,22 @@ export async function POST(request: NextRequest) {
 
   const name =
     [clerkUser.firstName, clerkUser.lastName].filter(Boolean).join(' ') || clerkUser.username
+  // Country from the platform geo header — persisted so region policies can
+  // be evaluated outside a request context (e.g. referral reward accrual).
+  const country =
+    request.headers.get('x-vercel-ip-country')?.toUpperCase() ??
+    request.headers.get('cf-ipcountry')?.toUpperCase() ??
+    null
   const user = await prisma.user.upsert({
     where: { clerkId: userId },
-    update: { email, name, image: clerkUser.imageUrl },
+    update: { email, name, image: clerkUser.imageUrl, ...(country ? { country } : {}) },
     create: {
       clerkId: userId,
       email,
       name,
       image: clerkUser.imageUrl,
       locale,
+      country,
     },
   })
 
@@ -74,6 +83,17 @@ export async function POST(request: NextRequest) {
       consentAt: new Date().toISOString(),
     },
   })
+
+  // Referral attribution (stage 17): if the signup carried the referral
+  // cookie, record it — with anti-abuse checks. Never fails the consent.
+  const refCode = request.cookies.get(REFERRAL.cookieName)?.value
+  if (refCode) {
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+      request.headers.get('x-real-ip') ??
+      null
+    await attributeReferral({ referredUserId: user.id, code: refCode, ip }).catch(() => {})
+  }
 
   return NextResponse.json({ ok: true, version: CONSENT_VERSION })
 }

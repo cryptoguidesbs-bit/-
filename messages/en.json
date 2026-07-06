@@ -23,7 +23,31 @@
     "reports": "Reports",
     "education": "Education",
     "alerts": "Alerts",
+    "referral": "Referral",
     "sidebar": "Sidebar navigation"
+  },
+  "referral": {
+    "title": "Referral Program",
+    "subtitle": "Invite friends with your referral link and earn a commission when they start a paid plan.",
+    "disclaimer": "Referral rewards are reviewed only when the referred member starts a paid subscription, and are voided if abuse is detected (self-referral, duplicate accounts, etc.). Program terms may change with prior notice.",
+    "regionBlocked": "Monetary rewards are not offered in your region pending regulatory review. Your referral link and the ranking remain available.",
+    "myLink": "My referral link",
+    "clicks": "Clicks",
+    "pending": "Signed up",
+    "qualified": "Converted",
+    "howItWorks": "When a friend visits through your link, signs up within 30 days, and starts a paid plan, it counts as a conversion. Commission is 10% of the first paid plan's monthly price.",
+    "rewards": "Rewards",
+    "noRewards": "No rewards yet.",
+    "rewardsUnavailable": "Monetary rewards are disabled in your region.",
+    "rewardStatus": {
+      "PENDING": "Under review",
+      "APPROVED": "Approved",
+      "PAID": "Paid",
+      "VOID": "Void"
+    },
+    "leaderboard": "Referral ranking",
+    "noLeaders": "No ranking data yet.",
+    "qualifiedCount": "{count} conversions"
   },
   "alerts": {
     "title": "Realtime Alerts",
