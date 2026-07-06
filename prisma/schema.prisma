@@ -151,6 +151,9 @@ model User {
   savedArticles SavedArticle[]
   savedReports  SavedReport[]
   notifications Notification[]
+  alertRules    AlertRule[]
+  alertChannels AlertChannelConfig[]
+  alertDeliveries AlertDelivery[]
 }
 
 model Subscription {
@@ -354,6 +357,27 @@ enum NotificationType {
   BRIEF
   NEWS
   BILLING
+  ALERT
+}
+
+enum AlertType {
+  PRICE
+  WHALE
+  PATTERN
+  MACRO
+}
+
+enum AlertChannel {
+  INAPP
+  TELEGRAM
+  EMAIL
+  PUSH
+}
+
+enum DeliveryStatus {
+  SENT
+  FAILED
+  SKIPPED
 }
 
 model Notification {
@@ -370,6 +394,68 @@ model Notification {
 
   @@index([userId, createdAt])
   @@index([userId, readAt])
+}
+
+// ---------------------------------------------------------------------------
+// Alert system (stage 16) — rules, channel configs, delivery log
+// ---------------------------------------------------------------------------
+
+model AlertRule {
+  id      String       @id @default(cuid())
+  userId  String
+  type    AlertType
+  channel AlertChannel
+  // Per-type parameters:
+  //   PRICE   { symbol, direction: above|below, threshold }
+  //   WHALE   { minUsd }
+  //   PATTERN { symbol, interval, minConfidence }
+  //   MACRO   { low, high }  (Fear & Greed extremes)
+  params      Json
+  active      Boolean   @default(true)
+  lastFiredAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user       User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  deliveries AlertDelivery[]
+
+  @@index([userId])
+  @@index([type, active])
+}
+
+model AlertChannelConfig {
+  id      String       @id @default(cuid())
+  userId  String
+  channel AlertChannel
+  // TELEGRAM { chatId } · PUSH { subscription } · EMAIL { address }
+  config    Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, channel])
+}
+
+model AlertDelivery {
+  id      String         @id @default(cuid())
+  ruleId  String?
+  userId  String
+  type    AlertType
+  channel AlertChannel
+  title   String
+  body    String
+  status  DeliveryStatus
+  // 'live' (real provider) or 'dev' (no credentials — logged only)
+  transport String?
+  error     String?
+  createdAt DateTime @default(now())
+
+  rule AlertRule? @relation(fields: [ruleId], references: [id], onDelete: SetNull)
+  user User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([ruleId])
 }
 
 // ---------------------------------------------------------------------------
