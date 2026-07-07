@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { ChevronDown } from 'lucide-react'
-import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslations } from 'next-intl'
 
 import { Section } from '@/components/home/section'
@@ -36,22 +35,17 @@ export function FaqSection() {
                   )}
                 />
               </button>
-              <AnimatePresence initial={false}>
-                {isOpen && (
-                  <motion.div
-                    id={`faq-panel-${index}`}
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.25, ease: 'easeOut' }}
-                    className="overflow-hidden"
-                  >
-                    <p className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground">
-                      {t(`${key}.answer`)}
-                    </p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              <div
+                id={`faq-panel-${index}`}
+                className={cn('accordion-panel', isOpen && 'is-open')}
+                role="region"
+              >
+                <div>
+                  <p className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground">
+                    {t(`${key}.answer`)}
+                  </p>
+                </div>
+              </div>
             </div>
           )
         })}

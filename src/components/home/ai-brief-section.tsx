@@ -1,14 +1,13 @@
-'use client'
-
 import { Sparkles } from 'lucide-react'
-import { useTranslations } from 'next-intl'
+import { getTranslations } from 'next-intl/server'
 
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Section } from '@/components/home/section'
 
-export function AiBriefSection() {
-  const t = useTranslations('home.brief')
+// Server component — static marketing content, no client JS.
+export async function AiBriefSection({ locale }: { locale: string }) {
+  const t = await getTranslations({ locale, namespace: 'home.brief' })
 
   return (
     <Section id="brief" title={t('title')} subtitle={t('subtitle')}>

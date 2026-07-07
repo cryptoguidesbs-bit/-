@@ -1,7 +1,4 @@
-'use client'
-
-import { motion } from 'framer-motion'
-import { useTranslations } from 'next-intl'
+import { getTranslations } from 'next-intl/server'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -20,67 +17,47 @@ function AnimatedBackground() {
           WebkitMaskImage: 'radial-gradient(ellipse 80% 60% at 50% 40%, black, transparent)',
         }}
       />
-      {/* Floating gradient blobs */}
-      <motion.div
-        className="absolute -top-32 left-1/4 h-96 w-96 rounded-full bg-primary/20 blur-3xl"
-        animate={{ x: [0, 40, -20, 0], y: [0, 20, 40, 0] }}
-        transition={{ duration: 18, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className="absolute -right-24 top-10 h-80 w-80 rounded-full bg-emerald-500/10 blur-3xl"
-        animate={{ x: [0, -30, 10, 0], y: [0, 30, -10, 0] }}
-        transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
-      />
-      <motion.div
-        className="absolute -bottom-24 left-10 h-72 w-72 rounded-full bg-indigo-500/15 blur-3xl"
-        animate={{ x: [0, 30, -30, 0], y: [0, -20, 10, 0] }}
-        transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
-      />
+      {/* Floating gradient blobs — CSS keyframes, no JS. */}
+      <div className="blob-a absolute -top-32 left-1/4 h-96 w-96 rounded-full bg-primary/20 blur-3xl" />
+      <div className="blob-b absolute -right-24 top-10 h-80 w-80 rounded-full bg-emerald-500/10 blur-3xl" />
+      <div className="blob-c absolute -bottom-24 left-10 h-72 w-72 rounded-full bg-indigo-500/15 blur-3xl" />
     </div>
   )
 }
 
-export function HeroSection() {
-  const t = useTranslations('home.hero')
+// Server component — above-the-fold, rendered on the server for a fast LCP.
+// Entrance animation is pure CSS (animates on load).
+export async function HeroSection({ locale }: { locale: string }) {
+  const t = await getTranslations({ locale, namespace: 'home.hero' })
 
   return (
     <section className="relative mt-6">
       <AnimatedBackground />
       <div className="flex flex-col items-center gap-6 px-4 py-20 text-center md:py-28">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
+        <div className="rise-in">
           <Badge variant="secondary">{t('badge')}</Badge>
-        </motion.div>
+        </div>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="max-w-3xl text-balance text-4xl font-bold tracking-tight md:text-6xl"
+        <h1
+          className="rise-in max-w-3xl text-balance text-4xl font-bold tracking-tight md:text-6xl"
+          style={{ '--rise-delay': '100ms' } as React.CSSProperties}
         >
           {t('title')}{' '}
           <span className="bg-gradient-to-r from-primary to-emerald-400 bg-clip-text text-transparent">
             {t('titleHighlight')}
           </span>
-        </motion.h1>
+        </h1>
 
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="max-w-2xl text-balance text-lg text-muted-foreground"
+        <p
+          className="rise-in max-w-2xl text-balance text-lg text-muted-foreground"
+          style={{ '--rise-delay': '200ms' } as React.CSSProperties}
         >
           {t('subtitle')}
-        </motion.p>
+        </p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="flex flex-wrap items-center justify-center gap-3"
+        <div
+          className="rise-in flex flex-wrap items-center justify-center gap-3"
+          style={{ '--rise-delay': '300ms' } as React.CSSProperties}
         >
           <Button size="lg" asChild>
             <a href="#pricing">{t('ctaPrimary')}</a>
@@ -88,16 +65,14 @@ export function HeroSection() {
           <Button size="lg" variant="outline" asChild>
             <a href="#features">{t('ctaSecondary')}</a>
           </Button>
-        </motion.div>
+        </div>
 
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.45 }}
-          className="text-xs text-muted-foreground"
+        <p
+          className="rise-in text-xs text-muted-foreground"
+          style={{ '--rise-delay': '450ms' } as React.CSSProperties}
         >
           {t('disclaimer')}
-        </motion.p>
+        </p>
       </div>
     </section>
   )

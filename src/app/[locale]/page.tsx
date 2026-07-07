@@ -26,11 +26,11 @@ export default function HomePage({ params: { locale } }: Props) {
   return (
     <>
       <MarketTicker />
-      <HeroSection />
-      <AiBriefSection />
+      <HeroSection locale={locale} />
+      <AiBriefSection locale={locale} />
       <NewsSection />
       <MarketDashboardSection />
-      <WhySection />
+      <WhySection locale={locale} />
       <DashboardPreviewSection />
       <PricingSection />
       <FaqSection />

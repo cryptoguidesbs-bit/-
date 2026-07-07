@@ -2,7 +2,7 @@
 
 > 최종 업데이트: 2026-07-07
 
-## 완료된 단계 (1~19)
+## 완료된 단계 (1~20)
 
 | 단계 | 내용 | 자동 테스트 | 핵심 구현 |
 |---|---|---|---|
@@ -29,13 +29,15 @@
 
 | 19 | 관리자(Admin) | 43/43 | /admin 운영 콘솔(ADMIN 전용): 회원 검색·플랜/역할 수동 관리(자기 강등 차단), Stripe 매출 자동 집계(카드/USDC 통합 USD + DB MRR 추정·연간 플랜 월할), 파이프라인 상태·트리거, 전체 공지 발송, **지역별 서비스 스위치(FeatureSwitch — 배포 없이 즉시 반영, 전 지역 OFF/화이트리스트 교체, v1 API에도 즉시 적용)**, ContentAuditLog/ConsentLog 조회, Sentry 에러 리포트(미설정 시 dev 폴백), **자동 운영 순환(ops 모니터): PAST_DUE 유예 초과 자동 만료 → 이상 징후 감지(결제 실패 급증·파이프라인 정체) → 관리자 자동 알림 → 미해결 중복 억제 → 해결 후 재경보** |
 
-**누적 자동 테스트: 424건 전부 통과** (각 `scripts/test-*.mjs`로 재실행 가능)
+| 20 | 성능 최적화 | 회귀 118 | 랜딩 클라이언트 JS −73%(52.7→14.4 kB), framer-motion 앱 전체 제거(CSS/IntersectionObserver 대체), **루트 레이아웃 추가로 프로덕션 빌드 정상화**(이전 빌드 불가), Hero/AiBrief/Why 서버 컴포넌트 전환(초기 HTML에 카피 포함), next.config(avif/webp·optimizePackageImports·removeConsole·소스맵 off·보안 헤더 4종), 라우트 loading.tsx 스트리밍, CDN 리전 점검 스크립트(perf-latency-check.mjs), 리포트 docs/perf-report-stage20.md |
+
+**누적 자동 테스트: 424건 + 20단계 회귀 118건 전부 통과** (각 `scripts/test-*.mjs`로 재실행 가능)
 
 ## 남은 단계
 
 | 단계 | 내용 | 비고 |
 |---|---|---|
-| 20~21 | (사용자 플랜 문서 참조) | 단계 정의가 대화로 전달되는 방식이라 미확정 — 21단계는 보안(레이트리밋 프로덕션화 연계) |
+| 21 | (사용자 플랜 문서 참조) | 보안 — API 레이트리밋 프로덕션화(공유 스토어) 연계 |
 | 22 | 법적 문서 | 이용약관/개인정보처리방침/면책조항 정식 작성 — `/legal/*` 자리 페이지 교체, docs/legal-review.md 체크리스트 반영, 지역 제한 국가 목록 확정 |
 
 ## 배포 전 처리 목록 (단계 외 누적 과제)
@@ -46,8 +48,8 @@
 - [ ] 알림 라이브 채널 자격증명: `TELEGRAM_BOT_TOKEN`(봇 생성), `RESEND_API_KEY`+`ALERT_EMAIL_FROM`(이메일), `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY`(브라우저 푸시, `npx web-push generate-vapid-keys`) — 미설정 시 dev transport로 기록만 됨
 - [ ] Stripe 라이브 전환: 계정 활성화, 라이브 키 교체, 실제 웹훅 엔드포인트 등록
 - [ ] Clerk 프로덕션 인스턴스 전환 + X(Twitter) 소셜 로그인 활성화(개발자 앱 자격증명 필요)
-- [ ] Next 14 dev의 중첩 notFound() 200 이슈 — 프로덕션 빌드에서 404 상태 재확인
-- [ ] `next build` 프로덕션 빌드 검증 (지금까지 dev 서버로만 구동)
+- [x] `next build` 프로덕션 빌드 검증 — 20단계에서 루트 레이아웃 추가로 정상 완료 확인
+- [ ] 중첩 notFound() 200 이슈: 프로덕션 빌드에서도 재현(Next 14 + next-intl 제약). not-found UI는 정상 렌더 — 배포 레이어에서 상태 재기록 또는 noindex로 완화 (docs/perf-report-stage20.md §5)
 - [ ] 내장 PostgreSQL(개발용) → 프로덕션 DB(호스팅 Postgres) 마이그레이션
 - [ ] docs/legal-review.md 법률 검토 항목 처리 (22단계 연계 — 리퍼럴 금전 보상 국가별 규제 S5 포함)
 - [ ] 리퍼럴 보상 지급 수단·세무 처리 확정 (현재 원장 기록만, 지급은 수동)

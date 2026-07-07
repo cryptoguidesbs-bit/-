@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { Check } from 'lucide-react'
-import { motion } from 'framer-motion'
 import { useAuth } from '@clerk/nextjs'
 import { useLocale, useTranslations } from 'next-intl'
 
@@ -13,6 +12,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Section } from '@/components/home/section'
+import { Reveal } from '@/components/home/reveal'
 import { cn } from '@/lib/utils'
 
 const usd = new Intl.NumberFormat('en-US', {
@@ -92,13 +92,7 @@ export function PricingSection() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {pricingTiers.map((tier, index) => (
-          <motion.div
-            key={tier.key}
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.4, delay: index * 0.06 }}
-          >
+          <Reveal key={tier.key} delay={index * 60}>
             <Card
               className={cn(
                 'relative flex h-full flex-col',
@@ -148,7 +142,7 @@ export function PricingSection() {
                 </Button>
               </CardContent>
             </Card>
-          </motion.div>
+          </Reveal>
         ))}
       </div>
       <div className="mt-6 space-y-1 text-center">
