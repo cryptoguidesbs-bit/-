@@ -483,6 +483,8 @@
       "intervalMonthly": "Monthly",
       "intervalYearly": "Yearly",
       "yearlySave": "2 months free",
+      "yearlyBadge": "2 months free · 17% off",
+      "trialNote": "7-day free trial, then billed · cancel anytime",
       "processing": "Redirecting…",
       "checkoutError": "Could not open the checkout page. Please try again shortly.",
       "popular": "Popular",
@@ -597,7 +599,22 @@
     "checkoutSuccess": "Payment complete — your subscription is active!",
     "noSubscription": "No active subscription. Pick a plan from the pricing section.",
     "viewPricing": "View pricing",
-    "billingNote": "Receipts and payment history are sent to the email used at checkout. For card changes and other requests, contact support."
+    "billingNote": "Receipts and payment history are sent to the email used at checkout. For card changes and other requests, contact support.",
+    "trialBadge": "7-day free trial in progress — cancel before it ends and you won't be charged.",
+    "pendingDowngrade": "Scheduled to change to the {plan} plan at the end of the current period.",
+    "changePlan": "Change plan",
+    "changePlanDescription": "Upgrades apply immediately with a prorated charge. Downgrades take effect at the end of the current period.",
+    "selectPlan": "Plan",
+    "selectInterval": "Billing cycle",
+    "applyChange": "Apply change",
+    "changeUpgraded": "Upgrade applied immediately.",
+    "changeDowngraded": "Downgrade scheduled for the end of the current period.",
+    "changeError": "Could not change your plan. Please try again shortly.",
+    "refundTitle": "Annual subscription refund",
+    "refundEligible": "You're within 14 days of purchase with no service usage — a full refund is available.",
+    "refundButton": "Request full refund",
+    "refundDone": "Your refund has been processed and the subscription canceled.",
+    "refundError": "Could not process the refund. Please contact support."
   },
   "pages": {
     "insights": {

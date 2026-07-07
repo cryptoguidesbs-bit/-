@@ -32,15 +32,25 @@ export async function syncSubscriptionToDb(userId: string, sub: SubscriptionData
 
   const interval: DbInterval | null =
     sub.interval === 'monthly' ? 'MONTHLY' : sub.interval === 'yearly' ? 'YEARLY' : null
+  const plan: DbPlan = sub.plan ? PLAN_MAP[sub.plan] : ('FREE' as DbPlan)
+
+  // Clear a scheduled downgrade once the provider has switched to it.
+  const existing = await prisma.subscription.findUnique({ where: { userId } })
+  const clearPending =
+    existing?.pendingPlan &&
+    existing.pendingPlan === plan &&
+    existing.pendingInterval === interval
 
   const data = {
-    plan: sub.plan ? PLAN_MAP[sub.plan] : ('FREE' as DbPlan),
+    plan,
     status: STATUS_MAP[sub.status],
     interval,
+    currentPeriodStart: sub.currentPeriodStart,
     currentPeriodEnd: sub.currentPeriodEnd,
     cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
     externalId: sub.id,
     externalCustomerId: sub.customerId,
+    ...(clearPending ? { pendingPlan: null, pendingInterval: null } : {}),
   }
 
   const saved = await prisma.subscription.upsert({

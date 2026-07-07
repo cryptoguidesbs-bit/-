@@ -4,6 +4,8 @@ import { AlertTriangle, ArrowLeft, Sparkles } from 'lucide-react'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { checkFeature } from '@/lib/entitlements'
+import { recordAccess } from '@/lib/billing/usage'
+import { getDbUser } from '@/lib/user'
 import { prisma } from '@/lib/prisma'
 import { Badge } from '@/components/ui/badge'
 import { SaveReportButton } from '@/components/reports/save-report-button'
@@ -79,6 +81,11 @@ export default async function ReportDetailPage({ params: { locale, slug } }: Pro
     where: { slug_locale: { slug, locale: locale === 'ko' ? 'ko' : 'en' } },
   })
   if (!report || report.status !== 'PUBLISHED') notFound()
+
+  // Premium content view — records a usage signal (affects annual-refund
+  // eligibility). Best-effort; never blocks the render.
+  const viewer = await getDbUser()
+  if (viewer) await recordAccess(viewer.id, 'report.view')
 
   const dateFormat = new Intl.DateTimeFormat(locale === 'ko' ? 'ko-KR' : 'en-US', {
     dateStyle: 'long',

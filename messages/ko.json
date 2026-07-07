@@ -483,6 +483,8 @@
       "intervalMonthly": "월간",
       "intervalYearly": "연간",
       "yearlySave": "2개월 무료",
+      "yearlyBadge": "2개월 무료 · 17% 할인",
+      "trialNote": "7일 무료 체험 후 결제 · 언제든 해지 가능",
       "processing": "이동 중…",
       "checkoutError": "결제 페이지로 이동하지 못했습니다. 잠시 후 다시 시도해 주세요.",
       "popular": "인기",
@@ -597,7 +599,22 @@
     "checkoutSuccess": "결제가 완료되었습니다. 구독이 활성화되었어요!",
     "noSubscription": "활성 구독이 없습니다. 요금제에서 플랜을 선택해 보세요.",
     "viewPricing": "요금제 보기",
-    "billingNote": "영수증과 결제 내역은 결제 시 입력한 이메일로 발송됩니다. 카드 변경 등 자세한 문의는 지원 채널을 이용해 주세요."
+    "billingNote": "영수증과 결제 내역은 결제 시 입력한 이메일로 발송됩니다. 카드 변경 등 자세한 문의는 지원 채널을 이용해 주세요.",
+    "trialBadge": "7일 무료 체험 중 — 체험 종료 전 해지하면 청구되지 않습니다.",
+    "pendingDowngrade": "현재 기간 종료 시 {plan} 플랜으로 변경되도록 예약되어 있습니다.",
+    "changePlan": "플랜 변경",
+    "changePlanDescription": "업그레이드는 즉시 적용되며 일할 차액이 청구됩니다. 다운그레이드는 현재 기간 종료 후 적용됩니다.",
+    "selectPlan": "플랜",
+    "selectInterval": "결제 주기",
+    "applyChange": "변경 적용",
+    "changeUpgraded": "업그레이드가 즉시 적용되었습니다.",
+    "changeDowngraded": "다운그레이드가 현재 기간 종료 시 적용되도록 예약되었습니다.",
+    "changeError": "플랜 변경에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+    "refundTitle": "연간 구독 환불",
+    "refundEligible": "결제 후 14일 이내이며 서비스 이용 기록이 없어 전액 환불이 가능합니다.",
+    "refundButton": "전액 환불 요청",
+    "refundDone": "환불이 처리되었습니다. 구독이 해지되었어요.",
+    "refundError": "환불 처리에 실패했습니다. 지원 채널로 문의해 주세요."
   },
   "pages": {
     "insights": {

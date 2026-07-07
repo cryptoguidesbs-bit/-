@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth, clerkClient } from '@clerk/nextjs/server'
 
 import { getPaymentProvider, isPaidPlan } from '@/lib/payments'
+import { TRIAL_PERIOD_DAYS } from '@/lib/payments/plans'
 import { routing } from '@/i18n/routing'
 import { siteUrl } from '@/lib/site'
 import { enforceRateLimit } from '@/lib/security/rate-limit'
@@ -69,6 +70,8 @@ export async function POST(request: NextRequest) {
       successUrl: `${siteUrl}/${locale}/billing?session_id={CHECKOUT_SESSION_ID}`,
       cancelUrl: `${siteUrl}/${locale}/#pricing`,
       locale,
+      // 7-day free trial before the first charge.
+      trialPeriodDays: TRIAL_PERIOD_DAYS,
     })
     return NextResponse.json({ url: checkout.url, id: checkout.id })
   } catch (error) {

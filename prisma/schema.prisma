@@ -165,6 +165,27 @@ model User {
   apiKeys     ApiKey[]
   apiWebhooks ApiWebhook[]
   securityEvents SecurityEvent[]
+  accessLogs  AccessLog[]
+}
+
+// ---------------------------------------------------------------------------
+// Access log (stage 21b) — lightweight "service was used" signal, throttled
+// to one row per user/kind/hour. Determines annual-refund eligibility
+// (unused within 14 days → full refund). NOT analytics; minimal by design.
+// ---------------------------------------------------------------------------
+
+model AccessLog {
+  id        String   @id @default(cuid())
+  userId    String
+  kind      String
+  // UTC hour bucket, YYYY-MM-DDTHH — dedupes repeated views within the hour.
+  hourBucket String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, kind, hourBucket])
+  @@index([userId, createdAt])
 }
 
 // ---------------------------------------------------------------------------
@@ -355,6 +376,12 @@ model Subscription {
   currentPeriodStart DateTime?
   currentPeriodEnd   DateTime?
   cancelAtPeriodEnd  Boolean               @default(false)
+  // Scheduled downgrade — applied at currentPeriodEnd (no immediate refund).
+  // Cleared once the provider transitions to the lower plan.
+  pendingPlan     SubscriptionPlan?
+  pendingInterval SubscriptionInterval?
+  // Set when an annual full refund was issued (14-day unused window).
+  refundedAt      DateTime?
   // IDs from the external payment provider (e.g. Stripe).
   externalId         String?               @unique
   externalCustomerId String?

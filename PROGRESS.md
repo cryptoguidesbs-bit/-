@@ -1,6 +1,6 @@
 # CryptoGuide 빌드 진행 상황
 
-> 최종 업데이트: 2026-07-07
+> 최종 업데이트: 2026-07-08
 
 ## 완료된 단계 (1~21)
 
@@ -11,6 +11,7 @@
 | 3 | 메인 랜딩 | 수동 검증 | Hero/애니메이션 배경, Binance WebSocket 라이브 티커, AI 브리핑 프리뷰, RSS 뉴스, 마켓 대시보드, A-3 요금제(USD), FAQ, Framer Motion. 성과·수익률 표현 전수 검사 |
 | 4 | Clerk 인증 | 플로우 전체 통과 | 가입/로그인/재설정/프로필, 가입 동의 체크박스 + ConsentLog(IP·UA 증빙), 내장 PostgreSQL 셋업(`npm run db:start`) |
 | 5 | Stripe 결제 | 8/8 | PaymentProvider 추상화, 체크아웃/웹훅(서명 검증)/해지, /billing 구독 관리, 요금제 월·연 토글, 상품·가격 seed(멱등) |
+| 5b | 구독·환불 정책 | 30/30 | 요금제 카드 주기 표시(/월·/년)+연간 "2개월 무료·17%" 배지, 7일 무료 체험(trial_period_days, 체험 중 해지=무청구), 갱신 3일 전 안내(invoice.upcoming 웹훅→알림), 업그레이드 즉시+일할 차액(proration), 다운그레이드 기간 말 적용(pending→갱신 시 전환), 해지 cancelAtPeriodEnd(월·연), **연간 14일 내+미사용 전액 환불(AccessLog 기반 판별)** — 전부 Stripe 테스트 모드 실검증 |
 | 6 | 구독 권한 관리 | 97/97 | 기능 매트릭스 14키 × 5플랜, 지역 화이트리스트 엔진, 프리미엄 페이지 게이트, /api/me/entitlements, ADMIN 우회 |
 | 7 | 시장 데이터 | 13/13 | 복원력 페처(타임아웃·재시도·429쿨다운·최종값 캐시), 크립토(CryptoCompare→Binance 폴백)·지수 6종(Yahoo 미러)·F&G, API 차단 시에도 서비스 유지 검증 |
 | 8 | 뉴스 시스템 | 14/14 | 지역균형 RSS 6종(미/유/아), AI 요약 파이프라인(수집→요약→발행), sanity check + 컴플라이언스 필터(위반 시 보류), 뉴스톤 심리지수, 검색/카테고리 |
@@ -33,7 +34,7 @@
 
 | 21 | 보안 | 32/32 | Clerk 웹훅 svix 서명검증(user.deleted 캐스케이드), CSRF same-origin 검증(쿠키 뮤테이션, Bearer·cron 면제), 범용 레이트리밋(consent·checkout·export·delete·admin), 보안 헤더 확장(HSTS·Permissions-Policy·CSP), SecurityEvent 감사 로그, **GDPR: 삭제권(/api/me/account)·데이터 이전(/api/me/export)·최소 수집**, 프로필 개인정보 셀프서비스 UI, 체크리스트 docs/security-checklist.md |
 
-**누적 자동 테스트: 456건 + 20단계 회귀 118건 전부 통과** (각 `scripts/test-*.mjs`로 재실행 가능)
+**누적 자동 테스트: 486건 + 20단계 회귀 118건 전부 통과** (각 `scripts/test-*.mjs`로 재실행 가능)
 
 ## 남은 단계
 

@@ -110,10 +110,15 @@ export function PricingSection() {
                   <span className="text-3xl font-bold tabular-nums">
                     {usd.format(tierAmount(tier.key, interval))}
                   </span>
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-sm text-muted-foreground" data-testid={`period-${tier.key}`}>
                     {t(interval === 'monthly' ? 'perMonth' : 'perYear')}
                   </span>
                 </div>
+                {interval === 'yearly' && tier.key !== 'free' && (
+                  <Badge variant="outline" className="w-fit text-emerald-500" data-testid={`yearly-badge-${tier.key}`}>
+                    {t('yearlyBadge')}
+                  </Badge>
+                )}
                 <p className="text-xs text-muted-foreground">{t(`tiers.${tier.key}.tagline`)}</p>
               </CardHeader>
               <CardContent className="flex flex-1 flex-col gap-4">
@@ -140,6 +145,11 @@ export function PricingSection() {
                       ? t('ctaFree')
                       : t('ctaPaid')}
                 </Button>
+                {tier.key !== 'free' && (
+                  <p className="text-center text-[11px] leading-tight text-muted-foreground">
+                    {t('trialNote')}
+                  </p>
+                )}
               </CardContent>
             </Card>
           </Reveal>

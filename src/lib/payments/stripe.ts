@@ -6,8 +6,10 @@ import type {
   CheckoutResult,
   CreateCheckoutParams,
   PaymentProvider,
+  RefundResult,
   SubscriptionData,
   SubscriptionStatus,
+  SwitchPriceParams,
   WebhookEvent,
 } from './types'
 
@@ -37,6 +39,13 @@ function periodEndOf(sub: Stripe.Subscription): Date | null {
   const item = sub.items?.data?.[0] as unknown as { current_period_end?: number } | undefined
   const subLevel = (sub as unknown as { current_period_end?: number }).current_period_end
   const unix = item?.current_period_end ?? subLevel
+  return unix ? new Date(unix * 1000) : null
+}
+
+function periodStartOf(sub: Stripe.Subscription): Date | null {
+  const item = sub.items?.data?.[0] as unknown as { current_period_start?: number } | undefined
+  const subLevel = (sub as unknown as { current_period_start?: number }).current_period_start
+  const unix = item?.current_period_start ?? subLevel ?? sub.start_date
   return unix ? new Date(unix * 1000) : null
 }
 
@@ -83,11 +92,71 @@ export class StripePaymentProvider implements PaymentProvider {
       locale: params.locale === 'ko' ? 'ko' : 'en',
       allow_promotion_codes: true,
       metadata,
-      subscription_data: { metadata },
+      subscription_data: {
+        metadata,
+        // 7-day free trial: nothing is charged until it ends; cancelling
+        // during the trial results in no charge at all.
+        ...(params.trialPeriodDays ? { trial_period_days: params.trialPeriodDays } : {}),
+      },
     })
 
     if (!session.url) throw new Error('Stripe did not return a checkout URL')
     return { id: session.id, url: session.url }
+  }
+
+  async switchPrice(params: SwitchPriceParams): Promise<SubscriptionData> {
+    // Upgrades invoice the prorated difference now; a deferred downgrade
+    // (applied at renewal) switches with no proration.
+    const sub = await this.stripe.subscriptions.update(params.subscriptionId, {
+      items: [{ id: params.itemId, price: params.newPriceId }],
+      proration_behavior: params.prorate ? 'always_invoice' : 'none',
+    })
+    return this.toSubscriptionData(sub)
+  }
+
+  async refundSubscription(subscriptionId: string): Promise<RefundResult> {
+    const sub = await this.stripe.subscriptions.retrieve(subscriptionId)
+    const invoiceId =
+      typeof sub.latest_invoice === 'string' ? sub.latest_invoice : sub.latest_invoice?.id
+    if (!invoiceId) throw new Error('no invoice to refund')
+
+    // Resolve the charge/payment-intent across Stripe API versions.
+    const invoice = (await this.stripe.invoices.retrieve(invoiceId, {
+      expand: ['payment_intent', 'charge'],
+    })) as unknown as {
+      payment_intent?: Stripe.PaymentIntent | string | null
+      charge?: Stripe.Charge | string | null
+    }
+    const piId =
+      typeof invoice.payment_intent === 'string'
+        ? invoice.payment_intent
+        : invoice.payment_intent?.id
+    const chargeId = typeof invoice.charge === 'string' ? invoice.charge : invoice.charge?.id
+
+    let refund: Stripe.Refund
+    if (piId) {
+      refund = await this.stripe.refunds.create({ payment_intent: piId })
+    } else if (chargeId) {
+      refund = await this.stripe.refunds.create({ charge: chargeId })
+    } else {
+      // Fallback: refund the latest paid charge on the customer.
+      const customerId =
+        typeof sub.customer === 'string' ? sub.customer : (sub.customer?.id ?? null)
+      const charges = customerId
+        ? await this.stripe.charges.list({ customer: customerId, limit: 1 })
+        : { data: [] as Stripe.Charge[] }
+      const latest = charges.data.find((c) => c.paid && !c.refunded)
+      if (!latest) throw new Error('no charge to refund')
+      refund = await this.stripe.refunds.create({ charge: latest.id })
+    }
+
+    // Full refund → cancel the subscription immediately.
+    await this.stripe.subscriptions.cancel(subscriptionId).catch(() => {})
+    return {
+      refundId: refund.id,
+      amount: (refund.amount ?? 0) / 100,
+      currency: refund.currency ?? 'usd',
+    }
   }
 
   async getSubscription(subscriptionId: string): Promise<SubscriptionData> {
@@ -132,6 +201,18 @@ export class StripePaymentProvider implements PaymentProvider {
             : null
         return { type: 'checkout.completed', userId, subscription }
       }
+      case 'invoice.upcoming': {
+        const invoice = event.data.object as Stripe.Invoice
+        const renewalUnix = (invoice as unknown as { next_payment_attempt?: number; period_end?: number })
+          .next_payment_attempt ?? invoice.period_end
+        return {
+          type: 'invoice.upcoming',
+          customerId: typeof invoice.customer === 'string' ? invoice.customer : (invoice.customer?.id ?? null),
+          amountDue: (invoice.amount_due ?? 0) / 100,
+          currency: invoice.currency ?? 'usd',
+          renewalAt: renewalUnix ? new Date(renewalUnix * 1000) : null,
+        }
+      }
       case 'customer.subscription.created':
       case 'customer.subscription.updated':
       case 'customer.subscription.deleted': {
@@ -153,16 +234,23 @@ export class StripePaymentProvider implements PaymentProvider {
   }
 
   private toSubscriptionData(sub: Stripe.Subscription): SubscriptionData {
-    const priceId = sub.items.data[0]?.price.id ?? null
+    const item = sub.items.data[0]
+    const priceId = item?.price.id ?? null
     const mapped = priceId ? this.planByPrice.get(priceId) : undefined
+    const latestInvoice = sub.latest_invoice
     return {
       id: sub.id,
       status: mapStatus(sub.status),
       plan: mapped?.plan ?? null,
       interval: mapped?.interval ?? null,
+      currentPeriodStart: periodStartOf(sub),
       currentPeriodEnd: periodEndOf(sub),
       cancelAtPeriodEnd: sub.cancel_at_period_end,
+      trialEnd: sub.trial_end ? new Date(sub.trial_end * 1000) : null,
       customerId: typeof sub.customer === 'string' ? sub.customer : (sub.customer?.id ?? null),
+      itemId: item?.id ?? null,
+      latestInvoiceId:
+        typeof latestInvoice === 'string' ? latestInvoice : (latestInvoice?.id ?? null),
     }
   }
 }

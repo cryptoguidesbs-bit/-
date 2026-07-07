@@ -10,7 +10,15 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CancelSubscriptionButton } from '@/components/billing/cancel-subscription-button'
+import { PlanManager } from '@/components/billing/plan-manager'
 import { Link } from '@/i18n/navigation'
+
+const PLAN_TO_KEY: Record<string, 'standard' | 'professional' | 'institutional' | 'legendary'> = {
+  STANDARD: 'standard',
+  PROFESSIONAL: 'professional',
+  INSTITUTIONAL: 'institutional',
+  LEGENDARY: 'legendary',
+}
 
 type Props = {
   params: { locale: string }
@@ -110,12 +118,30 @@ export default async function BillingPage({ params: { locale }, searchParams }: 
             </p>
           )}
 
+          {sub?.status === 'TRIALING' && hasPaidPlan && (
+            <p
+              className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-sm text-emerald-500"
+              data-testid="trial-badge"
+            >
+              {t('trialBadge')}
+            </p>
+          )}
+
           {sub?.cancelAtPeriodEnd && hasPaidPlan && (
             <p
               className="rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-3 text-sm text-yellow-500"
               data-testid="cancel-scheduled"
             >
               {t('cancelScheduled')}
+            </p>
+          )}
+
+          {sub?.pendingPlan && hasPaidPlan && (
+            <p
+              className="rounded-lg border border-blue-500/30 bg-blue-500/10 p-3 text-sm text-blue-400"
+              data-testid="pending-downgrade"
+            >
+              {t('pendingDowngrade', { plan: sub.pendingPlan })}
             </p>
           )}
 
@@ -133,6 +159,13 @@ export default async function BillingPage({ params: { locale }, searchParams }: 
           )}
         </CardContent>
       </Card>
+
+      {hasPaidPlan && sub!.externalId && !sub!.cancelAtPeriodEnd && (
+        <PlanManager
+          currentPlan={PLAN_TO_KEY[sub!.plan] ?? 'standard'}
+          currentInterval={sub!.interval === 'YEARLY' ? 'yearly' : 'monthly'}
+        />
+      )}
 
       <p className="text-xs text-muted-foreground">{t('billingNote')}</p>
     </div>
