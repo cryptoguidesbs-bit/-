@@ -632,14 +632,56 @@
   },
   "legal": {
     "placeholder": "This document is being prepared. The official legal document will be published later.",
+    "relatedTitle": "Related policies",
     "terms": {
-      "title": "Terms of Service"
+      "title": "Terms of Service",
+      "refundReference": "Subscription billing, automatic renewal, withdrawal of subscription and refunds are governed by our separate Refund Policy. Please review the Refund Policy below for details."
     },
     "privacy": {
       "title": "Privacy Policy"
     },
     "disclaimer": {
       "title": "Disclaimer"
+    },
+    "refund": {
+      "title": "Refund Policy",
+      "subtitle": "How subscription billing, automatic renewal, withdrawal and refunds work.",
+      "updated": "Last updated: July 8, 2026",
+      "intro": "This Refund Policy governs billing, automatic renewal, withdrawal of subscription and refunds for the paid subscription services provided by CryptoGuide (the \"Company\"). It forms part of the Company's Terms of Service and does not limit any consumer rights guaranteed by applicable consumer-protection laws, including the Korean Act on the Consumer Protection in Electronic Commerce.",
+      "sections": [
+        {
+          "heading": "1. Automatic renewal and advance notice",
+          "body": "Unless cancelled, every paid subscription renews automatically at the end of each billing cycle and is charged to your registered payment method. The Company sends an email 3 days before the renewal date stating that the subscription will renew and the amount that will be charged."
+        },
+        {
+          "heading": "2. Free trial",
+          "body": "New subscriptions include a 7-day free trial. If you cancel during the trial, you are not charged anything. When the trial ends, the subscription automatically converts to a paid subscription and the first charge is made."
+        },
+        {
+          "heading": "3. Monthly subscriptions",
+          "body": "Monthly subscriptions are non-refundable. If you cancel, access is not stopped immediately; you may continue to use the service until the end of the current billing period you have already paid for. At the end of the period the subscription ends without renewing."
+        },
+        {
+          "heading": "4. Annual subscriptions",
+          "body": "Annual subscriptions are non-refundable as a rule. However, a full refund is available only when the request is made within 14 days of the payment date AND the service has not actually been used (no usage records such as signing in and viewing content). Refunds are not available once 14 days have passed or once there is any record of service use."
+        },
+        {
+          "heading": "5. Plan changes (upgrade / downgrade)",
+          "body": "An upgrade to a higher plan takes effect immediately and only the prorated difference for the remaining billing period is charged. A downgrade to a lower plan does not affect the current billing period and applies from the next billing date; no separate refund is provided for a downgrade."
+        },
+        {
+          "heading": "6. Limits on withdrawal for digital content",
+          "body": "This service is informational digital content. Under applicable law, including Article 17(2) of the Korean Act on the Consumer Protection in Electronic Commerce, the right to withdraw a subscription may be restricted to the extent permitted by law once provision of the content has begun. Where withdrawal is restricted, the Company clearly indicates this and provides trial use (the free trial) as required by applicable law."
+        },
+        {
+          "heading": "7. Refunds for cryptocurrency (USDC) payments",
+          "body": "Where payment was made in cryptocurrency such as USDC, refunds are issued only to the wallet address originally used for the payment. Refunds to a different wallet address are not provided, and network fees at the time of the refund may be deducted. The Company is not responsible for losses caused by the user, such as entering an incorrect wallet address."
+        }
+      ],
+      "howToTitle": "How to request a refund",
+      "how": "You can request a refund directly from the subscription management page or through our customer support channel. Eligibility for an annual-subscription refund is determined based on the payment date and service-usage records.",
+      "statutory": "Nothing in this policy excludes or limits any rights guaranteed to you under applicable law. Where this policy conflicts with mandatory law, that law prevails.",
+      "manageCta": "Go to subscription management"
     }
   },
   "footer": {

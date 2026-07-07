@@ -1,6 +1,6 @@
-// Legal document slugs. Placeholder pages for now — real content lands in
-// stage 22 (legal documents); the footer disclaimer links here.
-export const legalSlugs = ['terms', 'privacy', 'disclaimer'] as const
+// Legal document slugs. 'refund' has full published content; the others are
+// placeholders until stage 22 (legal documents). The footer links here.
+export const legalSlugs = ['terms', 'privacy', 'disclaimer', 'refund'] as const
 
 export type LegalSlug = (typeof legalSlugs)[number]
 
