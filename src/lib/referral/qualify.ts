@@ -2,7 +2,7 @@ import 'server-only'
 
 import type { SubscriptionPlan } from '@prisma/client'
 
-import { isFeatureAllowedInCountry } from '@/config/features'
+import { isFeatureAllowedInCountryLive } from '@/lib/entitlements/region'
 import { REFERRAL } from '@/config/referral'
 import { planAmounts } from '@/lib/payments/plans'
 import { prisma } from '@/lib/prisma'
@@ -48,7 +48,7 @@ export async function qualifyReferral(referredUserId: string): Promise<QualifyOu
 
   // Region policy on the REFERRER — monetary rewards may be regulated in
   // their jurisdiction (docs/legal-review.md).
-  if (!isFeatureAllowedInCountry('referral.rewards', referral.referrer.country)) {
+  if (!(await isFeatureAllowedInCountryLive('referral.rewards', referral.referrer.country))) {
     return 'qualified-noreward'
   }
 

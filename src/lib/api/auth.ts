@@ -3,7 +3,8 @@ import 'server-only'
 import type { NextRequest } from 'next/server'
 import type { ApiKey } from '@prisma/client'
 
-import { isFeatureAllowedInCountry, planHasFeature } from '@/config/features'
+import { planHasFeature } from '@/config/features'
+import { isFeatureAllowedInCountryLive } from '@/lib/entitlements/region'
 import type { SubscriptionPlan } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { hashApiKey } from './keys'
@@ -59,7 +60,7 @@ export async function authenticateApiKey(
     request.headers.get('x-vercel-ip-country')?.toUpperCase() ??
     request.headers.get('cf-ipcountry')?.toUpperCase() ??
     null
-  if (!isFeatureAllowedInCountry('api.center', country)) {
+  if (!(await isFeatureAllowedInCountryLive('api.center', country))) {
     return { ok: false, status: 403, error: 'api access is not available in your region' }
   }
 

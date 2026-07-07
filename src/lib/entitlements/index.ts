@@ -7,10 +7,14 @@ import type { SubscriptionPlan, SubscriptionStatus, UserRole } from '@prisma/cli
 import {
   FEATURE_MIN_PLAN,
   featureKeys,
-  isFeatureAllowedInCountry,
   planHasFeature,
   type FeatureKey,
 } from '@/config/features'
+import {
+  allowedWithOverride,
+  getRegionOverrides,
+  type RegionOverride,
+} from '@/lib/entitlements/region'
 import { prisma } from '@/lib/prisma'
 
 // Statuses that keep paid entitlements. PAST_DUE gets a grace period while
@@ -72,10 +76,16 @@ async function resolvePlanAndRole(): Promise<{
 
 function evaluate(
   feature: FeatureKey,
-  ctx: { signedIn: boolean; plan: SubscriptionPlan; country: string | null },
+  ctx: {
+    signedIn: boolean
+    plan: SubscriptionPlan
+    country: string | null
+    overrides: Map<string, RegionOverride>
+  },
 ): { allowed: boolean; reason: GateReason } {
-  // Region rules are absolute — they apply regardless of plan.
-  if (!isFeatureAllowedInCountry(feature, ctx.country)) {
+  // Region rules are absolute — they apply regardless of plan. Runtime
+  // admin switches (stage 19) override the static config policy.
+  if (!allowedWithOverride(feature, ctx.country, ctx.overrides)) {
     return { allowed: false, reason: 'region' }
   }
   if (planHasFeature(ctx.plan, feature)) {
@@ -89,8 +99,11 @@ function evaluate(
 /** Check a single feature for the current request. */
 export async function checkFeature(feature: FeatureKey): Promise<FeatureCheck> {
   const country = requestCountry()
-  const { signedIn, plan } = await resolvePlanAndRole()
-  const { allowed, reason } = evaluate(feature, { signedIn, plan, country })
+  const [{ signedIn, plan }, overrides] = await Promise.all([
+    resolvePlanAndRole(),
+    getRegionOverrides(),
+  ])
+  const { allowed, reason } = evaluate(feature, { signedIn, plan, country, overrides })
   return {
     feature,
     allowed,
@@ -105,11 +118,14 @@ export async function checkFeature(feature: FeatureKey): Promise<FeatureCheck> {
 /** Full feature matrix for the current request (signed-out → FREE). */
 export async function getEntitlements(): Promise<Entitlements> {
   const country = requestCountry()
-  const { signedIn, plan, role } = await resolvePlanAndRole()
+  const [{ signedIn, plan, role }, overrides] = await Promise.all([
+    resolvePlanAndRole(),
+    getRegionOverrides(),
+  ])
 
   const features = {} as Entitlements['features']
   for (const feature of featureKeys) {
-    features[feature] = evaluate(feature, { signedIn, plan, country })
+    features[feature] = evaluate(feature, { signedIn, plan, country, overrides })
   }
 
   return { signedIn, plan, role, country, features }

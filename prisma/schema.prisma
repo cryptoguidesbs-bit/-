@@ -167,6 +167,40 @@ model User {
 }
 
 // ---------------------------------------------------------------------------
+// Admin operations (stage 19) — runtime region/feature switches and the
+// ops-event stream produced by the automated monitor.
+// ---------------------------------------------------------------------------
+
+// Runtime override of the static featureRegionPolicy — lets an operator
+// react to regulation changes without a deploy. enabled=false kills the
+// feature everywhere; a non-empty whitelist replaces the config whitelist.
+model FeatureSwitch {
+  id           String   @id @default(cuid())
+  feature      String   @unique
+  enabled      Boolean  @default(true)
+  whitelist    String[]
+  allowUnknown Boolean?
+  updatedBy    String?
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
+}
+
+// Anomalies and operational signals detected by the automated monitor.
+// An unresolved event of the same kind suppresses duplicates.
+model OpsEvent {
+  id         String    @id @default(cuid())
+  kind       String
+  severity   String
+  message    String
+  data       Json?
+  resolvedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([kind, resolvedAt])
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
 // API Center (stage 18, Legendary) — keys, per-day usage aggregation,
 // outbound webhooks. The full key is shown once at creation; only a salted
 // hash and a display prefix are stored.
