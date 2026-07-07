@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { featureKeys, featureRegionPolicy } from '@/config/features'
 import { requireAdmin } from '@/lib/admin/auth'
 import { invalidateRegionOverrides } from '@/lib/entitlements/region'
+import { logSecurityEvent } from '@/lib/security/audit'
 import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
@@ -51,6 +52,13 @@ export async function PUT(request: NextRequest) {
     create: { feature: parsed.data.feature, ...data },
   })
   invalidateRegionOverrides()
+  await logSecurityEvent({
+    action: 'admin.region_switch.set',
+    userId: admin.user.id,
+    actorEmail: admin.user.email,
+    request,
+    meta: { feature: parsed.data.feature, enabled: data.enabled, whitelist: data.whitelist },
+  })
   return NextResponse.json({ ok: true, switch: saved })
 }
 

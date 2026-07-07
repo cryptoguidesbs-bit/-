@@ -2,7 +2,7 @@
 
 > 최종 업데이트: 2026-07-07
 
-## 완료된 단계 (1~20)
+## 완료된 단계 (1~21)
 
 | 단계 | 내용 | 자동 테스트 | 핵심 구현 |
 |---|---|---|---|
@@ -31,13 +31,15 @@
 
 | 20 | 성능 최적화 | 회귀 118 | 랜딩 클라이언트 JS −73%(52.7→14.4 kB), framer-motion 앱 전체 제거(CSS/IntersectionObserver 대체), **루트 레이아웃 추가로 프로덕션 빌드 정상화**(이전 빌드 불가), Hero/AiBrief/Why 서버 컴포넌트 전환(초기 HTML에 카피 포함), next.config(avif/webp·optimizePackageImports·removeConsole·소스맵 off·보안 헤더 4종), 라우트 loading.tsx 스트리밍, CDN 리전 점검 스크립트(perf-latency-check.mjs), 리포트 docs/perf-report-stage20.md |
 
-**누적 자동 테스트: 424건 + 20단계 회귀 118건 전부 통과** (각 `scripts/test-*.mjs`로 재실행 가능)
+| 21 | 보안 | 32/32 | Clerk 웹훅 svix 서명검증(user.deleted 캐스케이드), CSRF same-origin 검증(쿠키 뮤테이션, Bearer·cron 면제), 범용 레이트리밋(consent·checkout·export·delete·admin), 보안 헤더 확장(HSTS·Permissions-Policy·CSP), SecurityEvent 감사 로그, **GDPR: 삭제권(/api/me/account)·데이터 이전(/api/me/export)·최소 수집**, 프로필 개인정보 셀프서비스 UI, 체크리스트 docs/security-checklist.md |
+
+**누적 자동 테스트: 456건 + 20단계 회귀 118건 전부 통과** (각 `scripts/test-*.mjs`로 재실행 가능)
 
 ## 남은 단계
 
 | 단계 | 내용 | 비고 |
 |---|---|---|
-| 21 | (사용자 플랜 문서 참조) | 보안 — API 레이트리밋 프로덕션화(공유 스토어) 연계 |
+| 22 | 법적 문서 | 아래 참조 |
 | 22 | 법적 문서 | 이용약관/개인정보처리방침/면책조항 정식 작성 — `/legal/*` 자리 페이지 교체, docs/legal-review.md 체크리스트 반영, 지역 제한 국가 목록 확정 |
 
 ## 배포 전 처리 목록 (단계 외 누적 과제)
@@ -54,6 +56,8 @@
 - [ ] docs/legal-review.md 법률 검토 항목 처리 (22단계 연계 — 리퍼럴 금전 보상 국가별 규제 S5 포함)
 - [ ] 리퍼럴 보상 지급 수단·세무 처리 확정 (현재 원장 기록만, 지급은 수동)
 - [ ] API 레이트리밋 저장소를 인메모리 → 공유 스토어(Redis 등)로 전환 (다중 인스턴스 배포 시, 21단계 연계)
+- [ ] CLERK_WEBHOOK_SECRET 실제 값 설정 + Clerk 대시보드에 웹훅 엔드포인트(/api/webhooks/clerk) 등록 (user.deleted/updated 동기화)
+- [ ] CSP script-src 강화 (현재는 frame-ancestors/base-uri/form-action만 — Clerk/Next 인라인 부트스트랩 검증 후 배포 시 강화)
 
 ## 개발 환경 메모
 

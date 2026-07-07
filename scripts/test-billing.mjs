@@ -68,10 +68,11 @@ ok(
 )
 if (checkoutJson?.id) await stripe.checkout.sessions.expire(checkoutJson.id).catch(() => {})
 
-// unauthenticated → 401
+// unauthenticated → 401 (same-origin so the CSRF layer passes and we
+// exercise the auth check itself)
 const noAuth = await fetch(`${APP}/api/billing/checkout`, {
   method: 'POST',
-  headers: { 'content-type': 'application/json' },
+  headers: { 'content-type': 'application/json', origin: APP },
   body: JSON.stringify({ plan: 'standard', interval: 'monthly', locale: 'ko' }),
 })
 ok('checkout requires auth', noAuth.status === 401, `status=${noAuth.status}`)

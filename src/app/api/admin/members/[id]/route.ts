@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
 import { requireAdmin } from '@/lib/admin/auth'
+import { logSecurityEvent } from '@/lib/security/audit'
 import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
@@ -44,6 +45,14 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       })
     }
   }
+
+  await logSecurityEvent({
+    action: 'admin.member.update',
+    userId: admin.user.id,
+    actorEmail: admin.user.email,
+    request,
+    meta: { targetId: target.id, targetEmail: target.email, ...parsed.data },
+  })
 
   const updated = await prisma.user.findUnique({
     where: { id: target.id },

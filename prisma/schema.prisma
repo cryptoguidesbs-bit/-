@@ -164,6 +164,30 @@ model User {
   referralRewards ReferralReward[]
   apiKeys     ApiKey[]
   apiWebhooks ApiWebhook[]
+  securityEvents SecurityEvent[]
+}
+
+// ---------------------------------------------------------------------------
+// Security audit trail (stage 21) — sensitive actions (account erasure,
+// data export, admin member/region changes, blocked requests). Append-only;
+// userId is SetNull on user deletion so the audit outlives the account.
+// ---------------------------------------------------------------------------
+
+model SecurityEvent {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  // Actor email captured inline so the record survives account deletion.
+  actorEmail String?
+  ip        String?
+  userAgent String?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([action, createdAt])
+  @@index([userId])
 }
 
 // ---------------------------------------------------------------------------

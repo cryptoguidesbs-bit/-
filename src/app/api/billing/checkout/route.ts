@@ -4,6 +4,7 @@ import { auth, clerkClient } from '@clerk/nextjs/server'
 import { getPaymentProvider, isPaidPlan } from '@/lib/payments'
 import { routing } from '@/i18n/routing'
 import { siteUrl } from '@/lib/site'
+import { enforceRateLimit } from '@/lib/security/rate-limit'
 import { prisma } from '@/lib/prisma'
 
 // Creates a hosted checkout session for the signed-in user and returns its
@@ -13,6 +14,9 @@ export async function POST(request: NextRequest) {
   if (!clerkId) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
+
+  const limited = enforceRateLimit({ name: 'checkout', limit: 10, identifier: clerkId, request })
+  if (limited) return limited
 
   const body = (await request.json().catch(() => ({}))) as {
     plan?: string

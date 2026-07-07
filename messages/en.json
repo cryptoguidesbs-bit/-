@@ -3,6 +3,20 @@
     "title": "CryptoGuide",
     "description": "AI-powered real-time crypto market insights — prices, news, briefings and on-chain data in one place"
   },
+  "privacy": {
+    "title": "Privacy & Data",
+    "exportTitle": "Export my data",
+    "exportDescription": "Download everything stored on your account as a JSON file (data portability).",
+    "exportButton": "Export data",
+    "exporting": "Exporting…",
+    "exportError": "Could not export your data. Please try again shortly.",
+    "deleteTitle": "Delete account",
+    "deleteDescription": "Permanently deletes your account and all related data. This cannot be undone. Type DELETE to confirm.",
+    "deletePlaceholder": "Type DELETE",
+    "deleteButton": "Permanently delete account",
+    "deleting": "Deleting…",
+    "deleteError": "Could not delete your account. Please try again shortly."
+  },
   "common": {
     "appName": "CryptoGuide",
     "language": "Language",

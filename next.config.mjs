@@ -8,6 +8,26 @@ const securityHeaders = [
   { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
   { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
   { key: 'X-DNS-Prefetch-Control', value: 'on' },
+  // HSTS — force HTTPS for 2 years incl. subdomains (effective once served
+  // over TLS; ignored on plain HTTP so it is safe in local dev).
+  {
+    key: 'Strict-Transport-Security',
+    value: 'max-age=63072000; includeSubDomains; preload',
+  },
+  // Drop access to powerful features the app never uses.
+  {
+    key: 'Permissions-Policy',
+    value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+  },
+  // Conservative CSP: clickjacking (frame-ancestors), base-tag injection
+  // (base-uri) and form-hijack (form-action) protection without restricting
+  // script sources — a full script-src policy is a documented deploy-time
+  // hardening step (needs browser verification against Clerk/Next inline
+  // bootstrap; see docs/security-checklist.md).
+  {
+    key: 'Content-Security-Policy',
+    value: "frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'",
+  },
 ]
 
 /** @type {import('next').NextConfig} */

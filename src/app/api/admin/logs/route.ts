@@ -33,6 +33,24 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ type, rows })
   }
 
+  if (type === 'security') {
+    const rows = await prisma.securityEvent.findMany({
+      where: q
+        ? { OR: [{ action: { contains: q, mode: 'insensitive' } }, { actorEmail: { contains: q, mode: 'insensitive' } }] }
+        : undefined,
+      orderBy: { createdAt: 'desc' },
+      take,
+      select: {
+        id: true,
+        action: true,
+        actorEmail: true,
+        ip: true,
+        createdAt: true,
+      },
+    })
+    return NextResponse.json({ type, rows })
+  }
+
   if (type === 'audit') {
     const rows = await prisma.contentAuditLog.findMany({
       where: q

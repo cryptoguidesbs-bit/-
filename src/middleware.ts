@@ -38,12 +38,57 @@ function pathnameLocale(pathname: string): Locale | undefined {
   )
 }
 
+// Cookie-authenticated, browser-initiated mutation routes that must be
+// CSRF-protected by a same-origin check. Excludes signature-verified
+// webhooks (/api/billing/webhook, /api/webhooks/*), API-key routes
+// (/api/v1/*) and cron-secret routes (they carry no browser Origin).
+const CSRF_MUTATING_METHODS = new Set(['POST', 'PUT', 'PATCH', 'DELETE'])
+function isCsrfProtected(pathname: string): boolean {
+  if (pathname === '/api/billing/webhook' || pathname.startsWith('/api/webhooks/')) return false
+  return (
+    pathname.startsWith('/api/me/') ||
+    pathname.startsWith('/api/admin/') ||
+    pathname === '/api/consent' ||
+    pathname === '/api/billing/checkout' ||
+    pathname === '/api/billing/cancel'
+  )
+}
+
+function sameOriginOk(request: NextRequest): boolean {
+  const origin = request.headers.get('origin')
+  if (!origin) return false
+  let originHost: string
+  try {
+    originHost = new URL(origin).host
+  } catch {
+    return false
+  }
+  const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host')
+  return !!host && originHost === host
+}
+
 export default clerkMiddleware(async (auth, request) => {
   const { pathname } = request.nextUrl
 
   // API routes only need Clerk's auth context, not locale routing.
   // /r/* are referral landing redirects (no locale prefix by design).
   if (pathname.startsWith('/api') || pathname.startsWith('/r/')) {
+    // CSRF defense-in-depth: reject cross-origin mutations on the
+    // cookie-authenticated routes before they reach the handler. Bearer-token
+    // requests are exempt — CSRF targets ambient credentials (cookies), and
+    // browsers never auto-attach an Authorization header cross-site.
+    if (CSRF_MUTATING_METHODS.has(request.method) && isCsrfProtected(pathname)) {
+      const hasBearer = request.headers
+        .get('authorization')
+        ?.toLowerCase()
+        .startsWith('bearer ')
+      // Cron/server-to-server calls (x-cron-secret) are not browser CSRF
+      // vectors and carry no Origin — exempt them alongside bearer tokens.
+      const hasCronSecret = request.headers.has('x-cron-secret')
+      if (!hasBearer && !hasCronSecret && !sameOriginOk(request)) {
+        return NextResponse.json({ error: 'cross-origin request blocked' }, { status: 403 })
+      }
+    }
     return NextResponse.next()
   }
 

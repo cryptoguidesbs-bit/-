@@ -262,7 +262,7 @@ ok('Sentry report state (unconfigured dev fallback)',
 
 // --- 8. automated ops cycle (완료 조건) -------------------------------------------------------
 console.log('--- automated ops cycle ---')
-res = await api('/api/admin/monitor/run', { method: 'POST', authed: false })
+res = await api('/api/admin/monitor/run', { method: 'POST', authed: false, headers: { origin: APP } })
 ok('monitor without auth → 401', res.status === 401)
 
 // 8a. subscription hygiene: PAST_DUE past grace auto-expires; within grace stays.

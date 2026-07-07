@@ -5,6 +5,7 @@ import { CONSENT_VERSION } from '@/config/consent'
 import { REFERRAL } from '@/config/referral'
 import { routing } from '@/i18n/routing'
 import { attributeReferral } from '@/lib/referral/attribution'
+import { enforceRateLimit } from '@/lib/security/rate-limit'
 import { prisma } from '@/lib/prisma'
 
 // Records the "not investment advice · informational/educational purposes"
@@ -15,6 +16,9 @@ export async function POST(request: NextRequest) {
   if (!userId) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
   }
+
+  const limited = enforceRateLimit({ name: 'consent', limit: 20, identifier: userId, request })
+  if (limited) return limited
 
   const body = (await request.json().catch(() => ({}))) as { locale?: string }
   const locale = routing.locales.includes(body.locale as (typeof routing.locales)[number])
