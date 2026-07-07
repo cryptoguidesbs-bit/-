@@ -55,8 +55,11 @@ export function planHasFeature(plan: SubscriptionPlan, feature: FeatureKey): boo
 // everywhere. `allowUnknown` decides what happens when the visitor's country
 // cannot be determined (no geo header, e.g. local dev).
 //
-// NOTE: the country lists below are placeholder compliance policy — adjust
-// them when the real legal review (stage 22) lands.
+// STAGE 22 — this is the launch-candidate region matrix. Each list and its
+// rationale are documented in docs/region-matrix.md and must receive final
+// attorney sign-off before production launch; runtime overrides
+// (FeatureSwitch, admin console) allow adjusting any entry without a deploy
+// once counsel confirms.
 // ---------------------------------------------------------------------------
 
 export type RegionPolicy = {

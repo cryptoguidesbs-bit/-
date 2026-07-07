@@ -16,11 +16,15 @@ export function SiteFooter() {
       <div className="container grid gap-10 py-10 md:grid-cols-[2fr_1fr_1fr]">
         <div className="space-y-4">
           <p className="font-semibold tracking-tight">{tCommon('appName')}</p>
-          {/* Global disclaimer — full legal documents land in stage 22 and are
-              linked from the "legal" column below. */}
-          <p className="max-w-prose text-xs leading-relaxed text-muted-foreground">
-            {t('disclaimer')}
-          </p>
+          {/* Site-wide legal disclaimer (5 points), shown on every page. */}
+          <ul
+            className="max-w-prose space-y-1 text-xs leading-relaxed text-muted-foreground"
+            data-testid="global-disclaimer"
+          >
+            {(tLegal.raw('globalDisclaimer.items') as string[]).map((item, i) => (
+              <li key={i}>{item}</li>
+            ))}
+          </ul>
         </div>
 
         <nav aria-label={t('navigation')} className="space-y-3">

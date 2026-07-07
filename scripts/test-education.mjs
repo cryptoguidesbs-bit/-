@@ -155,7 +155,12 @@ for (const slug of [
 ]) {
   for (const locale of ['ko', 'en']) {
     const lesson = await page(`/${locale}/education/${slug}`, true)
-    const body = lesson.html.replace(/<script[\s\S]*?<\/script>/g, '')
+    // Scan lesson content only — strip <script> and the shared <footer>
+    // (the site-wide legal disclaimer legitimately says "수익을 보장하지
+    // 않습니다", a negated disclaimer, which would otherwise false-positive).
+    const body = lesson.html
+      .replace(/<script[\s\S]*?<\/script>/g, '')
+      .replace(/<footer[\s\S]*?<\/footer>/g, '')
     for (const p of ADVICE) {
       const m = body.match(p)
       if (m) violations.push(`${slug}/${locale}: ${m[0]}`)

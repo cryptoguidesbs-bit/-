@@ -631,17 +631,90 @@
     }
   },
   "legal": {
-    "placeholder": "This document is being prepared. The official legal document will be published later.",
     "relatedTitle": "Related policies",
+    "regionsTitle": "Jurisdiction-specific notices",
+    "globalDisclaimer": {
+      "title": "Important notice",
+      "items": [
+        "CryptoGuide provides AI-powered market analysis and educational content only.",
+        "Nothing on this website constitutes financial, investment, tax, or legal advice.",
+        "Trading cryptocurrencies involves substantial risk. You may lose some or all of your capital.",
+        "Past performance does not guarantee future results.",
+        "CryptoGuide does not provide investment advisory services and is not registered as an investment adviser in any jurisdiction."
+      ]
+    },
     "terms": {
       "title": "Terms of Service",
-      "refundReference": "Subscription billing, automatic renewal, withdrawal of subscription and refunds are governed by our separate Refund Policy. Please review the Refund Policy below for details."
+      "subtitle": "The terms that govern your use of CryptoGuide.",
+      "updated": "Last updated: July 8, 2026",
+      "intro": "These Terms of Service (the \"Terms\") govern your use of the website and related services (the \"Service\") provided by CryptoGuide (the \"Company\"). By using the Service you agree to these Terms.",
+      "sections": [
+        { "heading": "1. Acceptance and scope", "body": "By registering for or using the Service you are deemed to have agreed to these Terms. The Company may amend these Terms to the extent permitted by law, with prior notice of any changes." },
+        { "heading": "2. The Service", "body": "The Company provides informational and educational services including AI-powered market analysis, news summaries, market briefings, on-chain data and educational content. All content is non-personalized general information and is not individualized investment advice or a solicitation to trade for any particular user." },
+        { "heading": "3. Eligibility", "body": "You must have the legal capacity (including age) to use the Service in your jurisdiction and are responsible for complying with applicable law. Some features may be unavailable in restricted regions." },
+        { "heading": "4. Accounts and security", "body": "You are responsible for keeping your account credentials secure and for all activity under your account. Authentication is handled through Clerk." },
+        { "heading": "5. Subscriptions and billing", "body": "Billing, automatic renewal, plan changes, withdrawal and refunds for paid subscriptions are governed by the separate Refund Policy. All prices are in US dollars (USD)." },
+        { "heading": "6. Acceptable use", "body": "You may not copy, redistribute or resell the Service or its content without authorization, access it through automated means excessively, or use it in violation of applicable law or third-party rights." },
+        { "heading": "7. Intellectual property", "body": "All intellectual property rights in the Service and its content belong to the Company or its licensors. You are granted only a limited license for personal, non-commercial use." },
+        { "heading": "8. Third-party services and data", "body": "The Service relies on third parties for authentication (Clerk), payments (Stripe), AI (Anthropic) and market/on-chain data. The accuracy and timeliness of third-party data are not guaranteed." },
+        { "heading": "9. Disclaimers and limitation of liability", "body": "The Service is provided \"as is\". To the maximum extent permitted by law, the Company does not warrant the accuracy or fitness for a particular purpose of any information. See the Disclaimer for details." },
+        { "heading": "10. Changes and termination", "body": "The Company may change or discontinue all or part of the Service, and you may cancel your subscription and stop using the Service at any time." },
+        { "heading": "11. Governing law and disputes", "body": "Interpretation and application of these Terms are subject to the jurisdiction-specific notices below; mandatory rights and forums granted to you by law are not limited." }
+      ],
+      "regions": {
+        "intro": "Depending on where you reside, the following also applies.",
+        "us": { "heading": "United States users", "body": "The content is for informational and educational purposes and is not a solicitation or offer to buy or sell securities. The Company is not registered as an investment adviser under the U.S. Investment Advisers Act of 1940 and does not provide individualized investment advice." },
+        "eu": { "heading": "EU users", "body": "The Company is not an authorized crypto-asset service provider (CASP) under the Markets in Crypto-Assets Regulation (MiCA), and the Service is not the provision or marketing of regulated crypto-asset services. Processing of personal data is subject to the GDPR (see the Privacy Policy)." },
+        "kr": { "heading": "Republic of Korea users", "body": "The Service is an informational and educational service that does not constitute investment advisory or discretionary investment business under the Financial Investment Services and Capital Markets Act. The Company does not provide individualized consultation and provides the same information to an unspecified audience." }
+      },
+      "related": "Subscription billing, automatic renewal, withdrawal and refunds are governed by the separate Refund Policy.",
+      "statutory": "Nothing in these Terms excludes or limits any rights guaranteed to you under mandatory law."
     },
     "privacy": {
-      "title": "Privacy Policy"
+      "title": "Privacy Policy",
+      "subtitle": "What personal data we process, why, how long we keep it, and your rights.",
+      "updated": "Last updated: July 8, 2026",
+      "intro": "The Company values your personal data and complies with applicable data-protection laws, including the Korean Personal Information Protection Act (PIPA) and, where applicable, the GDPR. This policy explains what personal data we collect and use, third-party sharing, retention and your rights.",
+      "sections": [
+        { "heading": "1. Personal data we collect", "body": "Account details (email, name, profile image via Clerk), consent records (timestamp, IP, user-agent), payment data (Stripe customer/subscription identifiers — card data is held by Stripe), portfolios and watchlists, referral relationships and a hashed signup IP, API keys (hashed), and service access/usage records." },
+        { "heading": "2. Purposes of use", "body": "We use personal data for member management and authentication, billing/renewal/refunds of paid subscriptions, providing and improving the Service, meeting legal obligations (such as consent evidence), and preventing abuse (such as referral-fraud detection)." },
+        { "heading": "3. Legal bases", "body": "We process personal data on the bases permitted by applicable law, including performance of a contract, your consent, legal obligations and legitimate interests." },
+        { "heading": "4. Sharing and processors", "body": "To provide the Service we engage processors for authentication (Clerk), payments (Stripe), AI processing (Anthropic), hosting/CDN and email. When AI processing is used, personally identifying data is minimized." },
+        { "heading": "5. International transfers", "body": "Some processors are located outside your country; where this occurs we apply the safeguards required by law. The details of international transfers will be finalized and disclosed in the pre-launch legal review." },
+        { "heading": "6. Retention and deletion", "body": "Personal data is deleted without undue delay once its purpose is achieved or you close your account, except where a legal retention obligation applies. On account deletion, related data is cascade-deleted." },
+        { "heading": "7. Your rights", "body": "You may request access, correction, deletion, restriction and portability of your personal data. You can export your data (portability) and delete your account (erasure) directly from your profile page." },
+        { "heading": "8. Cookies", "body": "We use the minimum necessary cookies for keeping you signed in, language preference and referral attribution." },
+        { "heading": "9. Security", "body": "We apply technical and organizational measures such as access control, transport encryption and IP hashing to process personal data securely." },
+        { "heading": "10. Children", "body": "The Service does not target children below the minimum age set by applicable law and does not knowingly collect their personal data." }
+      ],
+      "regions": {
+        "intro": "Depending on where you reside, the following also applies.",
+        "us": { "heading": "United States (California) users", "body": "California residents have the right under the CCPA/CPRA to know the categories of personal data collected, to request deletion, and to opt out of sale/sharing. The Company does not sell personal data." },
+        "eu": { "heading": "EU/EEA users", "body": "Under the GDPR the Company acts as data controller and states its legal bases; you have the rights of access, rectification, erasure, restriction, portability and objection, and the right to lodge a complaint with a supervisory authority." },
+        "kr": { "heading": "Republic of Korea users", "body": "Under PIPA the Company discloses the items, purposes, retention period, processing consignment and cross-border transfer of personal data, and you may request access, correction, deletion and suspension of processing." }
+      },
+      "statutory": "Where this policy conflicts with mandatory law, that law prevails; cross-border transfer and retention details are finalized in the pre-launch legal review."
     },
     "disclaimer": {
-      "title": "Disclaimer"
+      "title": "Disclaimer",
+      "subtitle": "The nature of the Service and the risks involved.",
+      "updated": "Last updated: July 8, 2026",
+      "intro": "This Disclaimer clarifies the nature and limits of the CryptoGuide Service. Please read it carefully before using the Service.",
+      "sections": [
+        { "heading": "1. Nature of the Service", "body": "CryptoGuide provides AI-powered market analysis and educational content only. Nothing on this website constitutes financial, investment, tax, or legal advice." },
+        { "heading": "2. No advisory relationship", "body": "The Company does not provide investment advisory services and is not registered as an investment adviser in any jurisdiction. Using the Service does not create any advisory, fiduciary or agency relationship between you and the Company." },
+        { "heading": "3. AI-generated content", "body": "AI-generated summaries, briefings and pattern analysis are labeled as AI-generated and may be inaccurate. The \"confidence\" in pattern analysis reflects the degree of shape match, not a prediction of price direction, and briefings are non-personalized information, not tailored to any individual." },
+        { "heading": "4. Investment risk", "body": "Trading cryptocurrencies involves substantial risk. You may lose some or all of your capital. You are solely responsible for your own investment decisions and their outcomes." },
+        { "heading": "5. No guarantee of results", "body": "Past performance does not guarantee future results. The Company does not guarantee any investment outcome or return." },
+        { "heading": "6. Third-party data", "body": "Prices, news and on-chain data in the Service are sourced from third parties, and their accuracy, completeness and timeliness are not guaranteed." }
+      ],
+      "regions": {
+        "intro": "Depending on where you reside, the following notices also apply.",
+        "us": { "heading": "United States users (SEC)", "body": "CryptoGuide is not an investment adviser under the U.S. Investment Advisers Act of 1940 and is not registered as an investment adviser with the SEC or any state authority. The content is not a solicitation or offer to buy or sell securities or investment products and does not constitute individualized investment advice." },
+        "eu": { "heading": "EU users (MiCA)", "body": "CryptoGuide is not an authorized crypto-asset service provider (CASP) under the Markets in Crypto-Assets Regulation (MiCA). The content is not investment advice on crypto-assets or marketing of regulated services and is provided for informational and educational purposes only." },
+        "kr": { "heading": "Republic of Korea users (Capital Markets Act)", "body": "The Service is an informational and educational service that does not constitute investment advisory or discretionary investment business under the Financial Investment Services and Capital Markets Act. The Company does not provide individualized consultation and provides the same information to an unspecified audience." }
+      },
+      "statutory": "Nothing in this Disclaimer excludes or limits any rights guaranteed to you under mandatory law."
     },
     "refund": {
       "title": "Refund Policy",

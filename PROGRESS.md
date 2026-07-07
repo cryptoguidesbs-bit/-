@@ -34,15 +34,17 @@
 | 20 | 성능 최적화 | 회귀 118 | 랜딩 클라이언트 JS −73%(52.7→14.4 kB), framer-motion 앱 전체 제거(CSS/IntersectionObserver 대체), **루트 레이아웃 추가로 프로덕션 빌드 정상화**(이전 빌드 불가), Hero/AiBrief/Why 서버 컴포넌트 전환(초기 HTML에 카피 포함), next.config(avif/webp·optimizePackageImports·removeConsole·소스맵 off·보안 헤더 4종), 라우트 loading.tsx 스트리밍, CDN 리전 점검 스크립트(perf-latency-check.mjs), 리포트 docs/perf-report-stage20.md |
 
 | 21 | 보안 | 32/32 | Clerk 웹훅 svix 서명검증(user.deleted 캐스케이드), CSRF same-origin 검증(쿠키 뮤테이션, Bearer·cron 면제), 범용 레이트리밋(consent·checkout·export·delete·admin), 보안 헤더 확장(HSTS·Permissions-Policy·CSP), SecurityEvent 감사 로그, **GDPR: 삭제권(/api/me/account)·데이터 이전(/api/me/export)·최소 수집**, 프로필 개인정보 셀프서비스 UI, 체크리스트 docs/security-checklist.md |
+| 22 | 법적 문서 | 35/35 | 4개 문서 다국어(ko/en) 초안 게시 — 이용약관/개인정보/면책/환불(`/legal/*`, LegalDocument 통합 렌더러). **지역별 조항 US(투자자문업자 미등록·SEC)·EU(GDPR·MiCA)·KR(자본시장법·개인정보보호법)**, 전역 5줄 고지(footer 전 페이지 노출), 약관↔환불 상호참조, docs/region-matrix.md(지역 기능 매트릭스 후보안). **⚠ 변호사 검토·서명은 사람 단계 — 미반영(출시 전 필수)** |
 
-**누적 자동 테스트: 486건 + 20단계 회귀 118건 전부 통과** (각 `scripts/test-*.mjs`로 재실행 가능)
+**누적 자동 테스트: 521건 + 20단계 회귀 118건 전부 통과** (각 `scripts/test-*.mjs`로 재실행 가능)
 
-## 남은 단계
+## 프로젝트 상태
 
-| 단계 | 내용 | 비고 |
-|---|---|---|
-| 22 | 법적 문서 | 아래 참조 |
-| 22 | 법적 문서 | 이용약관/개인정보처리방침/면책조항 정식 작성 — `/legal/*` 자리 페이지 교체, docs/legal-review.md 체크리스트 반영, 지역 제한 국가 목록 확정 |
+**계획된 1~22단계 구현 완료.** 프로덕션 출시 전 남은 것은 코드 작업이 아니라
+아래 사람·운영 단계입니다.
+
+### 출시 전 필수 (사람 단계)
+- [ ] **법적 문서·지역 매트릭스 로펌 검토·서명** — 4개 문서 + AI 콘텐츠 샘플 + `docs/region-matrix.md` 일괄 검토 후 지역별 On/Off 확정 (docs/legal-review.md)
 
 ## 배포 전 처리 목록 (단계 외 누적 과제)
 
