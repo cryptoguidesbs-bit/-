@@ -1,6 +1,7 @@
 import {
   Bell,
   Briefcase,
+  Code2,
   FileText,
   Fish,
   Gift,
@@ -25,6 +26,7 @@ export type NavKey =
   | 'education'
   | 'alerts'
   | 'referral'
+  | 'apiCenter'
 
 export type NavItem = {
   key: NavKey
@@ -44,6 +46,7 @@ export const navItems: NavItem[] = [
   { key: 'education', href: '/education', icon: GraduationCap },
   { key: 'alerts', href: '/alerts', icon: Bell },
   { key: 'referral', href: '/referral', icon: Gift },
+  { key: 'apiCenter', href: '/api-center', icon: Code2 },
 ]
 
 export function isNavActive(pathname: string, href: string) {

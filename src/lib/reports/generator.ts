@@ -4,6 +4,7 @@ import type { Prisma, ReportCadence, ReportCategory } from '@prisma/client'
 
 import { getAiProvider, AiRateLimitError, type ReportGenInput } from '@/lib/ai/provider'
 import { aiCallSpacing, consumeAiBudget, AiBudgetExceededError } from '@/lib/ai/budget'
+import { dispatchWebhooks } from '@/lib/api/webhooks'
 import { checkNarrativeText, type GuidelineResult } from '@/lib/brief/guidelines'
 import { resilientFetch } from '@/lib/market/resilient'
 import { cryptoSources, sentimentSources, type AssetQuote } from '@/lib/market/sources'
@@ -220,6 +221,15 @@ export async function generateReports(options: {
               reason: 'auto-generated premium research (non-personalized)',
             },
           })
+
+          // API Center webhooks (stage 18) — fire-and-forget notification.
+          await dispatchWebhooks('report.published', {
+            slug,
+            locale,
+            cadence: options.cadence,
+            category,
+            periodKey,
+          }).catch(() => {})
         }
       }
 

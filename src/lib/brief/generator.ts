@@ -8,6 +8,7 @@ import {
   consumeAiBudget,
   AiBudgetExceededError,
 } from '@/lib/ai/budget'
+import { dispatchWebhooks } from '@/lib/api/webhooks'
 import { checkGuidelines, type BriefSections } from '@/lib/brief/guidelines'
 import { resilientFetch } from '@/lib/market/resilient'
 import { cryptoSources, sentimentSources, type AssetQuote } from '@/lib/market/sources'
@@ -144,6 +145,9 @@ async function generateTier(
             reason: 'auto-generated market brief (non-personalized)',
           },
         })
+
+        // API Center webhooks (stage 18) — fire-and-forget notification.
+        await dispatchWebhooks('brief.published', { briefDate: date, tier }).catch(() => {})
 
         return { tier, status: 'published', attempts }
       }

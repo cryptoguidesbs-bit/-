@@ -162,6 +162,63 @@ model User {
   referralsMade   Referral[]       @relation("referralsMade")
   referralReceived Referral?       @relation("referralReceived")
   referralRewards ReferralReward[]
+  apiKeys     ApiKey[]
+  apiWebhooks ApiWebhook[]
+}
+
+// ---------------------------------------------------------------------------
+// API Center (stage 18, Legendary) — keys, per-day usage aggregation,
+// outbound webhooks. The full key is shown once at creation; only a salted
+// hash and a display prefix are stored.
+// ---------------------------------------------------------------------------
+
+model ApiKey {
+  id      String  @id @default(cuid())
+  userId  String
+  name    String
+  // Display prefix, e.g. "cg_live_AB12…" — never the full key.
+  prefix  String
+  keyHash String  @unique
+  lastUsedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+
+  user  User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  usage ApiUsage[]
+
+  @@index([userId])
+}
+
+model ApiUsage {
+  id       String @id @default(cuid())
+  apiKeyId String
+  endpoint String
+  // UTC day bucket, YYYY-MM-DD.
+  day   String
+  count Int    @default(0)
+
+  apiKey ApiKey @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+
+  @@unique([apiKeyId, endpoint, day])
+  @@index([apiKeyId, day])
+}
+
+model ApiWebhook {
+  id     String   @id @default(cuid())
+  userId String
+  url    String
+  // Subscribed events, e.g. ["brief.published", "report.published"].
+  events String[]
+  // HMAC-SHA256 signing secret (kept server-side to sign each delivery).
+  secret String
+  active Boolean @default(true)
+  lastDeliveryAt DateTime?
+  lastStatus     Int?
+  createdAt      DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 // ---------------------------------------------------------------------------
