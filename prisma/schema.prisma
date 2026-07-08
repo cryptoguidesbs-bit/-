@@ -246,6 +246,61 @@ model OpsEvent {
 }
 
 // ---------------------------------------------------------------------------
+// Crypto Map (결제 지도) — BTCMap sync cache + our managed country regulation.
+// Informational only; not transaction brokering. Access requires login
+// (all plans free — no FEATURE_MIN_PLAN entry).
+// ---------------------------------------------------------------------------
+
+enum MapPlaceSource {
+  BTCMAP
+  MANUAL
+}
+
+enum RegulationStatus {
+  FRIENDLY
+  REGULATED
+  RESTRICTED
+  HOSTILE
+  UNCLEAR
+}
+
+// Server-synced snapshot of BTCMap merchants/ATMs — the origin for client
+// viewport (bbox) queries. Refreshed by /api/map/sync (cron/admin).
+model MapPlace {
+  id          String         @id @default(cuid())
+  source      MapPlaceSource @default(BTCMAP)
+  externalId  String
+  name        String?
+  lat         Float
+  lng         Float
+  category    String?
+  coins       String[]
+  address     String?
+  countryCode String?
+  verifiedAt  DateTime?
+  raw         Json?
+  syncedAt    DateTime       @default(now())
+
+  @@unique([source, externalId])
+  @@index([lat, lng])
+  @@index([category])
+  @@index([countryCode])
+}
+
+// Our managed per-country regulation status (major countries). Seeded from
+// src/config/crypto-regulation.ts; editable via admin later. Informational,
+// not legal advice.
+model CountryRegulation {
+  countryCode String           @id
+  status      RegulationStatus
+  summaryKo   String
+  summaryEn   String
+  sourceNote  String?
+  updatedBy   String?
+  updatedAt   DateTime         @updatedAt
+}
+
+// ---------------------------------------------------------------------------
 // API Center (stage 18, Legendary) — keys, per-day usage aggregation,
 // outbound webhooks. The full key is shown once at creation; only a salted
 // hash and a display prefix are stored.

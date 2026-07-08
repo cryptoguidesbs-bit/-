@@ -39,7 +39,54 @@
     "alerts": "알림",
     "referral": "리퍼럴",
     "apiCenter": "API 센터",
+    "map": "결제 지도",
     "sidebar": "사이드 메뉴"
+  },
+  "map": {
+    "title": "결제 지도",
+    "subtitle": "크립토를 받는 매장·ATM·온라인 서비스와 나라별 규제 상태를 지도에서 탐색하세요.",
+    "disclaimer": "본 지도는 정보 제공 목적으로만 제공되며 거래를 중개하지 않습니다. 매장·ATM 정보는 제3자(BTCMap/OpenStreetMap) 데이터로 정확성·최신성이 보장되지 않으며, 국가별 규제 상태는 참고용이고 법률 자문이 아닙니다. 실제 방문·거래 및 규제 준수 책임은 이용자에게 있습니다.",
+    "nearMe": "내 주변",
+    "onlineToggle": "온라인 서비스",
+    "allCategories": "전체 카테고리",
+    "searchPlaceholder": "이름·주소 검색",
+    "zoomInHint": "지도를 확대하면 매장·ATM 핀이 표시됩니다.",
+    "capped": "결과가 많습니다. 지도를 확대해 좁혀 보세요.",
+    "resultCount": "{count}개 표시 중",
+    "unnamed": "이름 없음",
+    "close": "닫기",
+    "directions": "길찾기",
+    "onlineTitle": "온라인 크립토 서비스",
+    "noOnline": "조건에 맞는 온라인 서비스가 없습니다.",
+    "legendTitle": "국가별 규제 상태",
+    "legendNote": "규제 상태는 참고용 요약이며 법률 자문이 아닙니다. 실제 규제는 관할별로 상이하며 수시로 변동됩니다.",
+    "geoUnavailable": "이 브라우저에서는 위치 기능을 사용할 수 없습니다.",
+    "geoDenied": "위치 권한이 거부되어 내 주변으로 이동할 수 없습니다.",
+    "coins": {
+      "btc": "비트코인",
+      "lightning": "라이트닝",
+      "eth": "이더리움",
+      "usdt": "USDT",
+      "usdc": "USDC"
+    },
+    "categories": {
+      "cafe": "카페",
+      "restaurant": "음식점",
+      "bar": "바·펍",
+      "grocery": "식료품",
+      "shop": "상점",
+      "atm": "코인 ATM",
+      "lodging": "숙박",
+      "service": "서비스",
+      "other": "기타"
+    },
+    "status": {
+      "FRIENDLY": "우호적",
+      "REGULATED": "규제·제도권",
+      "RESTRICTED": "제한적",
+      "HOSTILE": "금지",
+      "UNCLEAR": "불명확"
+    }
   },
   "apiCenter": {
     "title": "API Center",

@@ -39,7 +39,54 @@
     "alerts": "Alerts",
     "referral": "Referral",
     "apiCenter": "API Center",
+    "map": "Crypto Map",
     "sidebar": "Sidebar navigation"
+  },
+  "map": {
+    "title": "Crypto Map",
+    "subtitle": "Explore merchants, ATMs and online services that accept crypto, plus per-country regulation status.",
+    "disclaimer": "This map is for informational purposes only and does not broker transactions. Merchant and ATM data comes from third parties (BTCMap/OpenStreetMap) and is not guaranteed to be accurate or current; per-country regulation status is for reference only and is not legal advice. You are responsible for your own visits, transactions and regulatory compliance.",
+    "nearMe": "Near me",
+    "onlineToggle": "Online services",
+    "allCategories": "All categories",
+    "searchPlaceholder": "Search name or address",
+    "zoomInHint": "Zoom in to load merchant and ATM pins.",
+    "capped": "Too many results — zoom in to narrow the view.",
+    "resultCount": "Showing {count}",
+    "unnamed": "Unnamed",
+    "close": "Close",
+    "directions": "Directions",
+    "onlineTitle": "Online crypto services",
+    "noOnline": "No online services match the filters.",
+    "legendTitle": "Country regulation status",
+    "legendNote": "Regulation status is a reference summary, not legal advice. Actual rules vary by jurisdiction and change frequently.",
+    "geoUnavailable": "Location is not available in this browser.",
+    "geoDenied": "Location permission was denied, so we can't move to your area.",
+    "coins": {
+      "btc": "Bitcoin",
+      "lightning": "Lightning",
+      "eth": "Ethereum",
+      "usdt": "USDT",
+      "usdc": "USDC"
+    },
+    "categories": {
+      "cafe": "Cafe",
+      "restaurant": "Restaurant",
+      "bar": "Bar & pub",
+      "grocery": "Grocery",
+      "shop": "Shop",
+      "atm": "Crypto ATM",
+      "lodging": "Lodging",
+      "service": "Service",
+      "other": "Other"
+    },
+    "status": {
+      "FRIENDLY": "Friendly",
+      "REGULATED": "Regulated",
+      "RESTRICTED": "Restricted",
+      "HOSTILE": "Banned",
+      "UNCLEAR": "Unclear"
+    }
   },
   "apiCenter": {
     "title": "API Center",

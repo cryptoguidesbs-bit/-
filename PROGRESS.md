@@ -13,6 +13,7 @@
 | 5 | Stripe 결제 | 8/8 | PaymentProvider 추상화, 체크아웃/웹훅(서명 검증)/해지, /billing 구독 관리, 요금제 월·연 토글, 상품·가격 seed(멱등) |
 | 5b | 구독·환불 정책 | 30/30 | 요금제 카드 주기 표시(/월·/년)+연간 "2개월 무료·17%" 배지, 7일 무료 체험(trial_period_days, 체험 중 해지=무청구), 갱신 3일 전 안내(invoice.upcoming 웹훅→알림), 업그레이드 즉시+일할 차액(proration), 다운그레이드 기간 말 적용(pending→갱신 시 전환), 해지 cancelAtPeriodEnd(월·연), **연간 14일 내+미사용 전액 환불(AccessLog 기반 판별)** — 전부 Stripe 테스트 모드 실검증 |
 | 5c | 환불 정책 페이지 | 렌더 검증 | `/legal/refund` 다국어(ko/en) 정식 게시 — 전자상거래법 톤 7개 섹션(자동갱신·무료체험·월/연 환불·플랜변경·디지털콘텐츠 청약철회 제한·USDC 지갑 환불), 이용약관에서 참조 링크, 푸터·사이트맵 자동 반영, 구독 관리 CTA |
+| + | Crypto Map (결제 지도) | 15/15 | 로그인 전용(전 플랜 무료)·미들웨어 리다이렉트, Leaflet+OSM 지도(ssr:false 동적로드), BTCMap→`MapPlace` 서버 동기화(resilientFetch·증분), viewport(bbox) API + 필터(코인/카테고리/검색)+상한/too-wide 가드, 온라인 서비스(config JSON), 국가 규제(`CountryRegulation` seed→DB, 참고용), 상세 카드·길찾기·범례·"내 주변"(위치 미저장), 상시 면책. 설계문서 CRYPTO_MAP_PLAN.md. 클러스터링·저줌 오버레이·admin편집은 후속 |
 | 6 | 구독 권한 관리 | 97/97 | 기능 매트릭스 14키 × 5플랜, 지역 화이트리스트 엔진, 프리미엄 페이지 게이트, /api/me/entitlements, ADMIN 우회 |
 | 7 | 시장 데이터 | 13/13 | 복원력 페처(타임아웃·재시도·429쿨다운·최종값 캐시), 크립토(CryptoCompare→Binance 폴백)·지수 6종(Yahoo 미러)·F&G, API 차단 시에도 서비스 유지 검증 |
 | 8 | 뉴스 시스템 | 14/14 | 지역균형 RSS 6종(미/유/아), AI 요약 파이프라인(수집→요약→발행), sanity check + 컴플라이언스 필터(위반 시 보류), 뉴스톤 심리지수, 검색/카테고리 |
@@ -49,7 +50,8 @@
 ## 배포 전 처리 목록 (단계 외 누적 과제)
 
 - [ ] ANTHROPIC_API_KEY 발급 → AI 기능(뉴스 요약·브리핑·리포트·포트폴리오 해설)을 mock에서 실제 Claude로 전환 (`.env.local`에 키만 입력하면 자동 전환)
-- [ ] 파이프라인 자동 실행 cron 연결 (뉴스 수집/요약, 브리핑 일간, 리포트 주간·월간·분기, 알림 엔진 `/api/alerts/run`, 리퍼럴 정산 `/api/referral/qualify`, 운영 모니터 `/api/admin/monitor/run` — 현재 `x-cron-secret` 헤더로 수동 트리거)
+- [ ] 파이프라인 자동 실행 cron 연결 (뉴스 수집/요약, 브리핑 일간, 리포트 주간·월간·분기, 알림 엔진 `/api/alerts/run`, 리퍼럴 정산 `/api/referral/qualify`, 운영 모니터 `/api/admin/monitor/run`, 결제 지도 동기화 `/api/map/sync` — 현재 `x-cron-secret` 헤더로 수동 트리거)
+- [ ] 결제 지도: 프로덕션 타일 제공자 전환(OSM 공개 타일 → MapTiler/Stadia 등), BTCMap 최초 전체 동기화 1회 실행
 - [ ] Sentry 에러 리포트 연동: `SENTRY_AUTH_TOKEN`/`SENTRY_ORG`/`SENTRY_PROJECT` 설정 (관리자 콘솔 에러 카드가 자동 활성화)
 - [ ] 알림 라이브 채널 자격증명: `TELEGRAM_BOT_TOKEN`(봇 생성), `RESEND_API_KEY`+`ALERT_EMAIL_FROM`(이메일), `VAPID_PUBLIC_KEY`/`VAPID_PRIVATE_KEY`(브라우저 푸시, `npx web-push generate-vapid-keys`) — 미설정 시 dev transport로 기록만 됨
 - [ ] Stripe 라이브 전환: 계정 활성화, 라이브 키 교체, 실제 웹훅 엔드포인트 등록

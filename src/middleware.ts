@@ -14,6 +14,9 @@ const isProtectedRoute = createRouteMatcher([
   '/billing(.*)',
   '/:locale/dashboard(.*)',
   '/dashboard(.*)',
+  // Crypto Map — login required, all plans free (no plan gate).
+  '/:locale/map(.*)',
+  '/map(.*)',
 ])
 
 // Region-based locale mapping: visitors from these countries default to

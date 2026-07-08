@@ -8,6 +8,7 @@ import {
   GraduationCap,
   Home,
   LineChart,
+  MapPin,
   Newspaper,
   Shapes,
   Sparkles,
@@ -27,6 +28,7 @@ export type NavKey =
   | 'alerts'
   | 'referral'
   | 'apiCenter'
+  | 'map'
 
 export type NavItem = {
   key: NavKey
@@ -47,6 +49,7 @@ export const navItems: NavItem[] = [
   { key: 'alerts', href: '/alerts', icon: Bell },
   { key: 'referral', href: '/referral', icon: Gift },
   { key: 'apiCenter', href: '/api-center', icon: Code2 },
+  { key: 'map', href: '/map', icon: MapPin },
 ]
 
 export function isNavActive(pathname: string, href: string) {

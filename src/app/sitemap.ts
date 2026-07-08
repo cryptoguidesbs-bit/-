@@ -6,7 +6,12 @@ import { getPathname } from '@/i18n/navigation'
 import { routing, type Locale } from '@/i18n/routing'
 import { siteUrl } from '@/lib/site'
 
-const routes = [...navItems.map((item) => item.href), ...legalSlugs.map((s) => `/legal/${s}`)]
+// /map is login-only (hard redirect to sign-in), so it stays out of the
+// sitemap and carries robots noindex on the page itself.
+const routes = [
+  ...navItems.map((item) => item.href).filter((href) => href !== '/map'),
+  ...legalSlugs.map((s) => `/legal/${s}`),
+]
 
 function absoluteUrl(href: string, locale: Locale) {
   return siteUrl + getPathname({ href, locale })
