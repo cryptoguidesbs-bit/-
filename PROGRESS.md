@@ -13,6 +13,7 @@
 | 5 | Stripe 결제 | 8/8 | PaymentProvider 추상화, 체크아웃/웹훅(서명 검증)/해지, /billing 구독 관리, 요금제 월·연 토글, 상품·가격 seed(멱등) |
 | 5b | 구독·환불 정책 | 30/30 | 요금제 카드 주기 표시(/월·/년)+연간 "2개월 무료·17%" 배지, 7일 무료 체험(trial_period_days, 체험 중 해지=무청구), 갱신 3일 전 안내(invoice.upcoming 웹훅→알림), 업그레이드 즉시+일할 차액(proration), 다운그레이드 기간 말 적용(pending→갱신 시 전환), 해지 cancelAtPeriodEnd(월·연), **연간 14일 내+미사용 전액 환불(AccessLog 기반 판별)** — 전부 Stripe 테스트 모드 실검증 |
 | 5c | 환불 정책 페이지 | 렌더 검증 | `/legal/refund` 다국어(ko/en) 정식 게시 — 전자상거래법 톤 7개 섹션(자동갱신·무료체험·월/연 환불·플랜변경·디지털콘텐츠 청약철회 제한·USDC 지갑 환불), 이용약관에서 참조 링크, 푸터·사이트맵 자동 반영, 구독 관리 CTA |
+| + | 언어 자동 감지 보완 | 24/24 | 첫 방문 시 브라우저 언어(Accept-Language 최우선 q값 태그) 기반: 한국어→/ko, **그 외 모든 언어→/en**(기존엔 fr/ja 등이 defaultLocale ko로 떨어짐), geo는 Accept-Language 없을 때만 폴백, 수동 언어 선택은 NEXT_LOCALE 쿠키(1년)로 저장돼 감지보다 우선(무효 쿠키는 무시), 딥링크 경로 보존, 스위처 전 페이지(헤더+모바일) testid, hreflang ko/en/x-default+canonical 검증 (scripts/test-i18n.mjs) |
 | + | Crypto Map (결제 지도) | 15/15 | 로그인 전용(전 플랜 무료)·미들웨어 리다이렉트, Leaflet+OSM 지도(ssr:false 동적로드), BTCMap→`MapPlace` 서버 동기화(resilientFetch·증분), viewport(bbox) API + 필터(코인/카테고리/검색)+상한/too-wide 가드, 온라인 서비스(config JSON), 국가 규제(`CountryRegulation` seed→DB, 참고용), 상세 카드·길찾기·범례·"내 주변"(위치 미저장), 상시 면책. 설계문서 CRYPTO_MAP_PLAN.md. 클러스터링·저줌 오버레이·admin편집은 후속 |
 | 6 | 구독 권한 관리 | 97/97 | 기능 매트릭스 14키 × 5플랜, 지역 화이트리스트 엔진, 프리미엄 페이지 게이트, /api/me/entitlements, ADMIN 우회 |
 | 7 | 시장 데이터 | 13/13 | 복원력 페처(타임아웃·재시도·429쿨다운·최종값 캐시), 크립토(CryptoCompare→Binance 폴백)·지수 6종(Yahoo 미러)·F&G, API 차단 시에도 서비스 유지 검증 |

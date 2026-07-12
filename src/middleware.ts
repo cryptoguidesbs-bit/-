@@ -19,10 +19,16 @@ const isProtectedRoute = createRouteMatcher([
   '/map(.*)',
 ])
 
-// Region-based locale mapping: visitors from these countries default to
-// Korean; everyone else defaults to English. The country comes from the
-// hosting platform's geo header (Vercel / Cloudflare); locally there is no
-// header, so detection falls back to Accept-Language.
+// First-visit locale detection (no cookie, no locale in the URL):
+//   1. Browser language (Accept-Language, highest-quality tag):
+//      Korean → ko, EVERY other language → en. Deliberately not next-intl's
+//      default negotiation, which would drop unmatched languages (fr, ja, …)
+//      onto defaultLocale (ko).
+//   2. Geo country only as a fallback when the browser sends no
+//      Accept-Language at all (KR → ko, other known countries → en).
+//   3. Neither signal → next-intl defaultLocale.
+// A returning visitor's explicit choice (NEXT_LOCALE cookie, set by the
+// locale switcher) always wins over detection.
 const LOCALE_BY_COUNTRY: Record<string, Locale> = {
   KR: 'ko',
 }
@@ -33,6 +39,26 @@ function countryLocale(request: NextRequest): Locale | undefined {
   )?.toUpperCase()
   if (!country) return undefined
   return LOCALE_BY_COUNTRY[country] ?? 'en'
+}
+
+function acceptLanguageLocale(request: NextRequest): Locale | undefined {
+  const header = request.headers.get('accept-language')
+  if (!header) return undefined
+
+  // Highest-quality language tag decides ("browser language").
+  const primary = header
+    .split(',')
+    .map((part) => {
+      const [tag, ...params] = part.trim().split(';')
+      const qParam = params.map((p) => p.trim()).find((p) => p.startsWith('q='))
+      const q = qParam ? Number(qParam.slice(2)) : 1
+      return { tag: tag.trim().toLowerCase(), q: Number.isFinite(q) ? q : 0 }
+    })
+    .filter((entry) => entry.tag && entry.tag !== '*')
+    .sort((a, b) => b.q - a.q)[0]
+
+  if (!primary) return undefined
+  return primary.tag.startsWith('ko') ? 'ko' : 'en'
 }
 
 function pathnameLocale(pathname: string): Locale | undefined {
@@ -106,13 +132,17 @@ export default clerkMiddleware(async (auth, request) => {
   }
 
   const hasLocalePrefix = pathnameLocale(pathname) !== undefined
-  const hasLocaleCookie = request.cookies.has('NEXT_LOCALE')
+  // Only a VALID cookie counts as an explicit choice — a stray/garbage value
+  // must not disable detection.
+  const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value
+  const hasLocaleCookie = routing.locales.includes(cookieLocale as Locale)
 
-  // First visit (no cookie, no locale in the URL): let the visitor's country
-  // decide the locale ahead of the browser's Accept-Language. A returning
-  // visitor's explicit choice (cookie) always wins.
+  // First visit (no cookie, no locale in the URL): browser language decides —
+  // Korean → /ko, every other language → /en; geo country only when the
+  // browser sends no Accept-Language. A returning visitor's explicit choice
+  // (cookie) always wins and skips detection entirely.
   if (!hasLocalePrefix && !hasLocaleCookie) {
-    const locale = countryLocale(request)
+    const locale = acceptLanguageLocale(request) ?? countryLocale(request)
     if (locale) {
       const headers = new Headers(request.headers)
       headers.set('accept-language', locale)
