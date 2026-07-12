@@ -1,60 +1,71 @@
-# Insight Platform
+# CryptoGuide
 
-투자 인사이트 / 포트폴리오 / 리포트 플랫폼 — 1단계 초기 세팅.
+AI 기반 크립토 마켓 정보 플랫폼 — 실시간 시세, AI 뉴스 요약, 데일리 브리핑,
+온체인 데이터, 패턴 분석, 프리미엄 리서치, 교육 콘텐츠, 알림, 리퍼럴, API
+센터, 결제 지도를 하나의 구독 서비스로 제공합니다.
+
+> **컴플라이언스**: 정보 제공·교육 목적 서비스이며 투자 자문을 제공하지
+> 않습니다. 단정 예측·행동 지시·수익 보장 표현은 AI 출력 필터가 발행 전에
+> 차단하고, 모든 AI 생성물에는 모델 라벨이 붙습니다.
 
 ## 기술 스택
 
 - **Next.js 14** (App Router) · **TypeScript** · **Tailwind CSS** · **shadcn/ui**
-- **Framer Motion** (애니메이션) · **React Query** (서버 상태)
-- **next-intl** (다국어: `ko` 기본, `en`)
-- **Prisma** (PostgreSQL) · **Sentry** (에러 모니터링)
-- ESLint + Prettier (+ tailwind class 정렬 플러그인)
+- **next-intl** (다국어: `ko` 기본, `en`) · **React Query** (서버 상태)
+- **Prisma** (PostgreSQL) · **Clerk** (인증) · **Stripe** (결제)
+- **Anthropic Claude** (AI — 키가 없으면 결정적 mock으로 전체 파이프라인 동작)
+- **Leaflet + OpenStreetMap** (결제 지도) · **Sentry** (에러 모니터링)
 
 ## 시작하기
 
 ```bash
-npm install            # postinstall에서 prisma generate 자동 실행
-cp .env.example .env.local   # 환경 변수 설정
-npm run dev            # http://localhost:3000 → /ko 로 리다이렉트
+npm install                  # postinstall에서 prisma generate 자동 실행
+cp .env.example .env.local   # 환경 변수 설정 (개발은 대부분 빈 값으로 동작)
+npm run db:start             # 내장 PostgreSQL 시작 (Windows 로컬 개발용)
+npx prisma migrate deploy    # 마이그레이션 적용
+npm run dev                  # http://localhost:3000
 ```
 
 | 스크립트 | 설명 |
 | --- | --- |
 | `npm run dev` | 개발 서버 |
 | `npm run build` / `npm start` | 프로덕션 빌드 / 실행 |
-| `npm run lint` | ESLint |
-| `npm run format` | Prettier 포맷팅 |
-| `npm run prisma:generate` | Prisma Client 생성 |
-| `npm run prisma:migrate` | 마이그레이션 (DB 필요) |
+| `npm run db:start\|db:stop\|db:status` | 내장 PostgreSQL 제어 |
+| `npm run stripe:seed` | Stripe 상품·가격 생성 (price ID → `.env`, 멱등) |
+| `npm run lint` / `npm run format` | ESLint / Prettier |
 
-## 폴더 구조
+## 테스트
 
+DB와 dev 서버를 켠 상태에서 스위트별로 실행합니다. 각 스위트는 자체
+시드·정리를 수행하며 반복 실행이 가능합니다.
+
+```bash
+node scripts/test-<suite>.mjs
+# suites: billing, entitlements, market-resilience, news-pipeline, brief,
+#         dashboard, portfolio-tools, onchain, patterns, reports, education,
+#         alerts, referral, api-center, admin, security, subscription-policy,
+#         legal, map, i18n
 ```
-├── messages/              # next-intl 번역 (ko.json, en.json)
-├── prisma/
-│   └── schema.prisma      # User, Subscription, Portfolio, Watchlist,
-│                          # Article, Report, ConsentLog, ContentAuditLog
-├── sentry.*.config.ts     # Sentry 초기화 (client/server/edge)
-└── src/
-    ├── app/
-    │   ├── [locale]/      # 로케일 세그먼트 (레이아웃/페이지/에러/404/로딩)
-    │   │   └── [...rest]/ # 알 수 없는 경로 → 지역화된 404
-    │   ├── api/health/    # 헬스체크 (스모크 테스트용)
-    │   ├── global-error.tsx  # 최후 방어선 500 UI
-    │   └── globals.css    # Tailwind + shadcn 테마 변수 (다크모드 기본)
-    ├── components/
-    │   ├── ui/            # shadcn/ui 컴포넌트
-    │   ├── providers/     # ThemeProvider, QueryProvider
-    │   └── error-boundary.tsx  # 섹션 단위 에러 격리
-    ├── i18n/              # routing / request / navigation (next-intl)
-    ├── lib/               # prisma client, datetime(UTC 정책), utils
-    ├── instrumentation.ts # Sentry 서버 초기화 훅
-    └── middleware.ts      # 로케일 라우팅
-```
+
+## 문서
+
+| 문서 | 내용 |
+| --- | --- |
+| [PROGRESS.md](PROGRESS.md) | 단계별 구현 내역 · 테스트 수 · 배포 전 과제 |
+| [DEPLOY_CHECKLIST.md](DEPLOY_CHECKLIST.md) | 배포 전 운영자가 직접 해야 할 일 |
+| [docs/legal-review.md](docs/legal-review.md) | 출시 전 법률 검토 패키지 (로펌 전달용) |
+| [docs/region-matrix.md](docs/region-matrix.md) | 지역별 기능 On/Off 후보안 |
+| [docs/security-checklist.md](docs/security-checklist.md) | 보안 체크리스트 (21단계) |
+| [docs/perf-report-stage20.md](docs/perf-report-stage20.md) | 성능 최적화 리포트 (20단계) |
+| [CRYPTO_MAP_PLAN.md](CRYPTO_MAP_PLAN.md) | 결제 지도 설계 문서 |
 
 ## 컨벤션
 
-- **타임존**: DB/API는 항상 **UTC**(ISO 8601 `Z`), 화면 표시만 사용자 로컬 시간대로 변환 — [src/lib/datetime.ts](src/lib/datetime.ts) 참고. SSR은 UTC로 고정해 하이드레이션 불일치를 방지.
+- **타임존**: DB/API는 항상 **UTC**(ISO 8601 `Z`), 화면 표시만 사용자 로컬
+  시간대로 변환 — [src/lib/datetime.ts](src/lib/datetime.ts) 참고.
 - **다크모드**: 기본값 다크 (`next-themes`, class 전략).
-- **컴플라이언스**: `ConsentLog`(약관/마케팅/투자 고지 동의 이력), `ContentAuditLog`(콘텐츠 변경 감사 로그)는 append-only.
-- **Sentry**: DSN이 비어 있으면 로컬에서 자동 비활성화. 소스맵 업로드는 `SENTRY_AUTH_TOKEN` 설정 시에만 동작.
+- **감사 로그**: `ConsentLog`(동의 이력)·`ContentAuditLog`(발행 감사)·
+  `SecurityEvent`(민감 작업)는 append-only.
+- **지역 정책**: 기능별 국가 화이트리스트는 관리자 콘솔의 지역 스위치로 배포
+  없이 즉시 조정 가능.
+- **Sentry**: DSN이 비어 있으면 로컬에서 자동 비활성화.

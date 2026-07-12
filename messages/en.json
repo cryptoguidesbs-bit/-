@@ -643,7 +643,7 @@
     "cancelNo": "Keep it",
     "cancelError": "Cancellation failed. Please try again shortly.",
     "cancelScheduled": "Your subscription is scheduled to end at the close of the current billing period.",
-    "checkoutSuccess": "Payment complete — your subscription is active!",
+    "checkoutSuccess": "Payment complete. Your subscription is now active.",
     "noSubscription": "No active subscription. Pick a plan from the pricing section.",
     "viewPricing": "View pricing",
     "billingNote": "Receipts and payment history are sent to the email used at checkout. For card changes and other requests, contact support.",

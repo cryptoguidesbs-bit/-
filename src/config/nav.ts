@@ -7,7 +7,6 @@ import {
   Gift,
   GraduationCap,
   Home,
-  LineChart,
   MapPin,
   Newspaper,
   Shapes,
@@ -20,7 +19,6 @@ export type NavKey =
   | 'news'
   | 'brief'
   | 'patterns'
-  | 'insights'
   | 'portfolio'
   | 'onchain'
   | 'reports'
@@ -41,7 +39,8 @@ export const navItems: NavItem[] = [
   { key: 'news', href: '/news', icon: Newspaper },
   { key: 'brief', href: '/brief', icon: Sparkles },
   { key: 'patterns', href: '/patterns', icon: Shapes },
-  { key: 'insights', href: '/insights', icon: LineChart },
+  // 'insights' is still a placeholder page — hidden from nav (and thereby
+  // the sitemap) until it ships; the /insights URL keeps working.
   { key: 'portfolio', href: '/portfolio', icon: Briefcase },
   { key: 'onchain', href: '/onchain', icon: Fish },
   { key: 'reports', href: '/reports', icon: FileText },
