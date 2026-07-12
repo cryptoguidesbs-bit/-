@@ -70,7 +70,9 @@
 - [ ] Stripe/Clerk 대시보드에서 웹훅 delivery 성공 확인
 - [ ] 관리자 계정으로 `/admin` 접속 → "모니터 실행" 1회 → 파이프라인 수동
       트리거(뉴스 수집·브리핑) 동작 확인
-- [ ] `POST /api/map/sync` 최초 전체 동기화 1회 실행(BTCMap 데이터 적재)
+- [ ] 결제 지도 최초 데이터 적재 — `node scripts/map-sync-initial.mjs`
+      (전체 덤프 배치 적재, 로컬 개발 DB엔 이미 적재됨). 이후는 cron의
+      `POST /api/map/sync`가 증분 갱신
 - [ ] Lighthouse 측정: `npx lighthouse https://<도메인>/en` — 20단계 리포트의
       목표(95+) 대비 확인 (로컬에선 측정 불가였음)
 - [ ] 중첩 404가 HTTP 200으로 나오는 이슈(프레임워크 제약)는 인지 상태로 유지

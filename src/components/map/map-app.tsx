@@ -59,7 +59,7 @@ export function MapApp({ locale }: { locale: string }) {
   const [selected, setSelected] = useState<Place | null>(null)
   const [flyTarget, setFlyTarget] = useState<{ lat: number; lng: number; zoom?: number } | null>(null)
   const [showOnline, setShowOnline] = useState(false)
-  const [geoError, setGeoError] = useState<string | null>(null)
+  const [geoNotice, setGeoNotice] = useState<{ text: string; tone: 'info' | 'error' } | null>(null)
 
   useEffect(() => {
     const id = setTimeout(() => setDebouncedQ(q.trim()), 350)
@@ -115,15 +115,36 @@ export function MapApp({ locale }: { locale: string }) {
       return next
     })
 
+  // Browser geolocation denied/unavailable → approximate fallback: the
+  // server resolves a country-center from the geo header (locale-default
+  // city without one). The button always moves the map somewhere useful.
+  const fallbackLocate = async () => {
+    try {
+      const res = await fetch(`/api/map/locate?locale=${locale}`)
+      const j = (await res.json()) as { source?: string; lat?: number; lng?: number }
+      if (res.ok && typeof j.lat === 'number' && typeof j.lng === 'number') {
+        setFlyTarget({ lat: j.lat, lng: j.lng, zoom: 11 })
+        setGeoNotice({
+          text: t(j.source === 'country' ? 'geoFallbackCountry' : 'geoFallbackDefault'),
+          tone: 'info',
+        })
+        return
+      }
+    } catch {
+      /* fall through to the error notice */
+    }
+    setGeoNotice({ text: t('geoDenied'), tone: 'error' })
+  }
+
   const locateMe = () => {
-    setGeoError(null)
+    setGeoNotice(null)
     if (!navigator.geolocation) {
-      setGeoError(t('geoUnavailable'))
+      void fallbackLocate()
       return
     }
     navigator.geolocation.getCurrentPosition(
       (pos) => setFlyTarget({ lat: pos.coords.latitude, lng: pos.coords.longitude, zoom: 14 }),
-      () => setGeoError(t('geoDenied')),
+      () => void fallbackLocate(),
       { enableHighAccuracy: false, timeout: 8000 },
     )
   }
@@ -219,10 +240,23 @@ export function MapApp({ locale }: { locale: string }) {
               )}
             </div>
           </div>
-          {geoError && <p className="mt-2 text-xs text-red-400">{geoError}</p>}
+          {geoNotice && (
+            <p
+              className={cn(
+                'mt-2 text-xs',
+                geoNotice.tone === 'error' ? 'text-red-400' : 'text-muted-foreground',
+              )}
+              data-testid="map-geo-notice"
+            >
+              {geoNotice.text}
+            </p>
+          )}
           {pinsEnabled && (
             <p className="mt-2 text-xs text-muted-foreground" data-testid="map-count">
               {t('resultCount', { count: places.length })}
+              {placesQuery.data && places.length === 0 && !placesQuery.isLoading && (
+                <> · {t('noResults')}</>
+              )}
             </p>
           )}
         </div>

@@ -62,6 +62,9 @@
     "legendNote": "Regulation status is a reference summary, not legal advice. Actual rules vary by jurisdiction and change frequently.",
     "geoUnavailable": "Location is not available in this browser.",
     "geoDenied": "Location permission was denied, so we can't move to your area.",
+    "geoFallbackCountry": "Location permission is off, so we moved to your country's approximate position. Allow location in your browser's site permissions for a precise view.",
+    "geoFallbackDefault": "Location permission is off, so we moved to a default position. Allow location in your browser's site permissions for a precise view.",
+    "noResults": "No registered places in this area. Pan the map to explore other regions.",
     "coins": {
       "btc": "Bitcoin",
       "lightning": "Lightning",

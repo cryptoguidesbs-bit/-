@@ -60,14 +60,16 @@ async function cleanup() {
 }
 await cleanup()
 
-// Seed test places (externalId "test:*" so we never touch real synced data).
+// Seed test places (externalId "test:*") in an empty mid-Pacific bbox so the
+// assertions stay deterministic alongside real synced BTCMap data.
 await prisma.mapPlace.createMany({
   data: [
-    { source: 'BTCMAP', externalId: 'test:seoul-cafe', name: 'Seoul BTC Cafe', lat: 37.5665, lng: 126.978, category: 'cafe', coins: ['btc', 'lightning'], address: 'Seoul', countryCode: 'KR' },
-    { source: 'BTCMAP', externalId: 'test:seoul-atm', name: 'Seoul ATM', lat: 37.57, lng: 126.98, category: 'atm', coins: ['btc'], address: 'Seoul', countryCode: 'KR' },
-    { source: 'BTCMAP', externalId: 'test:nyc-shop', name: 'NYC Shop', lat: 40.7128, lng: -74.006, category: 'shop', coins: ['btc'], address: 'New York', countryCode: 'US' },
+    { source: 'BTCMAP', externalId: 'test:alpha-cafe', name: 'MapTest Alpha Cafe', lat: 0.1, lng: -160.1, category: 'cafe', coins: ['btc', 'lightning'], address: 'Pacific', countryCode: 'KR' },
+    { source: 'BTCMAP', externalId: 'test:alpha-atm', name: 'MapTest Alpha ATM', lat: 0.12, lng: -160.08, category: 'atm', coins: ['btc'], address: 'Pacific', countryCode: 'KR' },
+    { source: 'BTCMAP', externalId: 'test:beta-shop', name: 'MapTest Beta Shop', lat: 10.5, lng: -150.5, category: 'shop', coins: ['btc'], address: 'Pacific', countryCode: 'US' },
   ],
 })
+const ALPHA_BBOX = '-160.3,-0.1,-159.9,0.3' // contains the two alpha seeds only
 
 // --- 1. access control ---------------------------------------------------------
 console.log('--- access control ---')
@@ -92,24 +94,36 @@ ok('missing bbox → 400', res.status === 400)
 res = await api('/api/map/places?bbox=-180,-85,180,85')
 ok('too-wide bbox → tooWide (no pin flood)', res.status === 200 && res.json?.tooWide === true)
 
-// Seoul viewport → 2 Seoul places, not NYC.
-res = await api('/api/map/places?bbox=126.5,37.3,127.3,37.8')
-const ids = (res.json?.places ?? []).map((p) => p.externalId ?? p.name)
-ok('Seoul bbox returns Seoul places only',
-  res.json?.places?.length === 2 && !JSON.stringify(res.json.places).includes('NYC'),
+// Alpha bbox (empty ocean area) → exactly the two alpha seeds, not beta.
+res = await api(`/api/map/places?bbox=${ALPHA_BBOX}`)
+ok('bbox returns only places inside it',
+  res.json?.places?.length === 2 && !JSON.stringify(res.json.places).includes('Beta'),
   `count=${res.json?.places?.length}`)
 
 // coin filter
-res = await api('/api/map/places?bbox=126.5,37.3,127.3,37.8&coins=lightning')
+res = await api(`/api/map/places?bbox=${ALPHA_BBOX}&coins=lightning`)
 ok('coins=lightning filter', res.json?.places?.length === 1 && res.json.places[0].name.includes('Cafe'))
 
 // category filter
-res = await api('/api/map/places?bbox=126.5,37.3,127.3,37.8&category=atm')
+res = await api(`/api/map/places?bbox=${ALPHA_BBOX}&category=atm`)
 ok('category=atm filter', res.json?.places?.length === 1 && res.json.places[0].category === 'atm')
 
 // search
-res = await api('/api/map/places?bbox=126.5,37.3,127.3,37.8&q=cafe')
-ok('q=cafe search', res.json?.places?.length === 1)
+res = await api(`/api/map/places?bbox=${ALPHA_BBOX}&q=alpha cafe`)
+ok('q search filter', res.json?.places?.length === 1)
+
+// --- 2b. locate fallback (geolocation denied path) -------------------------------
+console.log('--- locate fallback ---')
+res = await api('/api/map/locate?locale=ko', { authed: false })
+ok('locate signed-out → 401', res.status === 401)
+
+res = await api('/api/map/locate?locale=ko')
+ok('no geo header → locale default center (Seoul)',
+  res.json?.source === 'default' && Math.abs(res.json?.lat - 37.5665) < 0.01)
+
+res = await api('/api/map/locate?locale=ko', { headers: { 'x-vercel-ip-country': 'JP' } })
+ok('geo header JP → country center (Tokyo)',
+  res.json?.source === 'country' && res.json?.country === 'JP' && Math.abs(res.json?.lat - 35.68) < 0.05)
 
 // --- 3. online services --------------------------------------------------------
 console.log('--- online services ---')
