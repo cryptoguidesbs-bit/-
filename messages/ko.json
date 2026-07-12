@@ -531,6 +531,8 @@
       "intervalYearly": "연간",
       "yearlySave": "2개월 무료",
       "yearlyBadge": "2개월 무료 · 17% 할인",
+      "yearlyHint": "연간 결제 시 {price}/년 · 2개월 무료",
+      "monthlyEquiv": "월 환산 약 {price}/월",
       "trialNote": "7일 무료 체험 후 결제 · 언제든 해지 가능",
       "processing": "이동 중…",
       "checkoutError": "결제 페이지로 이동하지 못했습니다. 잠시 후 다시 시도해 주세요.",

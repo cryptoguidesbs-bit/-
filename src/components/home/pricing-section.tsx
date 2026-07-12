@@ -114,10 +114,30 @@ export function PricingSection() {
                     {t(interval === 'monthly' ? 'perMonth' : 'perYear')}
                   </span>
                 </div>
+                {/* Both billing terms are always expressed: the alternate
+                    term renders as a subline under the active price. */}
+                {interval === 'monthly' && tier.key !== 'free' && (
+                  <p
+                    className="text-xs text-muted-foreground"
+                    data-testid={`yearly-hint-${tier.key}`}
+                  >
+                    {t('yearlyHint', { price: usd.format(tierAmount(tier.key, 'yearly')) })}
+                  </p>
+                )}
                 {interval === 'yearly' && tier.key !== 'free' && (
-                  <Badge variant="outline" className="w-fit text-emerald-500" data-testid={`yearly-badge-${tier.key}`}>
-                    {t('yearlyBadge')}
-                  </Badge>
+                  <>
+                    <Badge variant="outline" className="w-fit text-emerald-500" data-testid={`yearly-badge-${tier.key}`}>
+                      {t('yearlyBadge')}
+                    </Badge>
+                    <p
+                      className="text-xs text-muted-foreground"
+                      data-testid={`monthly-equiv-${tier.key}`}
+                    >
+                      {t('monthlyEquiv', {
+                        price: usd.format(Math.round(tierAmount(tier.key, 'yearly') / 12)),
+                      })}
+                    </p>
+                  </>
                 )}
                 <p className="text-xs text-muted-foreground">{t(`tiers.${tier.key}.tagline`)}</p>
               </CardHeader>

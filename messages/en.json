@@ -531,6 +531,8 @@
       "intervalYearly": "Yearly",
       "yearlySave": "2 months free",
       "yearlyBadge": "2 months free · 17% off",
+      "yearlyHint": "Pay yearly: {price}/yr · 2 months free",
+      "monthlyEquiv": "≈ {price}/mo billed annually",
       "trialNote": "7-day free trial, then billed · cancel anytime",
       "processing": "Redirecting…",
       "checkoutError": "Could not open the checkout page. Please try again shortly.",
