@@ -40,7 +40,13 @@
     "referral": "리퍼럴",
     "apiCenter": "API 센터",
     "map": "결제 지도",
-    "sidebar": "사이드 메뉴"
+    "sidebar": "사이드 메뉴",
+    "groups": {
+      "market": "마켓",
+      "research": "리서치",
+      "tools": "내 도구",
+      "more": "더보기"
+    }
   },
   "map": {
     "title": "결제 지도",

@@ -40,7 +40,13 @@
     "referral": "Referral",
     "apiCenter": "API Center",
     "map": "Crypto Map",
-    "sidebar": "Sidebar navigation"
+    "sidebar": "Sidebar navigation",
+    "groups": {
+      "market": "Market",
+      "research": "Research",
+      "tools": "My tools",
+      "more": "More"
+    }
   },
   "map": {
     "title": "Crypto Map",
