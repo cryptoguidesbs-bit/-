@@ -21,9 +21,9 @@ export async function GET(request: NextRequest) {
   }
   const [minLng, minLat, maxLng, maxLat] = bbox
 
-  // Reject absurdly large bboxes (whole-world pin loads) — the client shows
-  // the regulation layer at low zoom instead.
-  if (Math.abs(maxLat - minLat) > 40 || Math.abs(maxLng - minLng) > 60) {
+  // Reject only truly continental/world bboxes — clustering handles the
+  // rest, so region- and country-level views still load (and cluster).
+  if (Math.abs(maxLat - minLat) > 70 || Math.abs(maxLng - minLng) > 140) {
     return NextResponse.json({ places: [], count: 0, capped: false, tooWide: true })
   }
 

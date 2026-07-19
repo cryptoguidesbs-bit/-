@@ -2,11 +2,11 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import dynamic from 'next/dynamic'
-import { Crosshair, ExternalLink, Globe2, Navigation, Search, X } from 'lucide-react'
+import { Crosshair, ExternalLink, Globe2, Loader2, Navigation, Search, X } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { useLocale, useTranslations } from 'next-intl'
 
-import { MAP_CATEGORIES, MAP_COINS, MAP_MIN_PIN_ZOOM } from '@/config/crypto-map'
+import { CATEGORY_COLOR, MAP_CATEGORIES, MAP_COINS, MAP_MIN_PIN_ZOOM } from '@/config/crypto-map'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -212,6 +212,7 @@ export function MapApp({ locale }: { locale: string }) {
           >
             <CryptoMap
               places={places}
+              selectedId={selected?.id ?? null}
               onViewportChange={(b, z) => {
                 setBbox(b)
                 setZoom(z)
@@ -228,6 +229,14 @@ export function MapApp({ locale }: { locale: string }) {
               >
                 <Crosshair className="mr-1 h-4 w-4" /> {t('nearMe')}
               </Button>
+              {pinsEnabled && placesQuery.isFetching && (
+                <span
+                  className="pointer-events-auto flex items-center gap-1.5 rounded-md bg-background/90 px-3 py-1.5 text-xs text-muted-foreground shadow"
+                  data-testid="map-loading"
+                >
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t('loading')}
+                </span>
+              )}
               {!pinsEnabled && (
                 <span className="pointer-events-auto rounded-md bg-background/90 px-3 py-1.5 text-xs text-muted-foreground shadow">
                   {t('zoomInHint')}
@@ -341,6 +350,28 @@ export function MapApp({ locale }: { locale: string }) {
               </CardContent>
             </Card>
           )}
+
+          {/* Pin category legend */}
+          <Card data-testid="map-pin-legend">
+            <CardContent className="space-y-2 p-4">
+              <p className="text-sm font-medium">{t('pinLegendTitle')}</p>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
+                {MAP_CATEGORIES.map((c) => (
+                  <div key={c} className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full ring-1 ring-background"
+                      style={{ backgroundColor: CATEGORY_COLOR[c] }}
+                    />
+                    {t(`categories.${c}`)}
+                  </div>
+                ))}
+              </div>
+              <p className="flex items-center gap-1.5 pt-1 text-[11px] text-muted-foreground">
+                <span className="h-2.5 w-2.5 shrink-0 rounded-full ring-2 ring-purple-500" />
+                {t('pinLegendLightning')}
+              </p>
+            </CardContent>
+          </Card>
 
           {/* Regulation legend */}
           <Card data-testid="map-legend">
