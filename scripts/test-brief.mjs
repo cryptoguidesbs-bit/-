@@ -217,22 +217,22 @@ ok(
   `keys=${Object.keys(anon.sections ?? {}).join(',')}`,
 )
 
-await setPlan('STANDARD')
+await setPlan('STARTER')
 const std = await fetch(`${APP}/api/brief`, { headers: { authorization: `Bearer ${jwt}` } }).then((r) => r.json())
 ok(
-  'STANDARD → full basic brief (5 sections), no detailed access',
+  'STARTER → full basic brief (5 sections), no detailed access',
   std.locked === false && std.tier === 'standard' && std.detailedAvailable === false &&
     SECTION_KEYS.every((k) => std.sections?.[k]),
   `tier=${std.tier}`,
 )
 
-await setPlan('PROFESSIONAL')
+await setPlan('TRADER')
 const pro = await fetch(`${APP}/api/brief`, { headers: { authorization: `Bearer ${jwt}` } }).then((r) => r.json())
-ok('PROFESSIONAL → detailed version by default', pro.tier === 'detailed' && pro.locked === false)
+ok('TRADER → detailed version by default', pro.tier === 'detailed' && pro.locked === false)
 const proStd = await fetch(`${APP}/api/brief?tier=standard`, {
   headers: { authorization: `Bearer ${jwt}` },
 }).then((r) => r.json())
-ok('PROFESSIONAL can switch to standard view', proStd.tier === 'standard')
+ok('TRADER can switch to standard view', proStd.tier === 'standard')
 
 // --- 7. page + disclaimer ------------------------------------------------------------
 console.log('--- page ---')

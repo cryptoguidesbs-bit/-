@@ -223,7 +223,7 @@ ok('qualify without auth → 401', res.status === 401)
 
 // B starts a paid subscription → their referral qualifies, A earns 10%.
 await prisma.subscription.create({
-  data: { userId: dbB.id, plan: 'PROFESSIONAL', status: 'ACTIVE' },
+  data: { userId: dbB.id, plan: 'TRADER', status: 'ACTIVE' },
 })
 res = await api('/api/referral/qualify', { method: 'POST', headers: { 'x-cron-secret': CRON } })
 ok('qualify sweep ran', res.status === 200 && res.json?.summary?.qualified >= 1,
@@ -232,8 +232,8 @@ ok('qualify sweep ran', res.status === 200 && res.json?.summary?.qualified >= 1,
 refB = await prisma.referral.findUnique({ where: { referredUserId: dbB.id } })
 ok('referral → QUALIFIED', refB?.status === 'QUALIFIED' && refB?.qualifiedAt != null)
 let rewards = await prisma.referralReward.findMany({ where: { userId: userA.id } })
-ok('commission = 10% of PROFESSIONAL monthly ($49.90)',
-  rewards.length === 1 && Number(rewards[0].amountUsd) === 49.9, JSON.stringify(rewards.map((r) => Number(r.amountUsd))))
+ok('commission = 10% of TRADER monthly ($14.90)',
+  rewards.length === 1 && Number(rewards[0].amountUsd) === 14.9, JSON.stringify(rewards.map((r) => Number(r.amountUsd))))
 
 res = await api('/api/referral/qualify', { method: 'POST', headers: { 'x-cron-secret': CRON } })
 rewards = await prisma.referralReward.findMany({ where: { userId: userA.id } })
@@ -244,7 +244,7 @@ console.log('--- region policy ---')
 // Referrer in a non-whitelisted country: referral qualifies, no commission.
 await prisma.user.update({ where: { id: userA.id }, data: { country: 'CN' } })
 await prisma.subscription.create({
-  data: { userId: fakeIds[0], plan: 'STANDARD', status: 'ACTIVE' },
+  data: { userId: fakeIds[0], plan: 'STARTER', status: 'ACTIVE' },
 })
 await api('/api/referral/qualify', { method: 'POST', headers: { 'x-cron-secret': CRON } })
 const refFake0 = await prisma.referral.findUnique({ where: { referredUserId: fakeIds[0] } })
@@ -255,12 +255,12 @@ ok('blocked region: QUALIFIED but no commission',
 // Whitelisted country accrues normally.
 await prisma.user.update({ where: { id: userA.id }, data: { country: 'KR' } })
 await prisma.subscription.create({
-  data: { userId: fakeIds[1], plan: 'STANDARD', status: 'ACTIVE' },
+  data: { userId: fakeIds[1], plan: 'STARTER', status: 'ACTIVE' },
 })
 await api('/api/referral/qualify', { method: 'POST', headers: { 'x-cron-secret': CRON } })
 rewards = await prisma.referralReward.findMany({ where: { userId: userA.id } })
-ok('whitelisted region: commission accrues ($19.90)',
-  rewards.length === 2 && rewards.some((r) => Number(r.amountUsd) === 19.9))
+ok('whitelisted region: commission accrues ($5.90)',
+  rewards.length === 2 && rewards.some((r) => Number(r.amountUsd) === 5.9))
 
 // Request-side region signal for the UI.
 res = await api('/api/me/referral', { jwt: jwtA, headers: { 'x-vercel-ip-country': 'CU' } })

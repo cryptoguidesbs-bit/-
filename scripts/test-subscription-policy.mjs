@@ -25,9 +25,9 @@ const EMAIL = 'flowtest+clerk_test@example.com'
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
 const prisma = new PrismaClient()
 const P = {
-  stdM: process.env.STRIPE_PRICE_STANDARD_MONTHLY,
-  stdY: process.env.STRIPE_PRICE_STANDARD_YEARLY,
-  proM: process.env.STRIPE_PRICE_PROFESSIONAL_MONTHLY,
+  stdM: process.env.STRIPE_PRICE_STARTER_MONTHLY,
+  stdY: process.env.STRIPE_PRICE_STARTER_YEARLY,
+  proM: process.env.STRIPE_PRICE_TRADER_MONTHLY,
 }
 
 let pass = 0
@@ -113,12 +113,12 @@ customer = await newCustomer()
 // --- 1-2. pricing: period display + yearly math -------------------------------
 console.log('--- pricing display / math ---')
 // A-3 values: yearly = monthly × 10 → 2 months free (~17% off).
-ok('yearly = monthly × 10 (standard)', 199 * 10 === 1990)
-ok('yearly = monthly × 10 (professional)', 499 * 10 === 4990)
+ok('yearly = monthly × 10 (starter)', 59 * 10 === 590)
+ok('yearly = monthly × 10 (trader)', 149 * 10 === 1490)
 const landing = await fetch(`${APP}/ko`).then((r) => r.text())
-ok('landing offers monthly + yearly billing terms', landing.includes('data-testid="term-1m"') && landing.includes('data-testid="term-1y"'))
+ok('landing offers monthly + yearly billing terms', landing.includes('data-testid="interval-monthly"') && landing.includes('data-testid="interval-yearly"'))
 ok('landing shows 7-day trial note', landing.includes('7일 무료 체험'))
-ok('landing shows yearly 17% discount', landing.includes('-17%') && landing.includes('17% 할인'))
+ok('landing shows yearly 17% discount', landing.includes('2개월 무료'))
 
 // --- 3. trial ------------------------------------------------------------------
 console.log('--- 7-day trial ---')
@@ -167,29 +167,29 @@ ok('invoice.upcoming → renewal reminder notification', upRes.status === 200 &&
 
 // --- 5. upgrade (immediate + proration) ---------------------------------------
 console.log('--- upgrade ---')
-// activeStd is standard monthly in DB. Upgrade to professional monthly.
-const up = await api('/api/billing/change', { method: 'POST', body: { plan: 'professional', interval: 'monthly' } })
+// activeStd is starter monthly in DB. Upgrade to trader monthly.
+const up = await api('/api/billing/change', { method: 'POST', body: { plan: 'trader', interval: 'monthly' } })
 ok('upgrade → applied now', up.status === 200 && up.json?.direction === 'upgrade' && up.json?.appliesAt === 'now', JSON.stringify(up.json))
 const upStripe = await stripe.subscriptions.retrieve(activeStd.id)
-ok('stripe price switched immediately to professional', upStripe.items.data[0].price.id === P.proM)
+ok('stripe price switched immediately to trader', upStripe.items.data[0].price.id === P.proM)
 row = await prisma.subscription.findUnique({ where: { userId: me.id } })
-ok('DB plan is PROFESSIONAL now', row?.plan === 'PROFESSIONAL')
+ok('DB plan is TRADER now', row?.plan === 'TRADER')
 const invoices = await stripe.invoices.list({ subscription: activeStd.id, limit: 5 })
 const proration = invoices.data.some((i) => i.billing_reason === 'subscription_update' || i.lines.data.some((l) => l.proration))
 ok('prorated difference invoiced', proration)
 
 // --- 6. downgrade (scheduled at period end) -----------------------------------
 console.log('--- downgrade ---')
-// Fresh professional monthly sub → downgrade to standard monthly.
+// Fresh trader monthly sub → downgrade to starter monthly.
 const proSub = await createSub(P.proM)
 await syncViaWebhook(proSub)
-const down = await api('/api/billing/change', { method: 'POST', body: { plan: 'standard', interval: 'monthly' } })
+const down = await api('/api/billing/change', { method: 'POST', body: { plan: 'starter', interval: 'monthly' } })
 ok('downgrade → applies at period end', down.status === 200 && down.json?.direction === 'downgrade' && down.json?.appliesAt === 'period_end', JSON.stringify(down.json))
 row = await prisma.subscription.findUnique({ where: { userId: me.id } })
-ok('pending downgrade recorded', row?.pendingPlan === 'STANDARD')
-ok('current plan unchanged until period end', row?.plan === 'PROFESSIONAL')
+ok('pending downgrade recorded', row?.pendingPlan === 'STARTER')
+ok('current plan unchanged until period end', row?.plan === 'TRADER')
 const proLive = await stripe.subscriptions.retrieve(proSub.id)
-ok('live stripe plan still professional', proLive.items.data[0].price.id === P.proM)
+ok('live stripe plan still trader', proLive.items.data[0].price.id === P.proM)
 
 // at renewal (invoice.upcoming) the downgrade applies + pending clears
 const dgPayload = JSON.stringify({
@@ -202,8 +202,8 @@ const dgHeader = stripe.webhooks.generateTestHeaderString({ payload: dgPayload, 
 await fetch(`${APP}/api/billing/webhook`, { method: 'POST', headers: { 'content-type': 'application/json', 'stripe-signature': dgHeader }, body: dgPayload })
 const dgStripe = await stripe.subscriptions.retrieve(proSub.id)
 row = await prisma.subscription.findUnique({ where: { userId: me.id } })
-ok('at renewal: stripe price switched to standard', dgStripe.items.data[0].price.id === P.stdM, `price=${dgStripe.items.data[0].price.id}`)
-ok('at renewal: pending cleared + plan STANDARD', row?.pendingPlan === null && row?.plan === 'STANDARD')
+ok('at renewal: stripe price switched to starter', dgStripe.items.data[0].price.id === P.stdM, `price=${dgStripe.items.data[0].price.id}`)
+ok('at renewal: pending cleared + plan STARTER', row?.pendingPlan === null && row?.plan === 'STARTER')
 
 // --- 7. cancel (cancelAtPeriodEnd) — yearly -----------------------------------
 console.log('--- cancel (yearly) ---')

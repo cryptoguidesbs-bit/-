@@ -17,7 +17,7 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
   }
 }
 
-// Premium: whale & on-chain data requires the Institutional plan
+// Premium: whale & on-chain data requires the Pro plan
 // (onchain.advanced — region policy also applies).
 export default async function OnchainPage({ params: { locale } }: Props) {
   setRequestLocale(locale)

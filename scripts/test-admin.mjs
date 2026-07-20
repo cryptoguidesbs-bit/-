@@ -107,7 +107,7 @@ if (anyBrief === 0) {
   await prisma.marketBrief.create({
     data: {
       briefDate: new Date().toISOString().slice(0, 10),
-      tier: 'STANDARD',
+      tier: 'STARTER',
       status: 'PUBLISHED',
       sections: {},
       aiModel: 'test-seed',
@@ -145,9 +145,9 @@ res = await api(`/api/admin/members?q=no-such-member-xyz`)
 ok('empty search result', res.json?.members?.length === 0)
 
 const target = await fakeUser('member')
-res = await api(`/api/admin/members/${target.id}`, { method: 'PATCH', body: { plan: 'INSTITUTIONAL' } })
+res = await api(`/api/admin/members/${target.id}`, { method: 'PATCH', body: { plan: 'PRO' } })
 ok('manual plan override → ACTIVE subscription',
-  res.json?.member?.subscription?.plan === 'INSTITUTIONAL' &&
+  res.json?.member?.subscription?.plan === 'PRO' &&
     res.json?.member?.subscription?.status === 'ACTIVE')
 res = await api(`/api/admin/members/${target.id}`, { method: 'PATCH', body: { role: 'ADMIN' } })
 ok('role change applied', res.json?.member?.role === 'ADMIN')
@@ -158,17 +158,17 @@ ok('self-demotion blocked', res.status === 400)
 
 // --- 3. revenue aggregation ----------------------------------------------------------
 console.log('--- revenue ---')
-await fakeUser('rev1', { plan: 'STANDARD', status: 'ACTIVE', interval: 'MONTHLY' })
-await fakeUser('rev2', { plan: 'STANDARD', status: 'ACTIVE', interval: 'MONTHLY' })
-await fakeUser('rev3', { plan: 'PROFESSIONAL', status: 'ACTIVE', interval: 'MONTHLY' })
-await fakeUser('rev4', { plan: 'INSTITUTIONAL', status: 'ACTIVE', interval: 'YEARLY' })
+await fakeUser('rev1', { plan: 'STARTER', status: 'ACTIVE', interval: 'MONTHLY' })
+await fakeUser('rev2', { plan: 'STARTER', status: 'ACTIVE', interval: 'MONTHLY' })
+await fakeUser('rev3', { plan: 'TRADER', status: 'ACTIVE', interval: 'MONTHLY' })
+await fakeUser('rev4', { plan: 'PRO', status: 'ACTIVE', interval: 'YEARLY' })
 
 res = await api('/api/admin/revenue')
-const expectedMrr = 199 + 199 + 499 + Math.round((14990 / 12) * 100) / 100
+const expectedMrr = 59 + 59 + 149 + Math.round((4990 / 12) * 100) / 100
 ok('MRR estimate from DB is exact (yearly prorated)',
   res.json?.mrrEstimate?.totalUsd === Math.round(expectedMrr * 100) / 100,
   `got=${res.json?.mrrEstimate?.totalUsd} want=${expectedMrr}`)
-ok('per-plan breakdown', res.json?.mrrEstimate?.byPlan?.STANDARD?.count === 2)
+ok('per-plan breakdown', res.json?.mrrEstimate?.byPlan?.STARTER?.count === 2)
 ok('actuals unified by method (card/USDC, USD)',
   ['stripe', 'db-only'].includes(res.json?.source) &&
     typeof res.json?.actuals?.byMethod?.card === 'number' &&
@@ -267,10 +267,10 @@ ok('monitor without auth → 401', res.status === 401)
 
 // 8a. subscription hygiene: PAST_DUE past grace auto-expires; within grace stays.
 const oldDue = await fakeUser('olddue', {
-  plan: 'STANDARD', status: 'PAST_DUE', currentPeriodEnd: new Date(Date.now() - 20 * 86_400_000),
+  plan: 'STARTER', status: 'PAST_DUE', currentPeriodEnd: new Date(Date.now() - 20 * 86_400_000),
 })
 const recentDue = await fakeUser('recentdue', {
-  plan: 'STANDARD', status: 'PAST_DUE', currentPeriodEnd: new Date(Date.now() - 2 * 86_400_000),
+  plan: 'STARTER', status: 'PAST_DUE', currentPeriodEnd: new Date(Date.now() - 2 * 86_400_000),
 })
 res = await api('/api/admin/monitor/run', { method: 'POST' })
 const run1 = res.json?.summary
@@ -284,7 +284,7 @@ ok('below threshold → no payment anomaly', !run1?.eventsRaised?.includes('anom
 // 8b. anomaly detection + auto admin alert.
 for (let i = 0; i < 4; i++) {
   await fakeUser(`due${i}`, {
-    plan: 'STANDARD', status: 'PAST_DUE', currentPeriodEnd: new Date(Date.now() + 86_400_000),
+    plan: 'STARTER', status: 'PAST_DUE', currentPeriodEnd: new Date(Date.now() + 86_400_000),
   })
 }
 res = await api('/api/admin/monitor/run', { method: 'POST' })

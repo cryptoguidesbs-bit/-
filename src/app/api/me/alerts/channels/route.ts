@@ -25,7 +25,7 @@ const putSchema = z.object({
   config: z.unknown(),
 })
 
-// PUT /api/me/alerts/channels — upsert a channel config (Professional+).
+// PUT /api/me/alerts/channels — upsert a channel config (Trader+).
 // INAPP needs no configuration and is rejected here.
 export async function PUT(request: NextRequest) {
   const gate = await checkFeature('alerts.realtime')

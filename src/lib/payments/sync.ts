@@ -9,10 +9,10 @@ import { qualifyReferral } from '@/lib/referral/qualify'
 import type { PaidPlanKey, SubscriptionData, SubscriptionStatus } from './types'
 
 const PLAN_MAP: Record<PaidPlanKey, DbPlan> = {
-  standard: 'STANDARD',
-  professional: 'PROFESSIONAL',
-  institutional: 'INSTITUTIONAL',
-  legendary: 'LEGENDARY',
+  starter: 'STARTER',
+  trader: 'TRADER',
+  pro: 'PRO',
+  whale: 'WHALE',
 }
 
 const STATUS_MAP: Record<SubscriptionStatus, DbStatus> = {

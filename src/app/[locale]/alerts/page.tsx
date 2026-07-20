@@ -18,7 +18,7 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
   }
 }
 
-// Premium: realtime alerts require the Professional plan (alerts.realtime).
+// Premium: realtime alerts require the Trader plan (alerts.realtime).
 // Alerts are event notifications only — never action directives.
 export default async function AlertsPage({ params: { locale } }: Props) {
   setRequestLocale(locale)

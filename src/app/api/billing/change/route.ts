@@ -18,10 +18,10 @@ const bodySchema = z.object({
 
 const DB_TO_KEY: Record<string, PaidPlanKey | 'free'> = {
   FREE: 'free',
-  STANDARD: 'standard',
-  PROFESSIONAL: 'professional',
-  INSTITUTIONAL: 'institutional',
-  LEGENDARY: 'legendary',
+  STARTER: 'starter',
+  TRADER: 'trader',
+  PRO: 'pro',
+  WHALE: 'whale',
 }
 const DB_INTERVAL = { MONTHLY: 'monthly', YEARLY: 'yearly' } as const
 

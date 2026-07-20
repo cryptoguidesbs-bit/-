@@ -7,7 +7,7 @@ import { sentimentSources } from '@/lib/market/sources'
 
 export const dynamic = 'force-dynamic'
 
-// GET /api/v1/market/sentiment — Fear & Greed index (Legendary API).
+// GET /api/v1/market/sentiment — Fear & Greed index (Whale API).
 export async function GET(request: NextRequest) {
   const auth = await authenticateApiKey(request, 'market/sentiment')
   if (!auth.ok) {

@@ -18,7 +18,7 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
   }
 }
 
-// Premium: the API Center requires the Legendary plan (api.center) and is
+// Premium: the API Center requires the Whale plan (api.center) and is
 // region-gated. API responses always carry the disclaimer/terms meta.
 export default async function ApiCenterPage({ params: { locale } }: Props) {
   setRequestLocale(locale)

@@ -13,7 +13,7 @@ import {
 export const dynamic = 'force-dynamic'
 
 // Network activity (active addresses, tx count, hash rate, miner revenue)
-// + stablecoin supply. Institutional+ (onchain.advanced), region policy
+// + stablecoin supply. Pro+ (onchain.advanced), region policy
 // applies.
 export async function GET(request: NextRequest) {
   const gate = await checkFeature('onchain.advanced')

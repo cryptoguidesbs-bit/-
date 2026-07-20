@@ -8,7 +8,7 @@ import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
-// Portfolio tools are a Professional+ feature (A-3 matrix).
+// Portfolio tools are a Trader+ feature (A-3 matrix).
 async function gatePortfolio() {
   const gate = await checkFeature('portfolio.tools')
   if (!gate.allowed) {

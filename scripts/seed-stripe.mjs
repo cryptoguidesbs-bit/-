@@ -41,10 +41,10 @@ if (!secret.startsWith('sk_test_')) {
 const stripe = new Stripe(secret)
 
 const PLANS = [
-  { key: 'standard', name: 'Standard', monthly: 199, yearly: 1990 },
-  { key: 'professional', name: 'Professional', monthly: 499, yearly: 4990 },
-  { key: 'institutional', name: 'Institutional', monthly: 1499, yearly: 14990 },
-  { key: 'legendary', name: 'Legendary', monthly: 4999, yearly: 49990 },
+  { key: 'starter', name: 'Starter', monthly: 59, yearly: 590 },
+  { key: 'trader', name: 'Trader', monthly: 149, yearly: 1490 },
+  { key: 'pro', name: 'Pro', monthly: 499, yearly: 4990 },
+  { key: 'whale', name: 'Whale', monthly: 1499, yearly: 14990 },
 ]
 const INTERVALS = [
   { id: 'monthly', stripe: 'month' },

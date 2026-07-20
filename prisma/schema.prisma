@@ -29,10 +29,10 @@ enum UserRole {
 
 enum SubscriptionPlan {
   FREE
-  STANDARD
-  PROFESSIONAL
-  INSTITUTIONAL
-  LEGENDARY
+  STARTER
+  TRADER
+  PRO
+  WHALE
 }
 
 enum SubscriptionStatus {
@@ -307,7 +307,7 @@ model CountryRegulation {
 }
 
 // ---------------------------------------------------------------------------
-// API Center (stage 18, Legendary) — keys, per-day usage aggregation,
+// API Center (stage 18, Whale) — keys, per-day usage aggregation,
 // outbound webhooks. The full key is shown once at creation; only a salted
 // hash and a display prefix are stored.
 // ---------------------------------------------------------------------------

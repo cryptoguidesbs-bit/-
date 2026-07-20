@@ -36,10 +36,10 @@ const ok = (name, cond, detail = '') => {
 
 // A-3 pricing (USD). Yearly = monthly × 10.
 const PLANS = {
-  standard: { monthly: 199, yearly: 1990 },
-  professional: { monthly: 499, yearly: 4990 },
-  institutional: { monthly: 1499, yearly: 14990 },
-  legendary: { monthly: 4999, yearly: 49990 },
+  starter: { monthly: 59, yearly: 590 },
+  trader: { monthly: 149, yearly: 1490 },
+  pro: { monthly: 499, yearly: 4990 },
+  whale: { monthly: 1499, yearly: 14990 },
 }
 const PRICE_ENV = (plan, interval) =>
   `STRIPE_PRICE_${plan.toUpperCase()}_${interval.toUpperCase()}`
@@ -63,65 +63,39 @@ for (const [plan, amounts] of Object.entries(PLANS)) {
     amounts.yearly === amounts.monthly * 10 && savesPct === 17)
 }
 
-// --- 2. landing: multi-term selector + per-term comparison table w/ savings ---------
-console.log('--- landing display (billing terms + compare table) ---')
-const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
+// --- 2. landing shows BOTH terms per card + comparison table ------------------------
+console.log("--- landing display (monthly + yearly) ---")
+const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
 const html = await fetch(`${APP}/ko`).then((r) => r.text())
+const near = (marker, len = 300) => { const at = html.indexOf(marker); return at >= 0 ? html.slice(at, at + len) : null }
 
-// Month terms bill at the monthly rate; year terms at the yearly rate (17% off).
-const TERMS = { '1m': 1, '3m': 3, '6m': 6, '1y': 1, '2y': 2, '3y': 3 }
-const isYearTerm = (k) => k.endsWith('y')
-const termTotal = (a, k) => (isYearTerm(k) ? a.yearly * TERMS[k] : a.monthly * TERMS[k])
-const termSaved = (a, k) => (isYearTerm(k) ? a.monthly * 12 * TERMS[k] - a.yearly * TERMS[k] : 0)
+ok("toggle offers exactly monthly + yearly", html.includes('data-testid="interval-monthly"') && html.includes('data-testid="interval-yearly"'))
+ok("multi-term options removed (3m/6m/2y/3y)", !html.includes('data-testid="term-3m"') && !html.includes('data-testid="term-6m"') && !html.includes('data-testid="term-2y"') && !html.includes('data-testid="term-3y"'))
+for (const name of ["Starter", "Trader", "Pro", "Whale"]) ok(`plan name "${name}" rendered`, html.includes(name))
 
-const near = (marker, len = 340) => {
-  const at = html.indexOf(marker)
-  return at >= 0 ? html.slice(at, at + len) : null
+for (const [plan, a] of Object.entries(PLANS)) {
+  const m = near(`data-testid="price-monthly-${plan}"`), y = near(`data-testid="price-yearly-${plan}"`)
+  ok(`${plan} card shows ${usd.format(a.monthly)}/mo + ${usd.format(a.yearly)}/yr`,
+    m?.includes(usd.format(a.monthly)) && y?.includes(usd.format(a.yearly)), m && y ? "" : "price block missing")
 }
+ok("free tier has no yearly block", !html.includes('data-testid="price-yearly-free"'))
+ok("yearly 2-months-free badge present", html.includes("2개월 무료"))
+ok("trial note preserved", html.includes("7일 무료 체험"))
 
-// All six term options are offered; year terms show the 17% discount.
-for (const key of Object.keys(TERMS)) {
-  ok(`term selector offers ${key}`, html.includes(`data-testid="term-${key}"`))
-}
-ok('year terms advertise the 17% discount', html.includes('-17%') && html.includes('17% 할인'))
-
-// Default term (1m): each paid card shows that term's total (= monthly rate).
-for (const [plan, amounts] of Object.entries(PLANS)) {
-  const block = near(`data-testid="price-${plan}"`)
-  ok(`${plan} card (default 1m) shows ${usd.format(amounts.monthly)} + "1개월"`,
-    block?.includes(usd.format(amounts.monthly)) && block?.includes('1개월'),
-    block ? '' : 'price block missing')
-}
-ok('free tier has no term price block', !html.includes('data-testid="price-free"'))
-ok('trial note preserved', html.includes('7일 무료 체험'))
-
-// Comparison table: every plan row carries all six term totals + year savings.
-ok('comparison table rendered', html.includes('data-testid="pricing-compare"') && html.includes('요금 총정리'))
-for (const [plan, amounts] of Object.entries(PLANS)) {
+ok("comparison table rendered", html.includes('data-testid="pricing-compare"') && html.includes("요금 총정리"))
+for (const [plan, a] of Object.entries(PLANS)) {
   const at = html.indexOf(`data-testid="compare-row-${plan}"`)
-  const row = at >= 0 ? html.slice(at, at + 2200) : null
-  const missing = Object.keys(TERMS).filter((k) => !row?.includes(usd.format(termTotal(amounts, k))))
-  ok(`compare row ${plan}: all 6 term totals present`, row != null && missing.length === 0,
-    missing.length ? `missing ${missing.join(',')}` : '')
+  const row = at >= 0 ? html.slice(at, at + 700) : null
+  const saved = a.monthly * 12 - a.yearly
+  ok(`compare row ${plan}: ${usd.format(a.monthly)} / ${usd.format(a.yearly)} / ${usd.format(saved)} saved`,
+    row?.includes(usd.format(a.monthly)) && row?.includes(usd.format(a.yearly)) && row?.includes(usd.format(saved)),
+    row ? "" : "row missing")
 }
-// The 17% discount SHOWS AS A DOLLAR AMOUNT in the table (always in SSR):
-// standard 1y saves $398, 2y saves $796, 3y saves $1,194.
-ok('standard shows year savings ($398 / $796 / $1,194 절감)',
-  (() => { const at = html.indexOf('data-testid="compare-row-standard"'); const r = at >= 0 ? html.slice(at, at + 2200) : ''
-    return r.includes('$398') && r.includes('$796') && r.includes('$1,194') && r.includes('절감') })())
-// professional 1y saves $998 (17% expressed as money).
-ok('professional shows year savings ($998 절감)',
-  (() => { const at = html.indexOf('data-testid="compare-row-professional"'); const r = at >= 0 ? html.slice(at, at + 2200) : ''
-    return r.includes('$998') && r.includes('절감') })())
 
 const htmlEn = await fetch(`${APP}/en`).then((r) => r.text())
-ok('EN landing: term selector + comparison table',
-  htmlEn.includes('data-testid="term-2y"') &&
-    htmlEn.includes('data-testid="pricing-compare"') &&
-    htmlEn.includes('Full pricing comparison'))
-ok('EN standard card (default 1m) shows $199 / 1 month',
-  (() => { const at = htmlEn.indexOf('data-testid="price-standard"'); const b = at >= 0 ? htmlEn.slice(at, at + 340) : null
-    return b?.includes('$199') && b?.includes('1 month') })())
+ok("EN starter card shows $59 and $590",
+  (() => { const at = htmlEn.indexOf('data-testid="price-yearly-starter"'); return at >= 0 && htmlEn.slice(at, at + 260).includes("$590") })() && htmlEn.includes("$59"))
+ok("EN comparison table present", htmlEn.includes('data-testid="pricing-compare"') && htmlEn.includes("Full pricing comparison"))
 
 // --- 3. checkout bills the correct interval price (E2E) -----------------------------
 console.log('--- checkout amounts (Stripe sessions) ---')
@@ -154,19 +128,19 @@ async function checkoutLineItem(plan, interval) {
   return { priceId: items.data[0]?.price?.id, unit: items.data[0]?.price?.unit_amount }
 }
 
-let li = await checkoutLineItem('standard', 'monthly')
-ok('checkout standard/monthly bills $199',
-  li.priceId === process.env[PRICE_ENV('standard', 'monthly')] && li.unit === 19900,
+let li = await checkoutLineItem('starter', 'monthly')
+ok('checkout starter/monthly bills $59',
+  li.priceId === process.env[PRICE_ENV('starter', 'monthly')] && li.unit === 5900,
   JSON.stringify(li))
 
-li = await checkoutLineItem('standard', 'yearly')
-ok('checkout standard/yearly bills $1,990 (discounted, not 199×12)',
-  li.priceId === process.env[PRICE_ENV('standard', 'yearly')] && li.unit === 199000,
+li = await checkoutLineItem('starter', 'yearly')
+ok('checkout starter/yearly bills $590 (discounted, not 59×12)',
+  li.priceId === process.env[PRICE_ENV('starter', 'yearly')] && li.unit === 59000,
   JSON.stringify(li))
 
-li = await checkoutLineItem('professional', 'yearly')
-ok('checkout professional/yearly bills $4,990',
-  li.priceId === process.env[PRICE_ENV('professional', 'yearly')] && li.unit === 499000,
+li = await checkoutLineItem('trader', 'yearly')
+ok('checkout trader/yearly bills $1,490',
+  li.priceId === process.env[PRICE_ENV('trader', 'yearly')] && li.unit === 149000,
   JSON.stringify(li))
 
 // --- cleanup ---------------------------------------------------------------------------

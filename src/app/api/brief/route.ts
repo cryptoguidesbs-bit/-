@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 // Latest published brief, resolved against the requester's plan:
 //   FREE                → locked: only the "today" section (teaser)
 //   STANDARD            → full STANDARD brief
-//   PROFESSIONAL and up → DETAILED brief (or ?tier=standard)
+//   TRADER and up       → DETAILED brief (or ?tier=standard)
 // Content is non-personalized — identical for every subscriber of a tier.
 export async function GET(request: NextRequest) {
   const [daily, detailed] = await Promise.all([

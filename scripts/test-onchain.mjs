@@ -1,5 +1,5 @@
 // Stage 12 — Whale & On-chain test: data pipeline (real sources, resilient
-// fallback) + Institutional tier gating + region policy.
+// fallback) + Pro tier gating + region policy.
 import fs from 'node:fs'
 import { PrismaClient } from '@prisma/client'
 
@@ -69,10 +69,10 @@ ok('anonymous → 401', anon.status === 401, `status=${anon.status}`)
 
 for (const [plan, expected] of [
   ['FREE', 403],
-  ['STANDARD', 403],
-  ['PROFESSIONAL', 403],
-  ['INSTITUTIONAL', 200],
-  ['LEGENDARY', 200],
+  ['STARTER', 403],
+  ['TRADER', 403],
+  ['PRO', 200],
+  ['WHALE', 200],
 ]) {
   await setPlan(plan)
   const res = await get('/api/onchain/summary')
@@ -81,12 +81,12 @@ for (const [plan, expected] of [
 
 // --- 2. region policy --------------------------------------------------------------
 console.log('--- region policy ---')
-await setPlan('INSTITUTIONAL')
+await setPlan('PRO')
 const cn = await get('/api/onchain/whales', { 'x-vercel-ip-country': 'CN' })
-ok('INSTITUTIONAL from CN → 403 (region)', cn.status === 403 && cn.json?.reason === 'region',
+ok('PRO from CN → 403 (region)', cn.status === 403 && cn.json?.reason === 'region',
   `status=${cn.status} reason=${cn.json?.reason}`)
 const kr = await get('/api/onchain/whales', { 'x-vercel-ip-country': 'KR' })
-ok('INSTITUTIONAL from KR → 200', kr.status === 200, `status=${kr.status}`)
+ok('PRO from KR → 200', kr.status === 200, `status=${kr.status}`)
 
 // --- 3. data pipeline ----------------------------------------------------------------
 console.log('--- data pipeline ---')
@@ -137,13 +137,13 @@ ok('blocked + cold cache → graceful envelope (no 5xx)',
 console.log('--- page ---')
 const pageOk = await fetch(`${APP}/ko/onchain`, { headers: { authorization: `Bearer ${jwt}` } })
 const htmlOk = await pageOk.text()
-ok('/ko/onchain renders for INSTITUTIONAL',
+ok('/ko/onchain renders for PRO',
   pageOk.status === 200 && htmlOk.includes('data-testid="onchain-page"'), `status=${pageOk.status}`)
 
-await setPlan('STANDARD')
+await setPlan('STARTER')
 const pageGated = await fetch(`${APP}/ko/onchain`, { headers: { authorization: `Bearer ${jwt}` } })
 const htmlGated = await pageGated.text()
-ok('/ko/onchain as STANDARD → upgrade gate', htmlGated.includes('data-testid="gate-plan"'))
+ok('/ko/onchain as STARTER → upgrade gate', htmlGated.includes('data-testid="gate-plan"'))
 
 // --- cleanup ---------------------------------------------------------------------------------
 await prisma.subscription.deleteMany({ where: { userId: dbUser.id } })

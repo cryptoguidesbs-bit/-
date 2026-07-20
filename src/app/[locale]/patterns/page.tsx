@@ -18,7 +18,7 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
   }
 }
 
-// Premium: AI pattern detection requires the Professional plan
+// Premium: AI pattern detection requires the Trader plan
 // (analysis.patterns). Output is non-personalized.
 export default async function PatternsPage({ params: { locale } }: Props) {
   setRequestLocale(locale)

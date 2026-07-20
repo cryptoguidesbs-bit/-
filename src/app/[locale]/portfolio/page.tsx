@@ -18,7 +18,7 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
   }
 }
 
-// Premium: portfolio tools require the Professional plan.
+// Premium: portfolio tools require the Trader plan.
 export default async function PortfolioPage({ params: { locale } }: Props) {
   setRequestLocale(locale)
 

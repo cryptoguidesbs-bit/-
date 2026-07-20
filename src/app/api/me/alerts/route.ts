@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 
 const MAX_RULES = 20
 
-// GET /api/me/alerts — the requester's alert rules (Professional+).
+// GET /api/me/alerts — the requester's alert rules (Trader+).
 export async function GET() {
   const gate = await checkFeature('alerts.realtime')
   if (!gate.allowed) {

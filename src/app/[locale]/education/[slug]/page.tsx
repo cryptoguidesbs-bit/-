@@ -55,7 +55,7 @@ function RenderLesson({ content }: { content: string }) {
   )
 }
 
-// Funnel gate: sign-in CTA for member lessons, upgrade CTA for standard.
+// Funnel gate: sign-in CTA for member lessons, upgrade CTA for starter.
 function LessonGateCard({ gate, t }: { gate: LessonGate; t: (key: string) => string }) {
   const isAuth = gate.reason === 'auth'
   return (

@@ -7,7 +7,7 @@ import { getEntitlements } from '@/lib/entitlements'
 // Conversion-funnel access model:
 //   free     → everyone (signed-out included)
 //   member   → any signed-in account (sign-up funnel)
-//   standard → Standard plan and above (subscription funnel)
+//   starter → Starter plan and above (subscription funnel)
 export type LessonGate = {
   allowed: boolean
   reason: 'ok' | 'auth' | 'plan'
@@ -26,7 +26,7 @@ export async function checkLessonAccess(access: LessonAccess): Promise<LessonGat
   if (access === 'member') {
     return { allowed: true, reason: 'ok', signedIn: true, plan: ent.plan }
   }
-  const allowed = PLAN_RANK[ent.plan] >= PLAN_RANK.STANDARD
+  const allowed = PLAN_RANK[ent.plan] >= PLAN_RANK.STARTER
   return { allowed, reason: allowed ? 'ok' : 'plan', signedIn: true, plan: ent.plan }
 }
 
@@ -36,6 +36,6 @@ export async function getAccessSnapshot(): Promise<Record<LessonAccess, boolean>
   return {
     free: true,
     member: ent.signedIn,
-    standard: ent.signedIn && PLAN_RANK[ent.plan] >= PLAN_RANK.STANDARD,
+    starter: ent.signedIn && PLAN_RANK[ent.plan] >= PLAN_RANK.STARTER,
   }
 }

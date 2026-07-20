@@ -13,11 +13,11 @@ import { CancelSubscriptionButton } from '@/components/billing/cancel-subscripti
 import { PlanManager } from '@/components/billing/plan-manager'
 import { Link } from '@/i18n/navigation'
 
-const PLAN_TO_KEY: Record<string, 'standard' | 'professional' | 'institutional' | 'legendary'> = {
-  STANDARD: 'standard',
-  PROFESSIONAL: 'professional',
-  INSTITUTIONAL: 'institutional',
-  LEGENDARY: 'legendary',
+const PLAN_TO_KEY: Record<string, 'starter' | 'trader' | 'pro' | 'whale'> = {
+  STARTER: 'starter',
+  TRADER: 'trader',
+  PRO: 'pro',
+  WHALE: 'whale',
 }
 
 type Props = {
@@ -162,7 +162,7 @@ export default async function BillingPage({ params: { locale }, searchParams }: 
 
       {hasPaidPlan && sub!.externalId && !sub!.cancelAtPeriodEnd && (
         <PlanManager
-          currentPlan={PLAN_TO_KEY[sub!.plan] ?? 'standard'}
+          currentPlan={PLAN_TO_KEY[sub!.plan] ?? 'starter'}
           currentInterval={sub!.interval === 'YEARLY' ? 'yearly' : 'monthly'}
         />
       )}

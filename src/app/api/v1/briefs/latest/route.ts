@@ -7,7 +7,7 @@ import { prisma } from '@/lib/prisma'
 export const dynamic = 'force-dynamic'
 
 // GET /api/v1/briefs/latest — the latest published AI Market Brief
-// (detailed tier; Legendary API). AI-generated, non-personalized.
+// (detailed tier; Whale API). AI-generated, non-personalized.
 export async function GET(request: NextRequest) {
   const auth = await authenticateApiKey(request, 'briefs/latest')
   if (!auth.ok) {
