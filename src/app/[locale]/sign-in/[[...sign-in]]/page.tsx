@@ -6,7 +6,7 @@ type Props = { params: { locale: string } }
 
 export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'auth' })
-  return { title: t('signIn') }
+  return { title: t('signIn'), robots: { index: false, follow: false } }
 }
 
 export default function SignInPage({ params: { locale } }: Props) {

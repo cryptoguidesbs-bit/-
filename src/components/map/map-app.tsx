@@ -177,6 +177,7 @@ export function MapApp({ locale }: { locale: string }) {
           className={cn(inputCls, 'h-8 w-auto')}
           value={category}
           onChange={(e) => setCategory(e.target.value)}
+          aria-label={t('allCategories')}
         >
           <option value="">{t('allCategories')}</option>
           {MAP_CATEGORIES.map((c) => (
@@ -190,6 +191,7 @@ export function MapApp({ locale }: { locale: string }) {
           <input
             className={cn(inputCls, 'h-8 pl-8')}
             placeholder={t('searchPlaceholder')}
+            aria-label={t('searchPlaceholder')}
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />

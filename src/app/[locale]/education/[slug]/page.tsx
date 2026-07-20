@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { ArrowLeft, Clock, GraduationCap, Lock, LogIn } from 'lucide-react'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { pageAlternates } from '@/lib/seo'
 
 import { getLesson } from '@/config/education'
 import { checkLessonAccess, type LessonGate } from '@/lib/education/access'
@@ -16,7 +17,11 @@ export async function generateMetadata({ params: { locale, slug } }: Props): Pro
   const lesson = getLesson(slug)
   if (!lesson) return {}
   const lang: 'ko' | 'en' = locale === 'ko' ? 'ko' : 'en'
-  return { title: lesson.title[lang], description: lesson.summary[lang] }
+  return {
+    title: lesson.title[lang],
+    description: lesson.summary[lang],
+    alternates: pageAlternates(`/education/${slug}`, locale),
+  }
 }
 
 // Minimal markdown rendering (## headings + paragraphs) for lesson content.
