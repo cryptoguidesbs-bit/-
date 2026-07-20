@@ -12,6 +12,8 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
     title: t('title'),
     description: t('description'),
     alternates: pageAlternates('/insights', locale),
+    // Placeholder page (not launched) — keep it out of search indexes.
+    robots: { index: false },
   }
 }
 

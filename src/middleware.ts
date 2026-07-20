@@ -79,7 +79,9 @@ function isCsrfProtected(pathname: string): boolean {
     pathname.startsWith('/api/admin/') ||
     pathname === '/api/consent' ||
     pathname === '/api/billing/checkout' ||
-    pathname === '/api/billing/cancel'
+    pathname === '/api/billing/cancel' ||
+    pathname === '/api/billing/change' ||
+    pathname === '/api/billing/refund'
   )
 }
 

@@ -40,7 +40,13 @@
     "referral": "Referral",
     "apiCenter": "API Center",
     "map": "Crypto Map",
-    "sidebar": "Sidebar navigation"
+    "sidebar": "Sidebar navigation",
+    "groups": {
+      "market": "Market",
+      "research": "Research",
+      "tools": "My tools",
+      "more": "More"
+    }
   },
   "map": {
     "title": "Crypto Map",
@@ -536,10 +542,27 @@
       "intervalMonthly": "Monthly",
       "intervalYearly": "Yearly",
       "yearlySave": "2 months free",
-      "yearlyBadge": "2 months free · 17% off",
-      "yearlyHint": "Pay yearly: {price}/yr · 2 months free",
-      "monthlyEquiv": "≈ {price}/mo billed annually",
       "trialNote": "7-day free trial, then billed · cancel anytime",
+      "compareTitle": "Full pricing comparison",
+      "compareCols": {
+        "plan": "Plan",
+        "monthly": "Monthly",
+        "yearly": "Yearly",
+        "perMonthYearly": "Yearly, per month",
+        "save": "Yearly saving"
+      },
+      "compareSaveSuffix": "saved",
+      "terms": {
+        "1m": "1 month",
+        "3m": "3 months",
+        "6m": "6 months",
+        "1y": "1 year",
+        "2y": "2 years",
+        "3y": "3 years"
+      },
+      "termHint": "Monthly terms bill each month; yearly terms bill each year at {pct}% off.",
+      "perMonthEquiv": "≈ {price}/mo",
+      "discountSaved": "{pct}% off · save {price}",
       "processing": "Redirecting…",
       "checkoutError": "Could not open the checkout page. Please try again shortly.",
       "popular": "Popular",
@@ -604,7 +627,7 @@
       },
       "q4": {
         "question": "How do billing and cancellation work?",
-        "answer": "All plans are billed monthly in USD and can be cancelled anytime. After cancelling, you keep access until the end of the current billing period."
+        "answer": "Paid plans are billed in USD either monthly or yearly (yearly saves about 17%), and can be cancelled anytime. After cancelling, you keep access until the end of the current billing period."
       },
       "q5": {
         "question": "Can I change plans later?",

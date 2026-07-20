@@ -63,33 +63,65 @@ for (const [plan, amounts] of Object.entries(PLANS)) {
     amounts.yearly === amounts.monthly * 10 && savesPct === 17)
 }
 
-// --- 2. landing expresses both terms -----------------------------------------------
-console.log('--- landing display (both terms) ---')
+// --- 2. landing: multi-term selector + per-term comparison table w/ savings ---------
+console.log('--- landing display (billing terms + compare table) ---')
 const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
 const html = await fetch(`${APP}/ko`).then((r) => r.text())
 
-// Default (monthly) view: monthly price + per-month marker + yearly hint
-// containing the discounted yearly amount, per paid plan.
-for (const [plan, amounts] of Object.entries(PLANS)) {
-  const marker = `data-testid="yearly-hint-${plan}"`
+// Month terms bill at the monthly rate; year terms at the yearly rate (17% off).
+const TERMS = { '1m': 1, '3m': 3, '6m': 6, '1y': 1, '2y': 2, '3y': 3 }
+const isYearTerm = (k) => k.endsWith('y')
+const termTotal = (a, k) => (isYearTerm(k) ? a.yearly * TERMS[k] : a.monthly * TERMS[k])
+const termSaved = (a, k) => (isYearTerm(k) ? a.monthly * 12 * TERMS[k] - a.yearly * TERMS[k] : 0)
+
+const near = (marker, len = 340) => {
   const at = html.indexOf(marker)
-  const window = at >= 0 ? html.slice(at, at + 300) : ''
-  ok(`${plan}: monthly price + yearly hint (${usd.format(amounts.yearly)}/년)`,
-    html.includes(usd.format(amounts.monthly)) &&
-      html.includes(`data-testid="period-${plan}"`) &&
-      at >= 0 &&
-      window.includes(usd.format(amounts.yearly)),
-    at >= 0 ? '' : 'hint testid missing')
+  return at >= 0 ? html.slice(at, at + len) : null
 }
-ok('free tier has no yearly hint', !html.includes('data-testid="yearly-hint-free"'))
-ok('monthly/yearly toggle + "2개월 무료" present',
-  html.includes('월간') && html.includes('연간') && html.includes('2개월 무료'))
+
+// All six term options are offered; year terms show the 17% discount.
+for (const key of Object.keys(TERMS)) {
+  ok(`term selector offers ${key}`, html.includes(`data-testid="term-${key}"`))
+}
+ok('year terms advertise the 17% discount', html.includes('-17%') && html.includes('17% 할인'))
+
+// Default term (1m): each paid card shows that term's total (= monthly rate).
+for (const [plan, amounts] of Object.entries(PLANS)) {
+  const block = near(`data-testid="price-${plan}"`)
+  ok(`${plan} card (default 1m) shows ${usd.format(amounts.monthly)} + "1개월"`,
+    block?.includes(usd.format(amounts.monthly)) && block?.includes('1개월'),
+    block ? '' : 'price block missing')
+}
+ok('free tier has no term price block', !html.includes('data-testid="price-free"'))
 ok('trial note preserved', html.includes('7일 무료 체험'))
 
+// Comparison table: every plan row carries all six term totals + year savings.
+ok('comparison table rendered', html.includes('data-testid="pricing-compare"') && html.includes('요금 총정리'))
+for (const [plan, amounts] of Object.entries(PLANS)) {
+  const at = html.indexOf(`data-testid="compare-row-${plan}"`)
+  const row = at >= 0 ? html.slice(at, at + 2200) : null
+  const missing = Object.keys(TERMS).filter((k) => !row?.includes(usd.format(termTotal(amounts, k))))
+  ok(`compare row ${plan}: all 6 term totals present`, row != null && missing.length === 0,
+    missing.length ? `missing ${missing.join(',')}` : '')
+}
+// The 17% discount SHOWS AS A DOLLAR AMOUNT in the table (always in SSR):
+// standard 1y saves $398, 2y saves $796, 3y saves $1,194.
+ok('standard shows year savings ($398 / $796 / $1,194 절감)',
+  (() => { const at = html.indexOf('data-testid="compare-row-standard"'); const r = at >= 0 ? html.slice(at, at + 2200) : ''
+    return r.includes('$398') && r.includes('$796') && r.includes('$1,194') && r.includes('절감') })())
+// professional 1y saves $998 (17% expressed as money).
+ok('professional shows year savings ($998 절감)',
+  (() => { const at = html.indexOf('data-testid="compare-row-professional"'); const r = at >= 0 ? html.slice(at, at + 2200) : ''
+    return r.includes('$998') && r.includes('절감') })())
+
 const htmlEn = await fetch(`${APP}/en`).then((r) => r.text())
-const enAt = htmlEn.indexOf('data-testid="yearly-hint-standard"')
-ok('EN landing: yearly hint with $1,990',
-  enAt >= 0 && htmlEn.slice(enAt, enAt + 300).includes('$1,990'))
+ok('EN landing: term selector + comparison table',
+  htmlEn.includes('data-testid="term-2y"') &&
+    htmlEn.includes('data-testid="pricing-compare"') &&
+    htmlEn.includes('Full pricing comparison'))
+ok('EN standard card (default 1m) shows $199 / 1 month',
+  (() => { const at = htmlEn.indexOf('data-testid="price-standard"'); const b = at >= 0 ? htmlEn.slice(at, at + 340) : null
+    return b?.includes('$199') && b?.includes('1 month') })())
 
 // --- 3. checkout bills the correct interval price (E2E) -----------------------------
 console.log('--- checkout amounts (Stripe sessions) ---')

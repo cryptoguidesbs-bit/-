@@ -40,11 +40,17 @@
     "referral": "리퍼럴",
     "apiCenter": "API 센터",
     "map": "결제 지도",
-    "sidebar": "사이드 메뉴"
+    "sidebar": "사이드 메뉴",
+    "groups": {
+      "market": "마켓",
+      "research": "리서치",
+      "tools": "내 도구",
+      "more": "더보기"
+    }
   },
   "map": {
     "title": "결제 지도",
-    "subtitle": "크립토를 받는 매장·ATM·온라인 서비스와 나라별 규제 상태를 지도에서 탐색하세요.",
+    "subtitle": "크립토를 받는 매장·ATM·온라인 서비스와 나라별 규제 상태를 지도에서 확인할 수 있습니다.",
     "disclaimer": "본 지도는 정보 제공 목적으로만 제공되며 거래를 중개하지 않습니다. 매장·ATM 정보는 제3자(BTCMap/OpenStreetMap) 데이터로 정확성·최신성이 보장되지 않으며, 국가별 규제 상태는 참고용이고 법률 자문이 아닙니다. 실제 방문·거래 및 규제 준수 책임은 이용자에게 있습니다.",
     "nearMe": "내 주변",
     "onlineToggle": "온라인 서비스",
@@ -96,7 +102,7 @@
   },
   "apiCenter": {
     "title": "API Center",
-    "subtitle": "CryptoGuide 데이터를 REST API와 웹훅으로 연동하세요. Legendary 플랜 전용입니다.",
+    "subtitle": "CryptoGuide 데이터를 REST API와 웹훅으로 연동할 수 있습니다. Legendary 플랜 전용입니다.",
     "terms": "API로 제공되는 모든 데이터는 정보 제공 목적이며 투자 권유가 아닙니다. 데이터의 재배포·재판매·대중 공개 게시는 금지되며, 모든 응답의 meta 필드에 동일한 이용 조건이 포함됩니다.",
     "keys": "API 키",
     "keyName": "키 이름 (예: production)",
@@ -376,11 +382,11 @@
   },
   "dashboard": {
     "title": "대시보드",
-    "greeting": "워치리스트, 저장 콘텐츠, 알림을 한 곳에서 관리하세요.",
+    "greeting": "워치리스트, 저장 콘텐츠, 알림을 한 곳에서 관리합니다.",
     "greetingNamed": "{name}님, 다시 오신 것을 환영합니다.",
     "portfolio": {
       "title": "포트폴리오",
-      "subtitle": "보유 자산을 기록하고 실시간 가치로 추적하세요.",
+      "subtitle": "보유 자산을 기록하고 실시간 가치로 추적합니다.",
       "open": "보유 자산을 실시간 시세로 추적할 수 있습니다.",
       "locked": "포트폴리오 도구는 Professional 플랜부터 이용할 수 있습니다.",
       "cta": "포트폴리오 열기",
@@ -495,7 +501,7 @@
       "subtitle": "정보의 홍수 속에서, 판단에 필요한 것만.",
       "ai": {
         "title": "AI 분석 요약",
-        "description": "쏟아지는 뉴스와 데이터를 AI가 읽고 핵심만 정리합니다. 매일 아침 브리핑으로 시장 파악 시간을 줄이세요."
+        "description": "쏟아지는 뉴스와 데이터를 AI가 읽고 핵심만 정리합니다. 매일 아침 브리핑으로 시장 파악에 드는 시간을 줄입니다."
       },
       "realtime": {
         "title": "실시간 마켓 데이터",
@@ -536,10 +542,27 @@
       "intervalMonthly": "월간",
       "intervalYearly": "연간",
       "yearlySave": "2개월 무료",
-      "yearlyBadge": "2개월 무료 · 17% 할인",
-      "yearlyHint": "연간 결제 시 {price}/년 · 2개월 무료",
-      "monthlyEquiv": "월 환산 약 {price}/월",
       "trialNote": "7일 무료 체험 후 결제 · 언제든 해지 가능",
+      "compareTitle": "요금 총정리",
+      "compareCols": {
+        "plan": "플랜",
+        "monthly": "월별 요금",
+        "yearly": "연간 요금",
+        "perMonthYearly": "연간 시 월 환산",
+        "save": "연간 절감액"
+      },
+      "compareSaveSuffix": "절감",
+      "terms": {
+        "1m": "1개월",
+        "3m": "3개월",
+        "6m": "6개월",
+        "1y": "1년",
+        "2y": "2년",
+        "3y": "3년"
+      },
+      "termHint": "월 단위는 매월, 연 단위는 매년 결제됩니다. 연 단위는 {pct}% 할인이 적용됩니다.",
+      "perMonthEquiv": "월 환산 {price}",
+      "discountSaved": "{pct}% 할인 · {price} 절감",
       "processing": "이동 중…",
       "checkoutError": "결제 페이지로 이동하지 못했습니다. 잠시 후 다시 시도해 주세요.",
       "popular": "인기",
@@ -604,7 +627,7 @@
       },
       "q4": {
         "question": "결제와 해지는 어떻게 하나요?",
-        "answer": "모든 플랜은 월 단위 USD 결제이며 언제든지 해지할 수 있습니다. 해지하더라도 현재 결제 주기가 끝날 때까지는 계속 이용할 수 있습니다."
+        "answer": "유료 플랜은 USD로 월 단위 또는 연 단위(연간 결제 시 약 17% 할인)로 결제하며, 언제든지 해지할 수 있습니다. 해지하더라도 현재 결제 주기가 끝날 때까지는 계속 이용할 수 있습니다."
       },
       "q5": {
         "question": "플랜은 중간에 변경할 수 있나요?",
@@ -629,7 +652,7 @@
   },
   "billing": {
     "title": "구독 관리",
-    "description": "현재 플랜과 결제 상태를 확인하고 관리하세요.",
+    "description": "현재 플랜과 결제 상태를 확인하고 관리할 수 있습니다.",
     "currentPlan": "현재 플랜",
     "status": {
       "TRIALING": "체험 중",

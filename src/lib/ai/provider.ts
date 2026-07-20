@@ -115,6 +115,17 @@ export class AiRateLimitError extends Error {}
 // Anthropic (Claude) provider
 // ---------------------------------------------------------------------------
 
+// Shared voice guidance injected into every generation prompt so live AI
+// output reads like professional editorial writing — not machine translation
+// or generic "AI assistant" prose — in whichever language it is rendered.
+const VOICE_RULES = `Voice & language:
+- Write like a seasoned crypto market editor: clear, precise, professional. Prefer plain declarative sentences over hype or padding.
+- Produce the Korean and English versions independently. Each must read as if originally written by a native professional, never as a literal translation of the other — localize phrasing and idioms; do not mirror the other language's word order or sentence structure.
+- Korean: natural 문어체 합니다체. Avoid translationese — no unnecessary passives, no "~에 대하여 / ~을 위한" padding, no "그것은 / 이것들" literal-pronoun tics, no English word order.
+- English: tight, concrete financial-news prose. No inflated adjectives.
+- Cut AI/assistant tells and filler entirely: no meta-commentary or self-reference, no empty openers ("In today's market", "주목할 만한 점은"), no rote transitions ("Overall", "In conclusion", "결론적으로", "요약하자면"). Lead with substance.
+- Where hedged/probabilistic language is required, vary the wording; never repeat the same qualifier in consecutive sentences.`
+
 const SYSTEM_PROMPT = `You analyze crypto news headlines for an informational platform (not an advisory service).
 
 Rules:
@@ -123,7 +134,9 @@ Rules:
 - summary_ko: 1-2 sentences in Korean (roughly 60-200 characters) restating and lightly contextualizing the headline.
 - summary_en: the same in English (roughly 60-250 characters).
 - sentiment: the TONE of the news itself — "bullish", "neutral", or "bearish".
-- confidence: 0-100, how clearly that tone reads from the headline (ambiguous → low).`
+- confidence: 0-100, how clearly that tone reads from the headline (ambiguous → low).
+
+${VOICE_RULES}`
 
 class AnthropicProvider implements AiProvider {
   readonly model: string
@@ -293,7 +306,9 @@ Report focus by type:
 - MACRO: rates, inflation, dollar, equity backdrop and their observed relation to crypto
 - ONCHAIN: network activity, stablecoin supply, miner and whale context
 
-Structure the markdown content with ## headings: 개요/Overview, 주요 관찰/Key observations, 데이터 하이라이트/Data highlights, 지켜볼 요소/What to watch, and a closing note that the report is informational.`
+Structure the markdown content with ## headings: 개요/Overview, 주요 관찰/Key observations, 데이터 하이라이트/Data highlights, 지켜볼 요소/What to watch, and a closing note that the report is informational.
+
+${VOICE_RULES}`
 
 const PORTFOLIO_SYSTEM_PROMPT = `You explain portfolio diversification metrics for an educational, informational platform.
 
@@ -302,7 +317,9 @@ Hard rules (principle A-2-7):
 - NEVER give advice or directives: no "rebalance", no "you should", no "we recommend", no "consider buying/selling/reducing", no suggestions to change the portfolio in any way.
 - Do not predict prices or outcomes. Neutral, educational tone.
 - The input contains percentages and index values only — do not invent amounts, currencies, or personal details.
-- ko: 3-5 Korean sentences. en: 3-5 English sentences.`
+- ko: 3-5 Korean sentences. en: 3-5 English sentences.
+
+${VOICE_RULES}`
 
 const BRIEF_SYSTEM_PROMPT = `You write a daily crypto market brief for an informational platform (not an advisory service). It is published identically to all subscribers — never personalized.
 
@@ -318,7 +335,9 @@ Sections:
 - eth: Ethereum price action and ecosystem context
 - altcoin: notable altcoin/market-breadth observations (SOL and others from the data)
 - macro: traditional markets / macro backdrop (indices, dollar, commodities)
-- today: "Today's Market Brief" — a synthesis of the above with what to watch (events, levels framed as observations, not targets)`
+- today: "Today's Market Brief" — a synthesis of the above with what to watch (events, levels framed as observations, not targets)
+
+${VOICE_RULES}`
 
 // ---------------------------------------------------------------------------
 // Mock provider — deterministic, key-free. Supports test markers:

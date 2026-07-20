@@ -116,9 +116,9 @@ console.log('--- pricing display / math ---')
 ok('yearly = monthly × 10 (standard)', 199 * 10 === 1990)
 ok('yearly = monthly × 10 (professional)', 499 * 10 === 4990)
 const landing = await fetch(`${APP}/ko`).then((r) => r.text())
-ok('landing shows monthly period "/월"', landing.includes('/월'))
+ok('landing offers monthly + yearly billing terms', landing.includes('data-testid="term-1m"') && landing.includes('data-testid="term-1y"'))
 ok('landing shows 7-day trial note', landing.includes('7일 무료 체험'))
-ok('landing pricing has period marker per card', landing.includes('data-testid="period-standard"'))
+ok('landing shows yearly 17% discount', landing.includes('-17%') && landing.includes('17% 할인'))
 
 // --- 3. trial ------------------------------------------------------------------
 console.log('--- 7-day trial ---')
