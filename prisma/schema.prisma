@@ -813,3 +813,23 @@ model ContentAuditLog {
   @@index([contentType, contentId, createdAt])
   @@index([userId, createdAt])
 }
+
+// ---------------------------------------------------------------------------
+// Enterprise sales inquiries — the "Contact Sales" form on the pricing page.
+// Enterprise is quoted per contract and has no Stripe price, so a submission
+// is a lead record, not a subscription. Anonymous (no account required).
+// ---------------------------------------------------------------------------
+
+model EnterpriseInquiry {
+  id           String    @id @default(cuid())
+  email        String
+  organization String
+  teamSize     String
+  useCase      String
+  locale       String    @default("en")
+  // Set once an operator has followed up.
+  handledAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([createdAt])
+}

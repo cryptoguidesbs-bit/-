@@ -13,6 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Section } from '@/components/home/section'
 import { Reveal } from '@/components/home/reveal'
+import { EnterpriseContactDialog } from '@/components/home/enterprise-contact-dialog'
 import { cn } from '@/lib/utils'
 
 const usd = new Intl.NumberFormat('en-US', {
@@ -29,9 +30,16 @@ export function PricingSection() {
   const [interval, setInterval] = useState<BillingInterval>('monthly')
   const [loadingTier, setLoadingTier] = useState<PricingTierKey | null>(null)
   const [checkoutError, setCheckoutError] = useState(false)
+  const [contactOpen, setContactOpen] = useState(false)
 
   const startCheckout = async (tier: PricingTierKey) => {
     setCheckoutError(false)
+
+    // Enterprise is quoted per contract — no Stripe price, no checkout.
+    if (tier === 'enterprise') {
+      setContactOpen(true)
+      return
+    }
 
     if (tier === 'free' || !isSignedIn) {
       router.push('/sign-up')
@@ -90,7 +98,7 @@ export function PricingSection() {
         ))}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {pricingTiers.map((tier, index) => (
           <Reveal key={tier.key} delay={index * 60}>
             <Card
@@ -108,6 +116,18 @@ export function PricingSection() {
                 {tier.key === 'free' ? (
                   <div className="flex items-baseline gap-1">
                     <span className="text-3xl font-bold tabular-nums">{usd.format(0)}</span>
+                  </div>
+                ) : tier.contact ? (
+                  /* Quote-only tier: a "from" figure plus the billing terms. */
+                  <div className="space-y-1.5" data-testid={`price-contact-${tier.key}`}>
+                    <div className="rounded-lg px-2 py-1">
+                      <span className="text-2xl font-bold tabular-nums">
+                        {t('enterprise.fromPrice')}
+                      </span>
+                    </div>
+                    <p className="px-2 text-xs text-muted-foreground">
+                      {t('enterprise.billingNote')}
+                    </p>
                   </div>
                 ) : (
                   /* Both prices stay fully legible; the toggle highlights the
@@ -173,11 +193,13 @@ export function PricingSection() {
                 >
                   {loadingTier === tier.key
                     ? t('processing')
-                    : tier.key === 'free'
-                      ? t('ctaFree')
-                      : t('ctaPaid')}
+                    : tier.contact
+                      ? t('enterprise.cta')
+                      : tier.key === 'free'
+                        ? t('ctaFree')
+                        : t('ctaPaid')}
                 </Button>
-                {tier.key !== 'free' && (
+                {tier.key !== 'free' && !tier.contact && (
                   <p className="text-center text-[11px] leading-tight text-muted-foreground">
                     {t('trialNote')}
                   </p>
@@ -206,9 +228,33 @@ export function PricingSection() {
             </thead>
             <tbody>
               {pricingTiers.map((tier) => {
+                const isFree = tier.key === 'free'
                 const m = tierAmount(tier.key, 'monthly')
                 const y = tierAmount(tier.key, 'yearly')
-                const isFree = tier.key === 'free'
+
+                // Quote-only row: a "from" figure and the contract terms.
+                if (tier.contact) {
+                  return (
+                    <tr
+                      key={tier.key}
+                      className="border-b last:border-0"
+                      data-testid={`compare-row-${tier.key}`}
+                    >
+                      <td className="px-4 py-3 text-left font-medium">
+                        {t(`tiers.${tier.key}.name`)}
+                      </td>
+                      <td className="px-4 py-3 text-right tabular-nums">
+                        {t('enterprise.fromPrice')}
+                      </td>
+                      <td className="px-4 py-3 text-right text-muted-foreground">
+                        {t('enterprise.compareYearly')}
+                      </td>
+                      <td className="px-4 py-3 text-right text-muted-foreground">—</td>
+                      <td className="px-4 py-3 text-right text-muted-foreground">—</td>
+                    </tr>
+                  )
+                }
+
                 return (
                   <tr
                     key={tier.key}
@@ -247,6 +293,12 @@ export function PricingSection() {
             </tbody>
           </table>
         </div>
+        <p
+          className="mx-auto mt-4 max-w-3xl text-center text-xs leading-relaxed text-muted-foreground"
+          data-testid="enterprise-compare-note"
+        >
+          {t('enterprise.compareNote')}
+        </p>
       </div>
 
       <div className="mt-6 space-y-1 text-center">
@@ -254,6 +306,8 @@ export function PricingSection() {
         <p className="text-xs text-muted-foreground">{t('currencyNote')}</p>
         <p className="text-xs text-muted-foreground">{t('disclaimer')}</p>
       </div>
+
+      <EnterpriseContactDialog open={contactOpen} onClose={() => setContactOpen(false)} />
     </Section>
   )
 }

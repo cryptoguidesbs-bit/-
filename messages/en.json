@@ -597,6 +597,44 @@
           "f1": "Everything included",
           "f2": "API Center",
           "f3": "Data export"
+        },
+        "enterprise": {
+          "name": "Enterprise",
+          "tagline": "Everything in Whale, plus:",
+          "f1": "Seats sized to your team",
+          "f2": "Institutional API with contracted volume limits",
+          "f3": "Historical data access via API and CSV",
+          "f4": "Bulk data export (CSV, JSON)",
+          "f5": "Multi portfolio monitoring for teams",
+          "f6": "Custom threshold alerts to Slack, Telegram, and webhooks",
+          "f7": "Scheduled PDF report delivery to your team",
+          "f8": "Whale movement alerts with custom thresholds",
+          "f9": "AI project overview covering team, tokenomics, and on chain activity",
+          "f10": "Internal use across your organization",
+          "f11": "Uptime and support terms defined per contract",
+          "f12": "Named point of contact",
+          "f13": "Support for vendor security review",
+          "f14": "Payment by invoice and bank transfer"
+        }
+      },
+      "enterprise": {
+        "fromPrice": "From $1,999/mo",
+        "billingNote": "Annual contract, priced by scale. Billed by invoice.",
+        "cta": "Contact Sales",
+        "compareYearly": "Annual contract",
+        "compareNote": "Working at a larger scale? We set custom terms with funds, exchanges, and research desks. Talk to us about seats, data volume, and licensing.",
+        "form": {
+          "title": "Tell us what you need",
+          "email": "Work email",
+          "organization": "Organization",
+          "teamSize": "Team size",
+          "useCase": "What you plan to use the data for",
+          "replyNote": "We usually reply within a few business days.",
+          "submit": "Send",
+          "sending": "Sending…",
+          "close": "Close",
+          "success": "Thanks. We have your request and will be in touch.",
+          "error": "We could not send your request. Please try again shortly."
         }
       }
     },
