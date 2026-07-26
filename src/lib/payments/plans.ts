@@ -7,10 +7,10 @@ export type BillingInterval = 'monthly' | 'yearly'
 
 // Amounts in whole USD. Yearly = 10× monthly (two months free, ~17% off).
 export const planAmounts: Record<PaidPlanKey, Record<BillingInterval, number>> = {
-  starter: { monthly: 59, yearly: 590 },
-  trader: { monthly: 149, yearly: 1490 },
-  pro: { monthly: 499, yearly: 4990 },
-  whale: { monthly: 1499, yearly: 14990 },
+  starter: { monthly: 29, yearly: 290 },
+  trader: { monthly: 79, yearly: 790 },
+  pro: { monthly: 249, yearly: 2490 },
+  whale: { monthly: 799, yearly: 7990 },
 }
 
 export const planLabels: Record<PaidPlanKey, string> = {

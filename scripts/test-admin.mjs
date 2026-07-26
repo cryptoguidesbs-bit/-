@@ -164,7 +164,7 @@ await fakeUser('rev3', { plan: 'TRADER', status: 'ACTIVE', interval: 'MONTHLY' }
 await fakeUser('rev4', { plan: 'PRO', status: 'ACTIVE', interval: 'YEARLY' })
 
 res = await api('/api/admin/revenue')
-const expectedMrr = 59 + 59 + 149 + Math.round((4990 / 12) * 100) / 100
+const expectedMrr = 29 + 29 + 79 + Math.round((2490 / 12) * 100) / 100
 ok('MRR estimate from DB is exact (yearly prorated)',
   res.json?.mrrEstimate?.totalUsd === Math.round(expectedMrr * 100) / 100,
   `got=${res.json?.mrrEstimate?.totalUsd} want=${expectedMrr}`)

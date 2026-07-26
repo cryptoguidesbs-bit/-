@@ -41,10 +41,10 @@ if (!secret.startsWith('sk_test_')) {
 const stripe = new Stripe(secret)
 
 const PLANS = [
-  { key: 'starter', name: 'Starter', monthly: 59, yearly: 590 },
-  { key: 'trader', name: 'Trader', monthly: 149, yearly: 1490 },
-  { key: 'pro', name: 'Pro', monthly: 499, yearly: 4990 },
-  { key: 'whale', name: 'Whale', monthly: 1499, yearly: 14990 },
+  { key: 'starter', name: 'Starter', monthly: 29, yearly: 290 },
+  { key: 'trader', name: 'Trader', monthly: 79, yearly: 790 },
+  { key: 'pro', name: 'Pro', monthly: 249, yearly: 2490 },
+  { key: 'whale', name: 'Whale', monthly: 799, yearly: 7990 },
 ]
 const INTERVALS = [
   { id: 'monthly', stripe: 'month' },
@@ -92,12 +92,31 @@ for (const plan of PLANS) {
     const lookupKey = `cg_${plan.key}_${interval.id}`
     let price = existing.data.find((p) => p.lookup_key === lookupKey)
     const amount = plan[interval.id]
+    const wanted = amount * 100
 
-    if (!price) {
+    if (price && price.unit_amount !== wanted) {
+      // Repricing: Stripe prices are immutable, so mint a new one that takes
+      // over the lookup key (transfer_lookup_key) and archive the old price.
+      // Existing subscribers stay on the old price until they change plans.
+      const previous = price
       price = await stripe.prices.create({
         product: product.id,
         currency: 'usd',
-        unit_amount: amount * 100,
+        unit_amount: wanted,
+        recurring: { interval: interval.stripe },
+        lookup_key: lookupKey,
+        transfer_lookup_key: true,
+        metadata: { plan: plan.key, interval: interval.id },
+      })
+      await stripe.prices.update(previous.id, { active: false })
+      console.log(
+        `  ~ ${interval.id} $${previous.unit_amount / 100} → $${amount} (${price.id}; archived ${previous.id})`,
+      )
+    } else if (!price) {
+      price = await stripe.prices.create({
+        product: product.id,
+        currency: 'usd',
+        unit_amount: wanted,
         recurring: { interval: interval.stripe },
         lookup_key: lookupKey,
         metadata: { plan: plan.key, interval: interval.id },

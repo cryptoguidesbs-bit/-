@@ -36,10 +36,10 @@ const ok = (name, cond, detail = '') => {
 
 // A-3 pricing (USD). Yearly = monthly × 10.
 const PLANS = {
-  starter: { monthly: 59, yearly: 590 },
-  trader: { monthly: 149, yearly: 1490 },
-  pro: { monthly: 499, yearly: 4990 },
-  whale: { monthly: 1499, yearly: 14990 },
+  starter: { monthly: 29, yearly: 290 },
+  trader: { monthly: 79, yearly: 790 },
+  pro: { monthly: 249, yearly: 2490 },
+  whale: { monthly: 799, yearly: 7990 },
 }
 const PRICE_ENV = (plan, interval) =>
   `STRIPE_PRICE_${plan.toUpperCase()}_${interval.toUpperCase()}`
@@ -93,8 +93,8 @@ for (const [plan, a] of Object.entries(PLANS)) {
 }
 
 const htmlEn = await fetch(`${APP}/en`).then((r) => r.text())
-ok("EN starter card shows $59 and $590",
-  (() => { const at = htmlEn.indexOf('data-testid="price-yearly-starter"'); return at >= 0 && htmlEn.slice(at, at + 260).includes("$590") })() && htmlEn.includes("$59"))
+ok("EN starter card shows $29 and $290",
+  (() => { const at = htmlEn.indexOf('data-testid="price-yearly-starter"'); return at >= 0 && htmlEn.slice(at, at + 260).includes("$290") })() && htmlEn.includes("$29"))
 ok("EN comparison table present", htmlEn.includes('data-testid="pricing-compare"') && htmlEn.includes("Full pricing comparison"))
 
 // --- 3. checkout bills the correct interval price (E2E) -----------------------------
@@ -129,18 +129,18 @@ async function checkoutLineItem(plan, interval) {
 }
 
 let li = await checkoutLineItem('starter', 'monthly')
-ok('checkout starter/monthly bills $59',
-  li.priceId === process.env[PRICE_ENV('starter', 'monthly')] && li.unit === 5900,
+ok('checkout starter/monthly bills $29',
+  li.priceId === process.env[PRICE_ENV('starter', 'monthly')] && li.unit === 2900,
   JSON.stringify(li))
 
 li = await checkoutLineItem('starter', 'yearly')
-ok('checkout starter/yearly bills $590 (discounted, not 59×12)',
-  li.priceId === process.env[PRICE_ENV('starter', 'yearly')] && li.unit === 59000,
+ok('checkout starter/yearly bills $290 (discounted, not 29×12)',
+  li.priceId === process.env[PRICE_ENV('starter', 'yearly')] && li.unit === 29000,
   JSON.stringify(li))
 
 li = await checkoutLineItem('trader', 'yearly')
-ok('checkout trader/yearly bills $1,490',
-  li.priceId === process.env[PRICE_ENV('trader', 'yearly')] && li.unit === 149000,
+ok('checkout trader/yearly bills $790',
+  li.priceId === process.env[PRICE_ENV('trader', 'yearly')] && li.unit === 79000,
   JSON.stringify(li))
 
 // --- cleanup ---------------------------------------------------------------------------

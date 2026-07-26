@@ -233,7 +233,7 @@ refB = await prisma.referral.findUnique({ where: { referredUserId: dbB.id } })
 ok('referral → QUALIFIED', refB?.status === 'QUALIFIED' && refB?.qualifiedAt != null)
 let rewards = await prisma.referralReward.findMany({ where: { userId: userA.id } })
 ok('commission = 10% of TRADER monthly ($14.90)',
-  rewards.length === 1 && Number(rewards[0].amountUsd) === 14.9, JSON.stringify(rewards.map((r) => Number(r.amountUsd))))
+  rewards.length === 1 && Number(rewards[0].amountUsd) === 7.9, JSON.stringify(rewards.map((r) => Number(r.amountUsd))))
 
 res = await api('/api/referral/qualify', { method: 'POST', headers: { 'x-cron-secret': CRON } })
 rewards = await prisma.referralReward.findMany({ where: { userId: userA.id } })
@@ -260,7 +260,7 @@ await prisma.subscription.create({
 await api('/api/referral/qualify', { method: 'POST', headers: { 'x-cron-secret': CRON } })
 rewards = await prisma.referralReward.findMany({ where: { userId: userA.id } })
 ok('whitelisted region: commission accrues ($5.90)',
-  rewards.length === 2 && rewards.some((r) => Number(r.amountUsd) === 5.9))
+  rewards.length === 2 && rewards.some((r) => Number(r.amountUsd) === 2.9))
 
 // Request-side region signal for the UI.
 res = await api('/api/me/referral', { jwt: jwtA, headers: { 'x-vercel-ip-country': 'CU' } })

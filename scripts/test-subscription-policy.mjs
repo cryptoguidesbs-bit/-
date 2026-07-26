@@ -113,8 +113,8 @@ customer = await newCustomer()
 // --- 1-2. pricing: period display + yearly math -------------------------------
 console.log('--- pricing display / math ---')
 // A-3 values: yearly = monthly × 10 → 2 months free (~17% off).
-ok('yearly = monthly × 10 (starter)', 59 * 10 === 590)
-ok('yearly = monthly × 10 (trader)', 149 * 10 === 1490)
+ok('yearly = monthly × 10 (starter)', 29 * 10 === 290)
+ok('yearly = monthly × 10 (trader)', 79 * 10 === 790)
 const landing = await fetch(`${APP}/ko`).then((r) => r.text())
 ok('landing offers monthly + yearly billing terms', landing.includes('data-testid="interval-monthly"') && landing.includes('data-testid="interval-yearly"'))
 ok('landing shows 7-day trial note', landing.includes('7일 무료 체험'))
@@ -150,7 +150,7 @@ const upcomingPayload = JSON.stringify({
     object: {
       object: 'invoice',
       customer: customer.id,
-      amount_due: 19900,
+      amount_due: 2900,
       currency: 'usd',
       period_end: Math.floor(Date.now() / 1000) + 3 * 86400,
     },
