@@ -1,22 +1,39 @@
 type Props = { className?: string }
 
 /**
- * CryptoGuide "CG" mark — an open dial (C) with an inward bar (G): a guidance
- * dial for reading the crypto market. Monochrome: strokes use currentColor, so
- * the mark matches the wordmark (white on the app's dark header).
+ * CryptoGuide "CG" mark — white wordmark letters on an indigo-to-purple
+ * gradient tile. Used in the header lockup and as the app icon.
  */
 export function CgMark({ className }: Props) {
   return (
-    <svg viewBox="0 0 100 100" className={className} fill="none" aria-hidden="true">
-      {/* dial (C) */}
-      <path
-        d="M73.7 30.1 A31 31 0 1 0 73.7 69.9"
-        stroke="currentColor"
-        strokeWidth="13"
-        strokeLinecap="round"
-      />
-      {/* inward bar (G) */}
-      <path d="M73 50 H51" stroke="currentColor" strokeWidth="13" strokeLinecap="round" />
+    <svg viewBox="0 0 100 100" className={className} aria-hidden="true">
+      <defs>
+        <linearGradient
+          id="cgMarkGrad"
+          x1="0"
+          y1="0"
+          x2="100"
+          y2="100"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop offset="0" stopColor="#4f46e5" />
+          <stop offset="1" stopColor="#a855f7" />
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="20" fill="url(#cgMarkGrad)" />
+      <text
+        x="50"
+        y="51"
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontFamily="'Arial Black', 'Helvetica Neue', Helvetica, Arial, sans-serif"
+        fontSize="46"
+        fontWeight="800"
+        letterSpacing="-1.5"
+        fill="#ffffff"
+      >
+        CG
+      </text>
     </svg>
   )
 }
