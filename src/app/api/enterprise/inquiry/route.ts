@@ -32,12 +32,21 @@ export async function POST(request: NextRequest) {
     ? (parsed.data.locale as string)
     : routing.defaultLocale
 
+  // An unhandled inquiry from the same email suppresses repeat admin
+  // notifications (the lead is still stored) — bounds notification fan-out.
+  const alreadyOpen = await prisma.enterpriseInquiry.findFirst({
+    where: { email, handledAt: null },
+    select: { id: true },
+  })
+
   const inquiry = await prisma.enterpriseInquiry.create({
     data: { email, organization, teamSize, useCase, locale },
   })
 
   // Notify operators in-app, mirroring the admin announcement pattern.
   // Never block the submission on notification failures.
+  if (alreadyOpen) return NextResponse.json({ ok: true, id: inquiry.id }, { status: 201 })
+
   await prisma.user
     .findMany({ where: { role: 'ADMIN' }, select: { id: true } })
     .then((admins) =>
@@ -47,7 +56,8 @@ export async function POST(request: NextRequest) {
               userId: a.id,
               type: 'SYSTEM' as const,
               title: `[Enterprise 문의] ${organization}`,
-              body: `${email} · 팀 규모 ${teamSize}`.slice(0, 1000),
+              body: `${email} · 팀 규모 ${teamSize}
+${useCase}`.slice(0, 1000),
               href: '/admin',
             })),
           })

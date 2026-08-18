@@ -35,7 +35,13 @@ if (!secret) {
   process.exit(1)
 }
 if (!secret.startsWith('sk_test_')) {
-  console.warn('⚠ STRIPE_SECRET_KEY is not a test key (sk_test_...). Proceeding anyway.')
+  // Repricing archives old prices — refuse to touch a LIVE account unless the
+  // operator passes an explicit --live flag (post-LLC launch step).
+  if (!process.argv.includes('--live')) {
+    console.error('✗ STRIPE_SECRET_KEY is not a test key. Re-run with --live to seed a live account on purpose.')
+    process.exit(1)
+  }
+  console.warn('⚠ Seeding a LIVE Stripe account (--live given).')
 }
 
 const stripe = new Stripe(secret)

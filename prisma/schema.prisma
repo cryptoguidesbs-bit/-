@@ -833,3 +833,22 @@ model EnterpriseInquiry {
 
   @@index([createdAt])
 }
+
+// ---------------------------------------------------------------------------
+// Paid-plan waitlist — the free-first launch runs with payments disabled
+// (NEXT_PUBLIC_PAYMENTS_MODE=waitlist) because Stripe live cannot be
+// activated before the LLC exists. Paid-plan CTAs collect an email instead;
+// one row per email (repeat submits upsert the latest plan interest).
+// ---------------------------------------------------------------------------
+
+model WaitlistSignup {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  // Plan key the visitor was interested in when they signed up (starter…whale).
+  plan      String?
+  locale    String   @default("en")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
+}

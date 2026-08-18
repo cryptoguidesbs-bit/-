@@ -5,7 +5,8 @@ import { Check } from 'lucide-react'
 import { useAuth } from '@clerk/nextjs'
 import { useLocale, useTranslations } from 'next-intl'
 
-import { pricingTiers, tierAmount, type PricingTierKey } from '@/config/pricing'
+import { ENTERPRISE_FROM_MONTHLY, pricingTiers, tierAmount, type PricingTierKey } from '@/config/pricing'
+import { paymentsMode } from '@/lib/payments/mode'
 import type { BillingInterval } from '@/lib/payments/plans'
 import { useRouter } from '@/i18n/navigation'
 import { Badge } from '@/components/ui/badge'
@@ -14,6 +15,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Section } from '@/components/home/section'
 import { Reveal } from '@/components/home/reveal'
 import { EnterpriseContactDialog } from '@/components/home/enterprise-contact-dialog'
+import { WaitlistDialog } from '@/components/home/waitlist-dialog'
 import { cn } from '@/lib/utils'
 
 const usd = new Intl.NumberFormat('en-US', {
@@ -31,6 +33,10 @@ export function PricingSection() {
   const [loadingTier, setLoadingTier] = useState<PricingTierKey | null>(null)
   const [checkoutError, setCheckoutError] = useState(false)
   const [contactOpen, setContactOpen] = useState(false)
+  const [waitlistPlan, setWaitlistPlan] = useState<PricingTierKey | null>(null)
+
+  // Free-first launch flag (NEXT_PUBLIC_PAYMENTS_MODE) — inlined at build time.
+  const mode = paymentsMode()
 
   const startCheckout = async (tier: PricingTierKey) => {
     setCheckoutError(false)
@@ -41,7 +47,18 @@ export function PricingSection() {
       return
     }
 
-    if (tier === 'free' || !isSignedIn) {
+    if (tier === 'free') {
+      router.push('/sign-up')
+      return
+    }
+
+    // Waitlist mode: paid checkout is disabled — collect an email instead.
+    if (mode === 'waitlist') {
+      setWaitlistPlan(tier)
+      return
+    }
+
+    if (!isSignedIn) {
       router.push('/sign-up')
       return
     }
@@ -122,7 +139,7 @@ export function PricingSection() {
                   <div className="space-y-1.5" data-testid={`price-contact-${tier.key}`}>
                     <div className="rounded-lg px-2 py-1">
                       <span className="text-2xl font-bold tabular-nums">
-                        {t('enterprise.fromPrice')}
+                        {t('enterprise.fromPrice', { price: usd.format(ENTERPRISE_FROM_MONTHLY) })}
                       </span>
                     </div>
                     <p className="px-2 text-xs text-muted-foreground">
@@ -197,11 +214,13 @@ export function PricingSection() {
                       ? t('enterprise.cta')
                       : tier.key === 'free'
                         ? t('ctaFree')
-                        : t('ctaPaid')}
+                        : mode === 'waitlist'
+                          ? t('waitlist.cta')
+                          : t('ctaPaid')}
                 </Button>
                 {tier.key !== 'free' && !tier.contact && (
                   <p className="text-center text-[11px] leading-tight text-muted-foreground">
-                    {t('trialNote')}
+                    {mode === 'waitlist' ? t('waitlist.note') : t('trialNote')}
                   </p>
                 )}
               </CardContent>
@@ -244,7 +263,7 @@ export function PricingSection() {
                         {t(`tiers.${tier.key}.name`)}
                       </td>
                       <td className="px-4 py-3 text-right tabular-nums">
-                        {t('enterprise.fromPrice')}
+                        {t('enterprise.fromPrice', { price: usd.format(ENTERPRISE_FROM_MONTHLY) })}
                       </td>
                       <td className="px-4 py-3 text-right text-muted-foreground">
                         {t('enterprise.compareYearly')}
@@ -308,6 +327,7 @@ export function PricingSection() {
       </div>
 
       <EnterpriseContactDialog open={contactOpen} onClose={() => setContactOpen(false)} />
+      <WaitlistDialog plan={waitlistPlan} onClose={() => setWaitlistPlan(null)} />
     </Section>
   )
 }

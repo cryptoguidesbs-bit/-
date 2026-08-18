@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth, clerkClient } from '@clerk/nextjs/server'
 
 import { getPaymentProvider, isPaidPlan } from '@/lib/payments'
+import { paymentsMode } from '@/lib/payments/mode'
 import { TRIAL_PERIOD_DAYS } from '@/lib/payments/plans'
 import { routing } from '@/i18n/routing'
 import { siteUrl } from '@/lib/site'
@@ -18,6 +19,16 @@ export async function POST(request: NextRequest) {
 
   const limited = enforceRateLimit({ name: 'checkout', limit: 10, identifier: clerkId, request })
   if (limited) return limited
+
+  // Free-first launch: in waitlist mode no checkout session may be created,
+  // even by direct API calls — the UI collects waitlist emails instead.
+  // (Non-production test hook mirrors the flag so tests can exercise this.)
+  const waitlistForced =
+    process.env.NODE_ENV !== 'production' &&
+    request.headers.get('x-test-payments-mode') === 'waitlist'
+  if (paymentsMode() === 'waitlist' || waitlistForced) {
+    return NextResponse.json({ error: 'payments disabled', code: 'WAITLIST' }, { status: 403 })
+  }
 
   const body = (await request.json().catch(() => ({}))) as {
     plan?: string

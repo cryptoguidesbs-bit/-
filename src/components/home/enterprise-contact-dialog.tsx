@@ -179,6 +179,9 @@ export function EnterpriseContactDialog({ open, onClose }: Props) {
             <p className="text-center text-[11px] leading-tight text-muted-foreground">
               {t('replyNote')}
             </p>
+            <p className="text-center text-[11px] leading-tight text-muted-foreground">
+              {t('privacyNote')}
+            </p>
           </form>
         )}
       </div>

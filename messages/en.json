@@ -618,7 +618,7 @@
         }
       },
       "enterprise": {
-        "fromPrice": "From $1,999/mo",
+        "fromPrice": "From {price}/mo",
         "billingNote": "Annual contract, priced by scale. Billed by invoice.",
         "cta": "Contact Sales",
         "compareYearly": "Annual contract",
@@ -634,8 +634,22 @@
           "sending": "Sending…",
           "close": "Close",
           "success": "Thanks. We have your request and will be in touch.",
-          "error": "We could not send your request. Please try again shortly."
+          "error": "We could not send your request. Please try again shortly.",
+          "privacyNote": "We use these details only to respond to your inquiry. See our Privacy Policy for details."
         }
+      },
+      "waitlist": {
+        "cta": "Notify me at launch",
+        "note": "Paid plans open soon. Leave your email and we will let you know at launch.",
+        "title": "Get notified at launch",
+        "description": "We will email you when paid plans open. The Free plan is available right now.",
+        "email": "Email",
+        "submit": "Notify me",
+        "sending": "Submitting…",
+        "success": "You are on the list. We will email you at launch.",
+        "error": "Could not sign you up. Please try again shortly.",
+        "close": "Close",
+        "privacyNote": "We store your email, plan of interest, and language only to send the paid-plan launch notice."
       }
     },
     "faq": {
@@ -826,7 +840,7 @@
       "sections": [
         {
           "heading": "1. Personal data we collect",
-          "body": "Account details (email, name, profile image via Clerk), consent records (timestamp, IP, user-agent), payment data (Stripe customer/subscription identifiers — card data is held by Stripe), portfolios and watchlists, referral relationships and a hashed signup IP, API keys (hashed), and service access/usage records."
+          "body": "Account details (email, name, profile image via Clerk), consent records (timestamp, IP, user-agent), payment data (Stripe customer/subscription identifiers — card data is held by Stripe), portfolios and watchlists, referral relationships and a hashed signup IP, API keys (hashed), service access/usage records, paid-plan waitlist sign-ups (email, plan of interest, language), and enterprise sales inquiries (work email, organization, team size, intended use)."
         },
         {
           "heading": "2. Purposes of use",

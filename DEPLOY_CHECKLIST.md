@@ -5,6 +5,18 @@
 > 목록입니다. 각 키/값은 배포 플랫폼의 환경 변수로 넣습니다
 > (전체 목록·설명: [.env.example](.env.example)).
 
+## 0. 출시 방식: 무료 우선 (법인 설립 전)
+
+미국 법인이 없어 **Stripe 라이브 활성화가 불가**하므로, 결제만 끈 채 배포한다:
+
+- [ ] 배포 환경 변수에 **`NEXT_PUBLIC_PAYMENTS_MODE=waitlist`** 설정.
+      → 유료 플랜 버튼이 "오픈 알림 받기"로 바뀌고 이메일 대기자를 수집
+      (`WaitlistSignup` 테이블), 체크아웃 API는 403을 반환. Free 가입·전체
+      무료 기능·Enterprise 문의 폼은 정상 동작. 결제 코드는 삭제되지 않았고,
+      **법인 설립 후 이 값을 `live`로 바꾸면 즉시 유료 오픈**.
+- 아래 1번 중 "Stripe 라이브 전환"은 이 모드에서는 **보류 항목**이다
+  (법인 후 진행). 나머지는 그대로 필요.
+
 ## 1. 출시 차단 항목 (반드시 완료해야 오픈 가능)
 
 - [ ] **로펌 법률 검토** — 4개 법적 문서(약관·개인정보·면책·환불, ko/en)
@@ -13,8 +25,11 @@
       지역 스위치 또는 `src/config/features.ts`에 반영.
       → 전달 패키지 정리본: [docs/legal-review.md](docs/legal-review.md),
         [docs/region-matrix.md](docs/region-matrix.md)
-- [ ] **프로덕션 DB 준비** — 호스팅 PostgreSQL(Neon/Supabase/RDS 등) 생성 →
-      `DATABASE_URL` 설정 → `npx prisma migrate deploy`로 스키마 적용.
+- [ ] **프로덕션 DB 준비 (Neon 권장)** — neon.tech 프로젝트 생성(리전은
+      Vercel 함수 리전과 동일하게) → `DATABASE_URL`에 **풀러(-pooler) URL**,
+      `DIRECT_URL`에 **직접(비풀러) URL** 설정 → `npx prisma migrate deploy`로
+      마이그레이션 전체 적용(플랜 리네임·Enterprise 문의·대기자 테이블 포함)
+      → `node scripts/map-sync-initial.mjs`로 지도 데이터 최초 적재.
       (개발용 내장 PostgreSQL은 프로덕션에 사용 불가)
 - [ ] **Clerk 프로덕션 인스턴스** — dashboard.clerk.com에서 프로덕션 인스턴스
       생성(도메인 연결) → `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`/`CLERK_SECRET_KEY`
@@ -22,7 +37,8 @@
       (이벤트: user.deleted, user.updated) → 발급된 서명 시크릿을
       `CLERK_WEBHOOK_SECRET`에 설정. Google 소셜 로그인용 자체 OAuth 자격증명
       등록, X(Twitter) 로그인은 X 개발자 앱 생성 후 활성화.
-- [ ] **Stripe 라이브 전환** — 계정 활성화(사업자 정보) → 라이브 키로
+- [ ] **Stripe 라이브 전환 (법인 설립 후 — waitlist 모드에서는 보류)** —
+      계정 활성화(사업자 정보) → 라이브 키로
       `STRIPE_SECRET_KEY` 교체 → 라이브 모드에서 `npm run stripe:seed` 실행해
       상품·가격 생성(새 price ID 8개를 환경 변수에) → **웹훅 엔드포인트 등록**:
       `https://<도메인>/api/billing/webhook`
@@ -66,7 +82,9 @@
 
 - [ ] `https://<도메인>/api/health` 200 확인
 - [ ] 가입 → 동의 → 로그인 플로우 1회 (Google 포함)
-- [ ] 테스트 카드로 체크아웃 → `/billing`에 구독 반영 확인 → 즉시 해지
+- [ ] (waitlist 모드) 유료 플랜 버튼 → "오픈 알림 받기" 폼 제출 →
+      `WaitlistSignup`에 행 생성 확인. (live 모드 전환 후) 테스트 카드로
+      체크아웃 → `/billing`에 구독 반영 확인 → 즉시 해지
 - [ ] Stripe/Clerk 대시보드에서 웹훅 delivery 성공 확인
 - [ ] 관리자 계정으로 `/admin` 접속 → "모니터 실행" 1회 → 파이프라인 수동
       트리거(뉴스 수집·브리핑) 동작 확인
