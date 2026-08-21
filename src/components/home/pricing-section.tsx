@@ -24,6 +24,10 @@ const usd = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 0,
 })
 
+// Cards show at most this many features up front; the rest collapse into a
+// <details> so long lists (Enterprise: 14) can't stretch the whole card row.
+const VISIBLE_FEATURES = 6
+
 export function PricingSection() {
   const t = useTranslations('home.pricing')
   const locale = useLocale()
@@ -115,7 +119,7 @@ export function PricingSection() {
         ))}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {pricingTiers.map((tier, index) => (
           <Reveal key={tier.key} delay={index * 60}>
             <Card
@@ -192,7 +196,7 @@ export function PricingSection() {
               </CardHeader>
               <CardContent className="flex flex-1 flex-col gap-4">
                 <ul className="flex-1 space-y-2.5">
-                  {Array.from({ length: tier.featureCount }, (_, i) => (
+                  {Array.from({ length: Math.min(tier.featureCount, VISIBLE_FEATURES) }, (_, i) => (
                     <li key={i} className="flex gap-2 text-sm">
                       <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                       <span className="text-muted-foreground">
@@ -200,6 +204,27 @@ export function PricingSection() {
                       </span>
                     </li>
                   ))}
+                  {tier.featureCount > VISIBLE_FEATURES && (
+                    /* Overflow features stay in the DOM (SEO/tests) but start
+                       collapsed so one long list can't stretch the card row. */
+                    <li>
+                      <details data-testid={`more-features-${tier.key}`}>
+                        <summary className="cursor-pointer list-none text-sm font-medium text-primary hover:underline">
+                          {t('moreFeatures', { count: tier.featureCount - VISIBLE_FEATURES })}
+                        </summary>
+                        <ul className="mt-2.5 space-y-2.5">
+                          {Array.from({ length: tier.featureCount - VISIBLE_FEATURES }, (_, i) => (
+                            <li key={i} className="flex gap-2 text-sm">
+                              <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                              <span className="text-muted-foreground">
+                                {t(`tiers.${tier.key}.f${i + VISIBLE_FEATURES + 1}`)}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      </details>
+                    </li>
+                  )}
                 </ul>
                 <Button
                   variant={tier.popular ? 'default' : 'outline'}
@@ -229,9 +254,13 @@ export function PricingSection() {
         ))}
       </div>
 
-      {/* Full comparison table — every plan's monthly and yearly price. */}
-      <div className="mt-12">
-        <h3 className="mb-4 text-center text-lg font-semibold">{t('compareTitle')}</h3>
+      {/* Full comparison table — every plan's monthly and yearly price.
+          Collapsed by default: it duplicates the card prices, so it only
+          costs height for readers who don't want the detail. */}
+      <details className="mt-12" data-testid="pricing-compare-details">
+        <summary className="mb-4 cursor-pointer list-none text-center">
+          <h3 className="inline text-lg font-semibold hover:underline">{t('compareTitle')} ▾</h3>
+        </summary>
         <div className="overflow-x-auto rounded-xl border">
           <table className="w-full min-w-[560px] text-sm" data-testid="pricing-compare">
             <thead>
@@ -318,7 +347,7 @@ export function PricingSection() {
         >
           {t('enterprise.compareNote')}
         </p>
-      </div>
+      </details>
 
       <div className="mt-6 space-y-1 text-center">
         {checkoutError && <p className="text-sm text-red-500">{t('checkoutError')}</p>}
