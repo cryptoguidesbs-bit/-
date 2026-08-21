@@ -556,6 +556,7 @@
       "processing": "Redirecting…",
       "checkoutError": "Could not open the checkout page. Please try again shortly.",
       "popular": "Popular",
+      "moreFeatures": "+{count} more features",
       "ctaFree": "Start for free",
       "ctaPaid": "Get started",
       "currencyNote": "All prices are in USD. Taxes may apply.",

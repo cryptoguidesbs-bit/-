@@ -556,6 +556,7 @@
       "processing": "이동 중…",
       "checkoutError": "결제 페이지로 이동하지 못했습니다. 잠시 후 다시 시도해 주세요.",
       "popular": "인기",
+      "moreFeatures": "+{count}개 기능 더 보기",
       "ctaFree": "무료로 시작",
       "ctaPaid": "시작하기",
       "currencyNote": "모든 가격은 USD 기준이며, 부가세가 별도로 부과될 수 있습니다.",
