@@ -1,17 +1,12 @@
 import { NextResponse } from 'next/server'
 
 import { checkFeature } from '@/lib/entitlements'
-import { BINANCE_REST_URL, marketSymbols } from '@/config/market'
-
-type BinanceTicker = {
-  symbol: string
-  lastPrice: string
-  priceChangePercent: string
-  quoteVolume: string
-}
+import { resilientFetch } from '@/lib/market/resilient'
+import { tickerSources } from '@/lib/market/sources'
 
 // Whale-only data export (CSV) — the first concrete "data.export"
 // consumer. Also demonstrates route-level entitlement gating.
+// Shares the resilient ticker snapshot (CoinGecko/CoinPaprika/Binance).
 export async function GET() {
   const gate = await checkFeature('data.export')
   if (!gate.allowed) {
@@ -25,30 +20,24 @@ export async function GET() {
     )
   }
 
-  try {
-    const symbols = JSON.stringify(marketSymbols.map((m) => m.symbol))
-    const res = await fetch(
-      `${BINANCE_REST_URL}/ticker/24hr?symbols=${encodeURIComponent(symbols)}`,
-      { next: { revalidate: 10 } },
-    )
-    if (!res.ok) throw new Error(`Binance responded ${res.status}`)
-    const data = (await res.json()) as BinanceTicker[]
-
-    const rows = [
-      'symbol,price_usd,change_24h_pct,volume_24h_usd',
-      ...data.map(
-        (t) =>
-          `${t.symbol},${Number(t.lastPrice)},${Number(t.priceChangePercent)},${Number(t.quoteVolume)}`,
-      ),
-    ]
-
-    return new NextResponse(rows.join('\n'), {
-      headers: {
-        'content-type': 'text/csv; charset=utf-8',
-        'content-disposition': 'attachment; filename="cryptoguide-market-export.csv"',
-      },
-    })
-  } catch {
+  const result = await resilientFetch('market-tickers', tickerSources, {
+    timeoutMs: 5_000,
+    retries: 1,
+    freshMs: 15_000,
+  })
+  if (!result.data) {
     return NextResponse.json({ error: 'export failed' }, { status: 502 })
   }
+
+  const rows = [
+    'symbol,price_usd,change_24h_pct,volume_24h_usd',
+    ...result.data.map((t) => `${t.symbol},${t.price},${t.changePct},${t.volumeQuote}`),
+  ]
+
+  return new NextResponse(rows.join('\n'), {
+    headers: {
+      'content-type': 'text/csv; charset=utf-8',
+      'content-disposition': 'attachment; filename="cryptoguide-market-export.csv"',
+    },
+  })
 }

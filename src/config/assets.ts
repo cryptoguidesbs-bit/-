@@ -3,12 +3,14 @@ export type CryptoAsset = {
   id: 'BTC' | 'ETH' | 'SOL'
   name: string
   binanceSymbol: string
+  coingeckoId: string
+  paprikaId: string
 }
 
 export const cryptoAssets: CryptoAsset[] = [
-  { id: 'BTC', name: 'Bitcoin', binanceSymbol: 'BTCUSDT' },
-  { id: 'ETH', name: 'Ethereum', binanceSymbol: 'ETHUSDT' },
-  { id: 'SOL', name: 'Solana', binanceSymbol: 'SOLUSDT' },
+  { id: 'BTC', name: 'Bitcoin', binanceSymbol: 'BTCUSDT', coingeckoId: 'bitcoin', paprikaId: 'btc-bitcoin' },
+  { id: 'ETH', name: 'Ethereum', binanceSymbol: 'ETHUSDT', coingeckoId: 'ethereum', paprikaId: 'eth-ethereum' },
+  { id: 'SOL', name: 'Solana', binanceSymbol: 'SOLUSDT', coingeckoId: 'solana', paprikaId: 'sol-solana' },
 ]
 
 export type TraditionalAsset = {

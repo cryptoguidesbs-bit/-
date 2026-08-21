@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { BINANCE_REST_URL } from '@/config/market'
+import { BINANCE_REST_URL, marketSymbols } from '@/config/market'
 import { cryptoAssets, traditionalAssets } from '@/config/assets'
 import { assertUpstreamOk, type Source } from './resilient'
 
@@ -22,35 +22,74 @@ export type SentimentData = {
 }
 
 // ---------------------------------------------------------------------------
-// Crypto prices — CryptoCompare primary, Binance fallback
+// Crypto prices — CoinGecko primary, CoinPaprika fallback, Binance last.
+// (CryptoCompare was dropped: its free min-api now requires an API key, and
+// Binance rejects US IPs with 451 — Vercel's default region is US East, so
+// both former sources fail in production. CoinGecko/CoinPaprika are keyless
+// and reachable from US datacenters; Binance stays for non-US/local runs.)
 // ---------------------------------------------------------------------------
 
-type CryptoCompareFull = {
-  RAW?: Record<string, { USD?: { PRICE?: number; CHANGEPCT24HOUR?: number } }>
+const COINGECKO_URL = 'https://api.coingecko.com/api/v3'
+const COINPAPRIKA_URL = 'https://api.coinpaprika.com/v1'
+
+type CoinGeckoMarket = {
+  id: string
+  current_price?: number
+  price_change_percentage_24h?: number | null
+  total_volume?: number
+}
+
+type CoinPaprikaTicker = {
+  quotes?: { USD?: { price?: number; percent_change_24h?: number; volume_24h?: number } }
 }
 
 export const cryptoSources: Source<AssetQuote[]>[] = [
   {
-    name: 'cryptocompare',
+    name: 'coingecko',
     async fetch(signal) {
-      const fsyms = cryptoAssets.map((a) => a.id).join(',')
-      const res = await fetch(
-        `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${fsyms}&tsyms=USD`,
-        { signal, cache: 'no-store' },
-      )
-      assertUpstreamOk(res, 'cryptocompare')
-      const json = (await res.json()) as CryptoCompareFull
-      const quotes = cryptoAssets.map((asset) => {
-        const raw = json.RAW?.[asset.id]?.USD
-        if (typeof raw?.PRICE !== 'number') throw new Error(`cryptocompare missing ${asset.id}`)
+      const ids = cryptoAssets.map((a) => a.coingeckoId).join(',')
+      const res = await fetch(`${COINGECKO_URL}/coins/markets?vs_currency=usd&ids=${ids}`, {
+        signal,
+        cache: 'no-store',
+        headers: { accept: 'application/json' },
+      })
+      assertUpstreamOk(res, 'coingecko')
+      const json = (await res.json()) as CoinGeckoMarket[]
+      return cryptoAssets.map((asset) => {
+        const row = json.find((r) => r.id === asset.coingeckoId)
+        if (typeof row?.current_price !== 'number') {
+          throw new Error(`coingecko missing ${asset.id}`)
+        }
         return {
           id: asset.id,
           name: asset.name,
-          price: raw.PRICE,
-          changePct: raw.CHANGEPCT24HOUR ?? 0,
+          price: row.current_price,
+          changePct: row.price_change_percentage_24h ?? 0,
         }
       })
-      return quotes
+    },
+  },
+  {
+    name: 'coinpaprika',
+    async fetch(signal) {
+      return Promise.all(
+        cryptoAssets.map(async (asset) => {
+          const res = await fetch(`${COINPAPRIKA_URL}/tickers/${asset.paprikaId}`, {
+            signal,
+            cache: 'no-store',
+          })
+          assertUpstreamOk(res, 'coinpaprika')
+          const json = (await res.json()) as CoinPaprikaTicker
+          const usd = json.quotes?.USD
+          if (typeof usd?.price !== 'number') throw new Error(`coinpaprika missing ${asset.id}`)
+          return {
+            id: asset.id,
+            name: asset.name,
+            price: usd.price,
+            changePct: usd.percent_change_24h ?? 0,
+          }
+        }),
+      )
     },
   },
   {
@@ -75,6 +114,96 @@ export const cryptoSources: Source<AssetQuote[]>[] = [
           name: asset.name,
           price: Number(t.lastPrice),
           changePct: Number(t.priceChangePercent),
+        }
+      })
+    },
+  },
+]
+
+// ---------------------------------------------------------------------------
+// Ticker snapshot (8 symbols incl. volume) for the live ticker / dashboard —
+// same source order and reasoning as cryptoSources above.
+// ---------------------------------------------------------------------------
+
+export type TickerQuote = {
+  symbol: string
+  price: number
+  changePct: number
+  volumeQuote: number
+}
+
+export const tickerSources: Source<TickerQuote[]>[] = [
+  {
+    name: 'coingecko',
+    async fetch(signal) {
+      const ids = marketSymbols.map((m) => m.coingeckoId).join(',')
+      const res = await fetch(`${COINGECKO_URL}/coins/markets?vs_currency=usd&ids=${ids}`, {
+        signal,
+        cache: 'no-store',
+        headers: { accept: 'application/json' },
+      })
+      assertUpstreamOk(res, 'coingecko')
+      const json = (await res.json()) as CoinGeckoMarket[]
+      return marketSymbols.map((m) => {
+        const row = json.find((r) => r.id === m.coingeckoId)
+        if (typeof row?.current_price !== 'number') {
+          throw new Error(`coingecko missing ${m.symbol}`)
+        }
+        return {
+          symbol: m.symbol,
+          price: row.current_price,
+          changePct: row.price_change_percentage_24h ?? 0,
+          volumeQuote: row.total_volume ?? 0,
+        }
+      })
+    },
+  },
+  {
+    name: 'coinpaprika',
+    async fetch(signal) {
+      return Promise.all(
+        marketSymbols.map(async (m) => {
+          const res = await fetch(`${COINPAPRIKA_URL}/tickers/${m.paprikaId}`, {
+            signal,
+            cache: 'no-store',
+          })
+          assertUpstreamOk(res, 'coinpaprika')
+          const json = (await res.json()) as CoinPaprikaTicker
+          const usd = json.quotes?.USD
+          if (typeof usd?.price !== 'number') throw new Error(`coinpaprika missing ${m.symbol}`)
+          return {
+            symbol: m.symbol,
+            price: usd.price,
+            changePct: usd.percent_change_24h ?? 0,
+            volumeQuote: usd.volume_24h ?? 0,
+          }
+        }),
+      )
+    },
+  },
+  {
+    name: 'binance',
+    async fetch(signal) {
+      const symbols = JSON.stringify(marketSymbols.map((m) => m.symbol))
+      const res = await fetch(
+        `${BINANCE_REST_URL}/ticker/24hr?symbols=${encodeURIComponent(symbols)}`,
+        { signal, cache: 'no-store' },
+      )
+      assertUpstreamOk(res, 'binance')
+      const json = (await res.json()) as {
+        symbol: string
+        lastPrice: string
+        priceChangePercent: string
+        quoteVolume: string
+      }[]
+      return marketSymbols.map((m) => {
+        const t = json.find((x) => x.symbol === m.symbol)
+        if (!t) throw new Error(`binance missing ${m.symbol}`)
+        return {
+          symbol: m.symbol,
+          price: Number(t.lastPrice),
+          changePct: Number(t.priceChangePercent),
+          volumeQuote: Number(t.quoteVolume),
         }
       })
     },

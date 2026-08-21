@@ -5,17 +5,19 @@ export type MarketSymbol = {
   symbol: string
   base: string
   name: string
+  coingeckoId: string
+  paprikaId: string
 }
 
 export const marketSymbols: MarketSymbol[] = [
-  { symbol: 'BTCUSDT', base: 'BTC', name: 'Bitcoin' },
-  { symbol: 'ETHUSDT', base: 'ETH', name: 'Ethereum' },
-  { symbol: 'SOLUSDT', base: 'SOL', name: 'Solana' },
-  { symbol: 'BNBUSDT', base: 'BNB', name: 'BNB' },
-  { symbol: 'XRPUSDT', base: 'XRP', name: 'XRP' },
-  { symbol: 'ADAUSDT', base: 'ADA', name: 'Cardano' },
-  { symbol: 'DOGEUSDT', base: 'DOGE', name: 'Dogecoin' },
-  { symbol: 'AVAXUSDT', base: 'AVAX', name: 'Avalanche' },
+  { symbol: 'BTCUSDT', base: 'BTC', name: 'Bitcoin', coingeckoId: 'bitcoin', paprikaId: 'btc-bitcoin' },
+  { symbol: 'ETHUSDT', base: 'ETH', name: 'Ethereum', coingeckoId: 'ethereum', paprikaId: 'eth-ethereum' },
+  { symbol: 'SOLUSDT', base: 'SOL', name: 'Solana', coingeckoId: 'solana', paprikaId: 'sol-solana' },
+  { symbol: 'BNBUSDT', base: 'BNB', name: 'BNB', coingeckoId: 'binancecoin', paprikaId: 'bnb-binance-coin' },
+  { symbol: 'XRPUSDT', base: 'XRP', name: 'XRP', coingeckoId: 'ripple', paprikaId: 'xrp-xrp' },
+  { symbol: 'ADAUSDT', base: 'ADA', name: 'Cardano', coingeckoId: 'cardano', paprikaId: 'ada-cardano' },
+  { symbol: 'DOGEUSDT', base: 'DOGE', name: 'Dogecoin', coingeckoId: 'dogecoin', paprikaId: 'doge-dogecoin' },
+  { symbol: 'AVAXUSDT', base: 'AVAX', name: 'Avalanche', coingeckoId: 'avalanche-2', paprikaId: 'avax-avalanche' },
 ]
 
 export const BINANCE_WS_URL = 'wss://stream.binance.com:9443/stream'
