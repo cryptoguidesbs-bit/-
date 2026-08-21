@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 
 import { BINANCE_WS_URL, marketSymbols } from '@/config/market'
@@ -27,6 +27,8 @@ type MiniTicker = {
 export function useMarketPrices() {
   const [prices, setPrices] = useState<Record<string, MarketPrice>>({})
   const [status, setStatus] = useState<MarketStatus>('connecting')
+  const statusRef = useRef(status)
+  statusRef.current = status
 
   const { data: snapshot } = useQuery({
     queryKey: ['market-tickers'],
@@ -39,13 +41,16 @@ export function useMarketPrices() {
     staleTime: 15_000,
   })
 
-  // Snapshot only fills gaps — WebSocket data is fresher and wins.
+  // While the WebSocket is live the snapshot only fills gaps (WS data is
+  // fresher and wins). When the WS is unreachable — Binance blocks some
+  // regions (e.g. US IPs) — the 30s polling snapshot must OVERWRITE, or
+  // prices would freeze at first paint forever.
   useEffect(() => {
     if (!snapshot?.tickers.length) return
     setPrices((prev) => {
       const next = { ...prev }
       for (const t of snapshot.tickers) {
-        if (!next[t.symbol]) next[t.symbol] = t
+        if (statusRef.current !== 'live' || !next[t.symbol]) next[t.symbol] = t
       }
       return next
     })
