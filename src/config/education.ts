@@ -3,14 +3,14 @@
 // Access strategy (conversion funnel):
 //   beginner    → free  (everyone, signed-out included)
 //   intermediate→ member (free account required — sign-up funnel)
-//   advanced    → standard (Standard+ plan — subscription funnel)
+//   advanced    → starter (Starter+ plan — subscription funnel)
 // All content is educational: concepts and methods explained descriptively,
 // never personal advice or trade directives.
 // ---------------------------------------------------------------------------
 
 export type EducationTrack = 'trading' | 'technical' | 'risk' | 'psychology'
 export type EducationLevel = 'beginner' | 'intermediate' | 'advanced'
-export type LessonAccess = 'free' | 'member' | 'standard'
+export type LessonAccess = 'free' | 'member' | 'starter'
 
 export const EDUCATION_TRACKS: EducationTrack[] = ['trading', 'technical', 'risk', 'psychology']
 export const EDUCATION_LEVELS: EducationLevel[] = ['beginner', 'intermediate', 'advanced']
@@ -18,7 +18,7 @@ export const EDUCATION_LEVELS: EducationLevel[] = ['beginner', 'intermediate', '
 export const ACCESS_BY_LEVEL: Record<EducationLevel, LessonAccess> = {
   beginner: 'free',
   intermediate: 'member',
-  advanced: 'standard',
+  advanced: 'starter',
 }
 
 export type Lesson = {

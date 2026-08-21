@@ -18,7 +18,7 @@
 
 ## RBAC (권한)
 
-- [x] **플랜 기반 기능 게이트** — `checkFeature`(FREE→LEGENDARY 랭크), 플랜 미달 403
+- [x] **플랜 기반 기능 게이트** — `checkFeature`(FREE→WHALE 랭크), 플랜 미달 403
 - [x] **역할 기반 관리자 게이트** — `requireAdmin`, 비관리자 관리 API 403
 - [x] **API 키 인증** — 무효/폐기/플랜 미달 키 401·403 (`src/lib/api/auth.ts`)
 - [x] **지역 정책** — 요청 국가 화이트리스트, 런타임 스위치로 즉시 차단 가능

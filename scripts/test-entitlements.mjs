@@ -1,8 +1,8 @@
 // Stage 6 — plan × feature access-matrix test.
 //
-// Walks every plan (FREE→LEGENDARY), sets the test user's subscription row,
+// Walks every plan (FREE→WHALE), sets the test user's subscription row,
 // and asserts the full /api/me/entitlements matrix, premium page gates,
-// the Legendary-only export API, region whitelist behaviour, admin bypass
+// the Whale-only export API, region whitelist behaviour, admin bypass
 // and signed-out behaviour.
 import fs from 'node:fs'
 import { PrismaClient } from '@prisma/client'
@@ -32,25 +32,25 @@ const ok = (name, pass, detail = '') => {
 }
 
 // --- expected matrix (mirrors src/config/features.ts) ----------------------
-const RANK = { FREE: 0, STANDARD: 1, PROFESSIONAL: 2, INSTITUTIONAL: 3, LEGENDARY: 4 }
+const RANK = { FREE: 0, STARTER: 1, TRADER: 2, PRO: 3, WHALE: 4 }
 const MIN_PLAN = {
   'market.basic': 'FREE',
   'news.limited': 'FREE',
   'brief.limited': 'FREE',
-  'news.full': 'STANDARD',
-  'brief.daily': 'STANDARD',
-  'dashboard.basic': 'STANDARD',
-  'brief.detailed': 'PROFESSIONAL',
-  'analysis.patterns': 'PROFESSIONAL',
-  'portfolio.tools': 'PROFESSIONAL',
-  'alerts.realtime': 'PROFESSIONAL',
-  'onchain.advanced': 'INSTITUTIONAL',
-  'reports.premium': 'INSTITUTIONAL',
-  'api.center': 'LEGENDARY',
-  'data.export': 'LEGENDARY',
+  'news.full': 'STARTER',
+  'brief.daily': 'STARTER',
+  'dashboard.basic': 'STARTER',
+  'brief.detailed': 'TRADER',
+  'analysis.patterns': 'TRADER',
+  'portfolio.tools': 'TRADER',
+  'alerts.realtime': 'TRADER',
+  'onchain.advanced': 'PRO',
+  'reports.premium': 'PRO',
+  'api.center': 'WHALE',
+  'data.export': 'WHALE',
 }
 const REGION_RESTRICTED = ['onchain.advanced', 'api.center', 'data.export']
-const PLANS = ['FREE', 'STANDARD', 'PROFESSIONAL', 'INSTITUTIONAL', 'LEGENDARY']
+const PLANS = ['FREE', 'STARTER', 'TRADER', 'PRO', 'WHALE']
 
 // --- clerk session ----------------------------------------------------------
 async function clerkApi(path, method = 'GET', body) {
@@ -127,27 +127,27 @@ ok('portfolio FREE → plan gate', page.html.includes('data-testid="gate-plan"')
 page = await fetchPage('/ko/reports')
 ok('reports FREE → plan gate', page.html.includes('data-testid="gate-plan"'))
 
-await setPlan('PROFESSIONAL')
+await setPlan('TRADER')
 page = await fetchPage('/ko/portfolio')
-ok('portfolio PROFESSIONAL → open', !page.html.includes('data-testid="gate-'))
+ok('portfolio TRADER → open', !page.html.includes('data-testid="gate-'))
 page = await fetchPage('/ko/reports')
-ok('reports PROFESSIONAL → still plan gate', page.html.includes('data-testid="gate-plan"'))
+ok('reports TRADER → still plan gate', page.html.includes('data-testid="gate-plan"'))
 
-await setPlan('INSTITUTIONAL')
+await setPlan('PRO')
 page = await fetchPage('/ko/reports')
-ok('reports INSTITUTIONAL → open', !page.html.includes('data-testid="gate-'))
+ok('reports PRO → open', !page.html.includes('data-testid="gate-'))
 
-// --- 3. export API (Legendary only) -----------------------------------------
+// --- 3. export API (Whale only) -----------------------------------------
 console.log('--- export API ---')
-await setPlan('INSTITUTIONAL')
+await setPlan('PRO')
 let res = await fetch(`${APP}/api/export/market`, { headers: { authorization: `Bearer ${jwt}` } })
-ok('export INSTITUTIONAL → 403', res.status === 403, `status=${res.status}`)
+ok('export PRO → 403', res.status === 403, `status=${res.status}`)
 
-await setPlan('LEGENDARY')
+await setPlan('WHALE')
 res = await fetch(`${APP}/api/export/market`, { headers: { authorization: `Bearer ${jwt}` } })
 const csv = await res.text()
 ok(
-  'export LEGENDARY → 200 CSV',
+  'export WHALE → 200 CSV',
   res.status === 200 && csv.startsWith('symbol,price_usd'),
   `status=${res.status}`,
 )
@@ -156,8 +156,8 @@ res = await fetch(`${APP}/api/export/market`)
 ok('export signed-out → 401', res.status === 401, `status=${res.status}`)
 
 // --- 4. region whitelist (feature-level on/off) ------------------------------
-console.log('--- region policy (as LEGENDARY) ---')
-await setPlan('LEGENDARY')
+console.log('--- region policy (as WHALE) ---')
+await setPlan('WHALE')
 const entCN = await fetchEntitlements({ 'x-vercel-ip-country': 'CN' })
 for (const feature of REGION_RESTRICTED) {
   ok(

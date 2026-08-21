@@ -167,7 +167,7 @@ res = await api('/api/me/alerts', {
   body: { type: 'PRICE', channel: 'INAPP', params: { symbol: 'BTC', direction: 'sideways', threshold: 1 } },
   headers: { origin: ORIGIN },
 })
-await setPlan('PROFESSIONAL')
+await setPlan('TRADER')
 res = await api('/api/me/alerts', {
   method: 'POST',
   body: { type: 'PRICE', channel: 'INAPP', params: { symbol: 'BTC', direction: 'sideways', threshold: 1 } },

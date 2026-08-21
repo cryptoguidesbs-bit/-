@@ -11,7 +11,7 @@ const patchSchema = z.object({
   role: z.enum(['USER', 'ADMIN']).optional(),
   // Manual plan override (support/compensation cases) — upserts an ACTIVE
   // subscription; 'FREE' removes it.
-  plan: z.enum(['FREE', 'STANDARD', 'PROFESSIONAL', 'INSTITUTIONAL', 'LEGENDARY']).optional(),
+  plan: z.enum(['FREE', 'STARTER', 'TRADER', 'PRO', 'WHALE']).optional(),
 })
 
 // PATCH /api/admin/members/:id — role / manual plan management.

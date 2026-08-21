@@ -27,9 +27,23 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ places: [], count: 0, capped: false, tooWide: true })
   }
 
+  // Longitudes can arrive outside [-180, 180] — Leaflet reports getEast() > 180
+  // (or getWest() < -180) when the viewport is panned across the antimeridian,
+  // while stored places use normalized [-180, 180]. Normalize the bounds, and
+  // when the box straddles ±180° split the longitude filter into two ranges
+  // under AND so it never clobbers the `q` search OR added below.
+  const wrapLng = (x: number) => ((((x + 180) % 360) + 360) % 360) - 180
+  const west = wrapLng(minLng)
+  const east = wrapLng(maxLng)
+
   const where: Prisma.MapPlaceWhereInput = {
     lat: { gte: minLat, lte: maxLat },
-    lng: { gte: minLng, lte: maxLng },
+  }
+  if (west <= east) {
+    where.lng = { gte: west, lte: east }
+  } else {
+    // Straddles the antimeridian → [west, 180] OR [-180, east].
+    where.AND = [{ OR: [{ lng: { gte: west } }, { lng: { lte: east } }] }]
   }
 
   const coins = params.get('coins')?.split(',').filter(Boolean)

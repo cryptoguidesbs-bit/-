@@ -58,7 +58,7 @@ await prisma.subscription.deleteMany({ where: { userId: dbUser.id } })
 const checkout = await fetch(`${APP}/api/billing/checkout`, {
   method: 'POST',
   headers: { 'content-type': 'application/json', authorization: `Bearer ${jwt}` },
-  body: JSON.stringify({ plan: 'standard', interval: 'yearly', locale: 'ko' }),
+  body: JSON.stringify({ plan: 'starter', interval: 'yearly', locale: 'ko' }),
 })
 const checkoutJson = await checkout.json().catch(() => null)
 ok(
@@ -73,7 +73,7 @@ if (checkoutJson?.id) await stripe.checkout.sessions.expire(checkoutJson.id).cat
 const noAuth = await fetch(`${APP}/api/billing/checkout`, {
   method: 'POST',
   headers: { 'content-type': 'application/json', origin: APP },
-  body: JSON.stringify({ plan: 'standard', interval: 'monthly', locale: 'ko' }),
+  body: JSON.stringify({ plan: 'starter', interval: 'monthly', locale: 'ko' }),
 })
 ok('checkout requires auth', noAuth.status === 401, `status=${noAuth.status}`)
 
@@ -86,8 +86,8 @@ const customer = await stripe.customers.create({
 })
 const sub = await stripe.subscriptions.create({
   customer: customer.id,
-  items: [{ price: process.env.STRIPE_PRICE_STANDARD_MONTHLY }],
-  metadata: { userId: dbUser.id, plan: 'standard', interval: 'monthly' },
+  items: [{ price: process.env.STRIPE_PRICE_STARTER_MONTHLY }],
+  metadata: { userId: dbUser.id, plan: 'starter', interval: 'monthly' },
 })
 ok('stripe subscription created', sub.status === 'active', `status=${sub.status} id=${sub.id}`)
 
@@ -120,7 +120,7 @@ ok('webhook rejects bad signature', badHook.status === 400, `status=${badHook.st
 let row = await prisma.subscription.findUnique({ where: { userId: dbUser.id } })
 ok(
   'DB subscription row synced',
-  row?.plan === 'STANDARD' && row?.status === 'ACTIVE' && row?.interval === 'MONTHLY' && row?.externalId === sub.id,
+  row?.plan === 'STARTER' && row?.status === 'ACTIVE' && row?.interval === 'MONTHLY' && row?.externalId === sub.id,
   `plan=${row?.plan} status=${row?.status} interval=${row?.interval}`,
 )
 

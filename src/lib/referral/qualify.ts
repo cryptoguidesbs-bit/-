@@ -18,10 +18,10 @@ import { prisma } from '@/lib/prisma'
 const ENTITLED_STATUSES = ['ACTIVE', 'TRIALING', 'PAST_DUE']
 
 const MONTHLY_BY_PLAN: Partial<Record<SubscriptionPlan, number>> = {
-  STANDARD: planAmounts.standard.monthly,
-  PROFESSIONAL: planAmounts.professional.monthly,
-  INSTITUTIONAL: planAmounts.institutional.monthly,
-  LEGENDARY: planAmounts.legendary.monthly,
+  STARTER: planAmounts.starter.monthly,
+  TRADER: planAmounts.trader.monthly,
+  PRO: planAmounts.pro.monthly,
+  WHALE: planAmounts.whale.monthly,
 }
 
 export type QualifyOutcome = 'qualified' | 'qualified-noreward' | 'skipped'

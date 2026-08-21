@@ -97,14 +97,14 @@ await setPlan('FREE')
 res = await api('/api/me/alerts', { method: 'POST', body: pricePayload })
 ok('FREE: create rule → 403 (plan)', res.status === 403 && res.json?.reason === 'plan')
 
-await setPlan('STANDARD')
+await setPlan('STARTER')
 res = await api('/api/me/alerts', { method: 'POST', body: pricePayload })
-ok('STANDARD: create rule → 403 (Professional required)',
-  res.status === 403 && res.json?.requiredPlan === 'PROFESSIONAL')
+ok('STARTER: create rule → 403 (Trader required)',
+  res.status === 403 && res.json?.requiredPlan === 'TRADER')
 
-await setPlan('PROFESSIONAL')
+await setPlan('TRADER')
 res = await api('/api/me/alerts', { method: 'POST', body: pricePayload })
-ok('PROFESSIONAL: create rule → 201', res.status === 201 && res.json?.rule?.id)
+ok('TRADER: create rule → 201', res.status === 201 && res.json?.rule?.id)
 const priceRuleId = res.json?.rule?.id
 
 // Page gates
@@ -113,9 +113,9 @@ ok('signed-out page → sign-in gate', pageOut.html.includes('data-testid="gate-
 await setPlan('FREE')
 const pageFree = await page('/ko/alerts', true)
 ok('FREE page → upgrade gate', pageFree.html.includes('data-testid="gate-plan"'))
-await setPlan('PROFESSIONAL')
+await setPlan('TRADER')
 const pagePro = await page('/ko/alerts', true)
-ok('PROFESSIONAL page → alert center + disclaimer',
+ok('TRADER page → alert center + disclaimer',
   pagePro.html.includes('data-testid="alerts-page"') &&
     pagePro.html.includes('data-testid="alerts-disclaimer"'))
 

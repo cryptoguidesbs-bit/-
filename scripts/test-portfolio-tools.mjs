@@ -55,8 +55,8 @@ const api = async (path, method = 'GET', body) => {
 const dbUser = await prisma.user.findFirst({ where: { email: EMAIL } })
 await prisma.subscription.upsert({
   where: { userId: dbUser.id },
-  update: { plan: 'PROFESSIONAL', status: 'ACTIVE' },
-  create: { userId: dbUser.id, plan: 'PROFESSIONAL', status: 'ACTIVE' },
+  update: { plan: 'TRADER', status: 'ACTIVE' },
+  create: { userId: dbUser.id, plan: 'TRADER', status: 'ACTIVE' },
 })
 await prisma.portfolioItem.deleteMany({ where: { portfolio: { userId: dbUser.id } } })
 
@@ -146,7 +146,7 @@ ok('UI copy (ko/en messages) contains no directive phrasing', uiViolations.lengt
 // Rendered portfolio page (SSR shell) free of directives
 const page = await fetch(`${APP}/ko/portfolio`, { headers: { authorization: `Bearer ${jwt}` } })
 const html = await page.text()
-ok('portfolio page renders for Professional', page.status === 200 && html.includes('data-testid'),
+ok('portfolio page renders for Trader', page.status === 200 && html.includes('data-testid'),
   `status=${page.status}`)
 const htmlViolations = findViolations(html)
 ok('rendered page contains no directive phrasing', htmlViolations.length === 0,
@@ -158,10 +158,10 @@ const anon = await fetch(`${APP}/api/me/portfolio/analytics`)
 ok('analytics unauthenticated → 401', anon.status === 401)
 await prisma.subscription.update({
   where: { userId: dbUser.id },
-  data: { plan: 'STANDARD' },
+  data: { plan: 'STARTER' },
 })
-const asStandard = await api('/api/me/portfolio/analytics')
-ok('analytics as STANDARD → 403 (Professional feature)', asStandard.status === 403)
+const asStarter = await api('/api/me/portfolio/analytics')
+ok('analytics as STARTER → 403 (Trader feature)', asStarter.status === 403)
 
 // --- cleanup -----------------------------------------------------------------------
 await prisma.portfolioItem.deleteMany({ where: { portfolio: { userId: dbUser.id } } })

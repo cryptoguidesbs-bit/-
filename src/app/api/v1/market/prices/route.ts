@@ -7,7 +7,7 @@ import { cryptoSources } from '@/lib/market/sources'
 
 export const dynamic = 'force-dynamic'
 
-// GET /api/v1/market/prices — BTC/ETH/SOL USD quotes (Legendary API).
+// GET /api/v1/market/prices — BTC/ETH/SOL USD quotes (Whale API).
 export async function GET(request: NextRequest) {
   const auth = await authenticateApiKey(request, 'market/prices')
   if (!auth.ok) {

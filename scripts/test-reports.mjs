@@ -175,16 +175,16 @@ const get = async (path) => {
 const anon = await fetch(`${APP}/api/reports`)
 ok('anonymous list → 401', anon.status === 401)
 for (const [plan, expected] of [
-  ['PROFESSIONAL', 403],
-  ['INSTITUTIONAL', 200],
-  ['LEGENDARY', 200],
+  ['TRADER', 403],
+  ['PRO', 200],
+  ['WHALE', 200],
 ]) {
   await setPlan(plan)
   const res = await get('/api/reports?locale=ko')
   ok(`${plan} list → ${expected}`, res.status === expected, `status=${res.status}`)
 }
 
-await setPlan('INSTITUTIONAL')
+await setPlan('PRO')
 const list = await get('/api/reports?locale=ko&cadence=WEEKLY')
 ok('list returns published weekly reports (held rows excluded)',
   list.json?.items?.length >= 3 &&
@@ -207,9 +207,9 @@ const detailPage = await fetch(`${APP}/ko/reports/${slug}`, { headers: { authori
 ok('report detail page renders', detailPage.status === 200 &&
   (await detailPage.text()).includes('data-testid="report-detail"'))
 
-await setPlan('PROFESSIONAL')
+await setPlan('TRADER')
 const gated = await fetch(`${APP}/ko/reports`, { headers: { authorization: `Bearer ${jwt}` } })
-ok('/ko/reports as PROFESSIONAL → upgrade gate', (await gated.text()).includes('data-testid="gate-plan"'))
+ok('/ko/reports as TRADER → upgrade gate', (await gated.text()).includes('data-testid="gate-plan"'))
 
 // --- cleanup --------------------------------------------------------------------------------
 await prisma.report.deleteMany({ where: { periodKey: '2020-W01' } })

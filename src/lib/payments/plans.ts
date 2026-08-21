@@ -1,43 +1,43 @@
-// Paid subscription plans (A-3 matrix, USD). "free" is not a payable plan and
-// is intentionally excluded here — it has no Stripe product/price.
-export const paidPlans = ['standard', 'professional', 'institutional', 'legendary'] as const
+// Paid subscription plans (USD). "free" is not a payable plan and is
+// intentionally excluded here — it has no Stripe product/price.
+export const paidPlans = ['starter', 'trader', 'pro', 'whale'] as const
 export type PaidPlanKey = (typeof paidPlans)[number]
 
 export type BillingInterval = 'monthly' | 'yearly'
 
-// Amounts in whole USD. Yearly = 10× monthly (two months free).
+// Amounts in whole USD. Yearly = 10× monthly (two months free, ~17% off).
 export const planAmounts: Record<PaidPlanKey, Record<BillingInterval, number>> = {
-  standard: { monthly: 199, yearly: 1990 },
-  professional: { monthly: 499, yearly: 4990 },
-  institutional: { monthly: 1499, yearly: 14990 },
-  legendary: { monthly: 4999, yearly: 49990 },
+  starter: { monthly: 29, yearly: 290 },
+  trader: { monthly: 79, yearly: 790 },
+  pro: { monthly: 249, yearly: 2490 },
+  whale: { monthly: 799, yearly: 7990 },
 }
 
 export const planLabels: Record<PaidPlanKey, string> = {
-  standard: 'Standard',
-  professional: 'Professional',
-  institutional: 'Institutional',
-  legendary: 'Legendary',
+  starter: 'Starter',
+  trader: 'Trader',
+  pro: 'Pro',
+  whale: 'Whale',
 }
 
 // Env var that holds the Stripe price ID for each plan/interval. Populated by
 // `npm run stripe:seed`.
 export const priceEnvVar: Record<PaidPlanKey, Record<BillingInterval, string>> = {
-  standard: {
-    monthly: 'STRIPE_PRICE_STANDARD_MONTHLY',
-    yearly: 'STRIPE_PRICE_STANDARD_YEARLY',
+  starter: {
+    monthly: 'STRIPE_PRICE_STARTER_MONTHLY',
+    yearly: 'STRIPE_PRICE_STARTER_YEARLY',
   },
-  professional: {
-    monthly: 'STRIPE_PRICE_PROFESSIONAL_MONTHLY',
-    yearly: 'STRIPE_PRICE_PROFESSIONAL_YEARLY',
+  trader: {
+    monthly: 'STRIPE_PRICE_TRADER_MONTHLY',
+    yearly: 'STRIPE_PRICE_TRADER_YEARLY',
   },
-  institutional: {
-    monthly: 'STRIPE_PRICE_INSTITUTIONAL_MONTHLY',
-    yearly: 'STRIPE_PRICE_INSTITUTIONAL_YEARLY',
+  pro: {
+    monthly: 'STRIPE_PRICE_PRO_MONTHLY',
+    yearly: 'STRIPE_PRICE_PRO_YEARLY',
   },
-  legendary: {
-    monthly: 'STRIPE_PRICE_LEGENDARY_MONTHLY',
-    yearly: 'STRIPE_PRICE_LEGENDARY_YEARLY',
+  whale: {
+    monthly: 'STRIPE_PRICE_WHALE_MONTHLY',
+    yearly: 'STRIPE_PRICE_WHALE_YEARLY',
   },
 }
 
@@ -45,13 +45,13 @@ export function isPaidPlan(value: string): value is PaidPlanKey {
   return (paidPlans as readonly string[]).includes(value)
 }
 
-// Rank for upgrade/downgrade comparison. free < standard < … < legendary.
+// Rank for upgrade/downgrade comparison. free < starter < … < whale.
 export const planKeyRank: Record<'free' | PaidPlanKey, number> = {
   free: 0,
-  standard: 1,
-  professional: 2,
-  institutional: 3,
-  legendary: 4,
+  starter: 1,
+  trader: 2,
+  pro: 3,
+  whale: 4,
 }
 
 // Yearly = 10× monthly → 2 months free (~17% off). Single source of truth.

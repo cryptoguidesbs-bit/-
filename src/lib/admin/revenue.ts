@@ -17,16 +17,16 @@ import { prisma } from '@/lib/prisma'
 const ENTITLED_STATUSES = ['ACTIVE', 'TRIALING', 'PAST_DUE'] as const
 
 const MONTHLY_USD: Record<string, number> = {
-  STANDARD: planAmounts.standard.monthly,
-  PROFESSIONAL: planAmounts.professional.monthly,
-  INSTITUTIONAL: planAmounts.institutional.monthly,
-  LEGENDARY: planAmounts.legendary.monthly,
+  STARTER: planAmounts.starter.monthly,
+  TRADER: planAmounts.trader.monthly,
+  PRO: planAmounts.pro.monthly,
+  WHALE: planAmounts.whale.monthly,
 }
 const YEARLY_USD: Record<string, number> = {
-  STANDARD: planAmounts.standard.yearly,
-  PROFESSIONAL: planAmounts.professional.yearly,
-  INSTITUTIONAL: planAmounts.institutional.yearly,
-  LEGENDARY: planAmounts.legendary.yearly,
+  STARTER: planAmounts.starter.yearly,
+  TRADER: planAmounts.trader.yearly,
+  PRO: planAmounts.pro.yearly,
+  WHALE: planAmounts.whale.yearly,
 }
 
 export type RevenueSummary = {

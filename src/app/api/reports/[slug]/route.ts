@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
-// Full report content by slug (Institutional+). Only PUBLISHED reports are
+// Full report content by slug (Pro+). Only PUBLISHED reports are
 // ever served — drafts/held stay internal.
 export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
   const gate = await checkFeature('reports.premium')

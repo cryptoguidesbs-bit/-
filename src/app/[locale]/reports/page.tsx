@@ -29,7 +29,7 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
   }
 }
 
-// Premium research (Institutional+, reports.premium). Non-personalized.
+// Premium research (Pro+, reports.premium). Non-personalized.
 export default async function ReportsPage({ params: { locale }, searchParams }: Props) {
   setRequestLocale(locale)
 

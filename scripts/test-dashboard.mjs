@@ -110,13 +110,13 @@ ok('delete BTC → gone', res.status === 200 && after.json?.items?.length === 1)
 res = await api(`/api/me/watchlist/${btcItem.id}`, 'DELETE')
 ok('delete again → 404', res.status === 404)
 
-// --- 2. portfolio CRUD (Professional gate) ---------------------------------------
+// --- 2. portfolio CRUD (Trader gate) ---------------------------------------
 console.log('--- portfolio ---')
 await setPlan('FREE')
 res = await api('/api/me/portfolio')
 ok('portfolio as FREE → 403 (plan gate)', res.status === 403, `status=${res.status}`)
 
-await setPlan('PROFESSIONAL')
+await setPlan('TRADER')
 res = await api('/api/me/portfolio', 'POST', { symbol: 'BTC', quantity: 0.5, avgCost: 30000 })
 ok('add holding BTC 0.5 @ 30000 → 201', res.status === 201)
 res = await api('/api/me/portfolio', 'POST', { symbol: 'SOL', quantity: 10, avgCost: 100 })

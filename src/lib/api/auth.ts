@@ -12,7 +12,7 @@ import { checkRateLimit, defaultRateLimit, type RateLimitResult } from './rate-l
 
 // ---------------------------------------------------------------------------
 // Public API (v1) authentication: Bearer/x-api-key key → hash lookup →
-// revocation → plan re-check (api.center = Legendary) → region policy →
+// revocation → plan re-check (api.center = Whale) → region policy →
 // per-key rate limit → usage aggregation. Every deny path returns the
 // status + error the route should respond with.
 // ---------------------------------------------------------------------------
@@ -43,16 +43,16 @@ export async function authenticateApiKey(
   if (!apiKey) return { ok: false, status: 401, error: 'invalid api key' }
   if (apiKey.revokedAt) return { ok: false, status: 401, error: 'api key revoked' }
 
-  // Plan re-check at call time — a lapsed Legendary subscription cuts access.
+  // Plan re-check at call time — a lapsed Whale subscription cuts access.
   const sub = apiKey.user.subscription
   const plan: SubscriptionPlan =
     apiKey.user.role === 'ADMIN'
-      ? 'LEGENDARY'
+      ? 'WHALE'
       : sub && ENTITLED_STATUSES.includes(sub.status)
         ? sub.plan
         : 'FREE'
   if (!planHasFeature(plan, 'api.center')) {
-    return { ok: false, status: 403, error: 'api access requires the Legendary plan' }
+    return { ok: false, status: 403, error: 'api access requires the Whale plan' }
   }
 
   // Region policy (api.center whitelist) — absolute, applies to ADMIN too.

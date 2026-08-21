@@ -10,7 +10,7 @@ type BinanceTicker = {
   quoteVolume: string
 }
 
-// Legendary-only data export (CSV) — the first concrete "data.export"
+// Whale-only data export (CSV) — the first concrete "data.export"
 // consumer. Also demonstrates route-level entitlement gating.
 export async function GET() {
   const gate = await checkFeature('data.export')

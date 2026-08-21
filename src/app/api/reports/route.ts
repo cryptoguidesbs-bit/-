@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 const CADENCES = new Set(['WEEKLY', 'MONTHLY', 'QUARTERLY'])
 const CATEGORIES = new Set(['ETF', 'MACRO', 'ONCHAIN'])
 
-// Published research reports (Institutional+, reports.premium).
+// Published research reports (Pro+, reports.premium).
 export async function GET(request: NextRequest) {
   const gate = await checkFeature('reports.premium')
   if (!gate.allowed) {

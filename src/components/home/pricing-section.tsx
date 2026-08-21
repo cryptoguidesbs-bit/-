@@ -5,7 +5,8 @@ import { Check } from 'lucide-react'
 import { useAuth } from '@clerk/nextjs'
 import { useLocale, useTranslations } from 'next-intl'
 
-import { pricingTiers, tierAmount, type PricingTierKey } from '@/config/pricing'
+import { ENTERPRISE_FROM_MONTHLY, pricingTiers, tierAmount, type PricingTierKey } from '@/config/pricing'
+import { paymentsMode } from '@/lib/payments/mode'
 import type { BillingInterval } from '@/lib/payments/plans'
 import { useRouter } from '@/i18n/navigation'
 import { Badge } from '@/components/ui/badge'
@@ -13,6 +14,8 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Section } from '@/components/home/section'
 import { Reveal } from '@/components/home/reveal'
+import { EnterpriseContactDialog } from '@/components/home/enterprise-contact-dialog'
+import { WaitlistDialog } from '@/components/home/waitlist-dialog'
 import { cn } from '@/lib/utils'
 
 const usd = new Intl.NumberFormat('en-US', {
@@ -29,11 +32,33 @@ export function PricingSection() {
   const [interval, setInterval] = useState<BillingInterval>('monthly')
   const [loadingTier, setLoadingTier] = useState<PricingTierKey | null>(null)
   const [checkoutError, setCheckoutError] = useState(false)
+  const [contactOpen, setContactOpen] = useState(false)
+  const [waitlistPlan, setWaitlistPlan] = useState<PricingTierKey | null>(null)
+
+  // Free-first launch flag (NEXT_PUBLIC_PAYMENTS_MODE) — inlined at build time.
+  const mode = paymentsMode()
 
   const startCheckout = async (tier: PricingTierKey) => {
     setCheckoutError(false)
 
-    if (tier === 'free' || !isSignedIn) {
+    // Enterprise is quoted per contract — no Stripe price, no checkout.
+    if (tier === 'enterprise') {
+      setContactOpen(true)
+      return
+    }
+
+    if (tier === 'free') {
+      router.push('/sign-up')
+      return
+    }
+
+    // Waitlist mode: paid checkout is disabled — collect an email instead.
+    if (mode === 'waitlist') {
+      setWaitlistPlan(tier)
+      return
+    }
+
+    if (!isSignedIn) {
       router.push('/sign-up')
       return
     }
@@ -50,7 +75,6 @@ export function PricingSection() {
         return
       }
       if (res.status === 409) {
-        // Already subscribed — manage it instead.
         router.push('/billing')
         return
       }
@@ -65,7 +89,7 @@ export function PricingSection() {
 
   return (
     <Section id="pricing" title={t('title')} subtitle={t('subtitle')}>
-      {/* Billing interval toggle */}
+      {/* Monthly / yearly toggle — yearly carries the "2 months free" badge. */}
       <div className="mb-8 flex items-center justify-center gap-1 rounded-lg border bg-card p-1 md:w-fit">
         {(['monthly', 'yearly'] as const).map((i) => (
           <button
@@ -73,6 +97,7 @@ export function PricingSection() {
             type="button"
             onClick={() => setInterval(i)}
             aria-pressed={interval === i}
+            data-testid={`interval-${i}`}
             className={cn(
               'flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors',
               interval === i
@@ -90,7 +115,7 @@ export function PricingSection() {
         ))}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         {pricingTiers.map((tier, index) => (
           <Reveal key={tier.key} delay={index * 60}>
             <Card
@@ -100,45 +125,69 @@ export function PricingSection() {
               )}
             >
               {tier.popular && (
-                <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2">
-                  {t('popular')}
-                </Badge>
+                <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2">{t('popular')}</Badge>
               )}
               <CardHeader className="space-y-2 pb-4">
                 <p className="font-semibold">{t(`tiers.${tier.key}.name`)}</p>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-bold tabular-nums">
-                    {usd.format(tierAmount(tier.key, interval))}
-                  </span>
-                  <span className="text-sm text-muted-foreground" data-testid={`period-${tier.key}`}>
-                    {t(interval === 'monthly' ? 'perMonth' : 'perYear')}
-                  </span>
-                </div>
-                {/* Both billing terms are always expressed: the alternate
-                    term renders as a subline under the active price. */}
-                {interval === 'monthly' && tier.key !== 'free' && (
-                  <p
-                    className="text-xs text-muted-foreground"
-                    data-testid={`yearly-hint-${tier.key}`}
-                  >
-                    {t('yearlyHint', { price: usd.format(tierAmount(tier.key, 'yearly')) })}
-                  </p>
-                )}
-                {interval === 'yearly' && tier.key !== 'free' && (
-                  <>
-                    <Badge variant="outline" className="w-fit text-emerald-500" data-testid={`yearly-badge-${tier.key}`}>
-                      {t('yearlyBadge')}
-                    </Badge>
-                    <p
-                      className="text-xs text-muted-foreground"
-                      data-testid={`monthly-equiv-${tier.key}`}
+
+                {tier.key === 'free' ? (
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-bold tabular-nums">{usd.format(0)}</span>
+                  </div>
+                ) : tier.contact ? (
+                  /* Quote-only tier: a "from" figure plus the billing terms. */
+                  <div className="space-y-1.5" data-testid={`price-contact-${tier.key}`}>
+                    <div className="rounded-lg px-2 py-1">
+                      <span className="text-2xl font-bold tabular-nums">
+                        {t('enterprise.fromPrice', { price: usd.format(ENTERPRISE_FROM_MONTHLY) })}
+                      </span>
+                    </div>
+                    <p className="px-2 text-xs text-muted-foreground">
+                      {t('enterprise.billingNote')}
+                    </p>
+                  </div>
+                ) : (
+                  /* Both prices stay fully legible; the toggle highlights the
+                     one that will be charged rather than dimming the other. */
+                  <div className="space-y-1.5">
+                    <div
+                      className={cn(
+                        'flex flex-wrap items-baseline gap-x-1.5 gap-y-1 rounded-lg px-2 py-1 transition-colors',
+                        interval === 'monthly' && 'bg-muted ring-1 ring-border',
+                      )}
+                      data-testid={`price-monthly-${tier.key}`}
                     >
-                      {t('monthlyEquiv', {
+                      <span className="text-3xl font-bold tabular-nums">
+                        {usd.format(tierAmount(tier.key, 'monthly'))}
+                      </span>
+                      <span className="text-sm text-muted-foreground">{t('perMonth')}</span>
+                    </div>
+                    <div
+                      className={cn(
+                        'flex flex-wrap items-baseline gap-x-1.5 gap-y-1 rounded-lg px-2 py-1 transition-colors',
+                        interval === 'yearly' && 'bg-muted ring-1 ring-border',
+                      )}
+                      data-testid={`price-yearly-${tier.key}`}
+                    >
+                      <span className="text-2xl font-bold tabular-nums">
+                        {usd.format(tierAmount(tier.key, 'yearly'))}
+                      </span>
+                      <span className="text-sm text-muted-foreground">{t('perYear')}</span>
+                      <Badge variant="outline" className="text-emerald-500">
+                        {t('yearlySave')}
+                      </Badge>
+                    </div>
+                    <p
+                      className="px-2 text-xs text-muted-foreground tabular-nums"
+                      data-testid={`yearly-note-${tier.key}`}
+                    >
+                      {t('perMonthEquiv', {
                         price: usd.format(Math.round(tierAmount(tier.key, 'yearly') / 12)),
                       })}
                     </p>
-                  </>
+                  </div>
                 )}
+
                 <p className="text-xs text-muted-foreground">{t(`tiers.${tier.key}.tagline`)}</p>
               </CardHeader>
               <CardContent className="flex flex-1 flex-col gap-4">
@@ -161,13 +210,17 @@ export function PricingSection() {
                 >
                   {loadingTier === tier.key
                     ? t('processing')
-                    : tier.key === 'free'
-                      ? t('ctaFree')
-                      : t('ctaPaid')}
+                    : tier.contact
+                      ? t('enterprise.cta')
+                      : tier.key === 'free'
+                        ? t('ctaFree')
+                        : mode === 'waitlist'
+                          ? t('waitlist.cta')
+                          : t('ctaPaid')}
                 </Button>
-                {tier.key !== 'free' && (
+                {tier.key !== 'free' && !tier.contact && (
                   <p className="text-center text-[11px] leading-tight text-muted-foreground">
-                    {t('trialNote')}
+                    {mode === 'waitlist' ? t('waitlist.note') : t('trialNote')}
                   </p>
                 )}
               </CardContent>
@@ -175,11 +228,106 @@ export function PricingSection() {
           </Reveal>
         ))}
       </div>
+
+      {/* Full comparison table — every plan's monthly and yearly price. */}
+      <div className="mt-12">
+        <h3 className="mb-4 text-center text-lg font-semibold">{t('compareTitle')}</h3>
+        <div className="overflow-x-auto rounded-xl border">
+          <table className="w-full min-w-[560px] text-sm" data-testid="pricing-compare">
+            <thead>
+              <tr className="border-b bg-card/50">
+                <th className="px-4 py-3 text-left font-medium">{t('compareCols.plan')}</th>
+                <th className="px-4 py-3 text-right font-medium">{t('compareCols.monthly')}</th>
+                <th className="px-4 py-3 text-right font-medium">{t('compareCols.yearly')}</th>
+                <th className="px-4 py-3 text-right font-medium">
+                  {t('compareCols.perMonthYearly')}
+                </th>
+                <th className="px-4 py-3 text-right font-medium">{t('compareCols.save')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pricingTiers.map((tier) => {
+                const isFree = tier.key === 'free'
+                const m = tierAmount(tier.key, 'monthly')
+                const y = tierAmount(tier.key, 'yearly')
+
+                // Quote-only row: a "from" figure and the contract terms.
+                if (tier.contact) {
+                  return (
+                    <tr
+                      key={tier.key}
+                      className="border-b last:border-0"
+                      data-testid={`compare-row-${tier.key}`}
+                    >
+                      <td className="px-4 py-3 text-left font-medium">
+                        {t(`tiers.${tier.key}.name`)}
+                      </td>
+                      <td className="px-4 py-3 text-right tabular-nums">
+                        {t('enterprise.fromPrice', { price: usd.format(ENTERPRISE_FROM_MONTHLY) })}
+                      </td>
+                      <td className="px-4 py-3 text-right text-muted-foreground">
+                        {t('enterprise.compareYearly')}
+                      </td>
+                      <td className="px-4 py-3 text-right text-muted-foreground">—</td>
+                      <td className="px-4 py-3 text-right text-muted-foreground">—</td>
+                    </tr>
+                  )
+                }
+
+                return (
+                  <tr
+                    key={tier.key}
+                    className="border-b last:border-0"
+                    data-testid={`compare-row-${tier.key}`}
+                  >
+                    <td className="px-4 py-3 text-left font-medium">
+                      {t(`tiers.${tier.key}.name`)}
+                      {tier.popular && (
+                        <Badge variant="secondary" className="ml-2 align-middle text-[10px]">
+                          {t('popular')}
+                        </Badge>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-right tabular-nums">
+                      {isFree ? usd.format(0) : `${usd.format(m)}${t('perMonth')}`}
+                    </td>
+                    <td className="px-4 py-3 text-right tabular-nums">
+                      {isFree ? '—' : `${usd.format(y)}${t('perYear')}`}
+                    </td>
+                    <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">
+                      {isFree ? '—' : `${usd.format(Math.round(y / 12))}${t('perMonth')}`}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {isFree ? (
+                        '—'
+                      ) : (
+                        <span className="tabular-nums text-emerald-500">
+                          {usd.format(m * 12 - y)} {t('compareSaveSuffix')}
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+        <p
+          className="mx-auto mt-4 max-w-3xl text-center text-xs leading-relaxed text-muted-foreground"
+          data-testid="enterprise-compare-note"
+        >
+          {t('enterprise.compareNote')}
+        </p>
+      </div>
+
       <div className="mt-6 space-y-1 text-center">
         {checkoutError && <p className="text-sm text-red-500">{t('checkoutError')}</p>}
         <p className="text-xs text-muted-foreground">{t('currencyNote')}</p>
         <p className="text-xs text-muted-foreground">{t('disclaimer')}</p>
       </div>
+
+      <EnterpriseContactDialog open={contactOpen} onClose={() => setContactOpen(false)} />
+      <WaitlistDialog plan={waitlistPlan} onClose={() => setWaitlistPlan(null)} />
     </Section>
   )
 }

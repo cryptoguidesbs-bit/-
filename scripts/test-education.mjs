@@ -1,5 +1,5 @@
 // Stage 15 — Education test: curriculum structure (4 tracks × 3 levels)
-// and tier-based access (free / member / standard funnel).
+// and tier-based access (free / member / starter funnel).
 import fs from 'node:fs'
 import { PrismaClient } from '@prisma/client'
 
@@ -64,7 +64,7 @@ const page = async (path, authed = false) => {
 // Representative lessons per access tier
 const FREE_LESSON = '/ko/education/trading-exchange-basics'
 const MEMBER_LESSON = '/ko/education/technical-trend-sr'
-const STANDARD_LESSON = '/ko/education/risk-drawdown-metrics'
+const STARTER_LESSON = '/ko/education/risk-drawdown-metrics'
 
 // --- 1. curriculum structure ---------------------------------------------------
 console.log('--- curriculum structure ---')
@@ -99,7 +99,7 @@ ok('signed-out: beginner lesson → open content',
 res = await page(MEMBER_LESSON)
 ok('signed-out: intermediate lesson → sign-up gate',
   res.html.includes('data-testid="gate-auth"'))
-res = await page(STANDARD_LESSON)
+res = await page(STARTER_LESSON)
 ok('signed-out: advanced lesson → sign-up gate first',
   res.html.includes('data-testid="gate-auth"'))
 
@@ -108,7 +108,7 @@ await setPlan('FREE')
 res = await page(MEMBER_LESSON, true)
 ok('FREE member: intermediate lesson → open (sign-up funnel rewarded)',
   res.html.includes('data-testid="lesson-content"'))
-res = await page(STANDARD_LESSON, true)
+res = await page(STARTER_LESSON, true)
 ok('FREE member: advanced lesson → upgrade gate',
   res.html.includes('data-testid="gate-plan"'))
 
@@ -118,20 +118,20 @@ ok('FREE member funnel: 8 open / 4 locked',
   count(hubMember.html, 'data-testid="lesson-open"') === 8 &&
     count(hubMember.html, 'data-testid="lesson-locked"') === 4)
 
-// STANDARD subscriber: everything open
-await setPlan('STANDARD')
-res = await page(STANDARD_LESSON, true)
-ok('STANDARD: advanced lesson → open',
+// STARTER subscriber: everything open
+await setPlan('STARTER')
+res = await page(STARTER_LESSON, true)
+ok('STARTER: advanced lesson → open',
   res.html.includes('data-testid="lesson-content"'))
-const hubStandard = await page('/ko/education', true)
-ok('STANDARD: all 12 lessons open',
-  count(hubStandard.html, 'data-testid="lesson-open"') === 12 &&
-    count(hubStandard.html, 'data-testid="lesson-locked"') === 0)
+const hubStarter = await page('/ko/education', true)
+ok('STARTER: all 12 lessons open',
+  count(hubStarter.html, 'data-testid="lesson-open"') === 12 &&
+    count(hubStarter.html, 'data-testid="lesson-locked"') === 0)
 
 // Higher tiers inherit
-await setPlan('INSTITUTIONAL')
-res = await page(STANDARD_LESSON, true)
-ok('INSTITUTIONAL: advanced lesson → open', res.html.includes('data-testid="lesson-content"'))
+await setPlan('PRO')
+res = await page(STARTER_LESSON, true)
+ok('PRO: advanced lesson → open', res.html.includes('data-testid="lesson-content"'))
 
 // --- 3. content integrity -----------------------------------------------------------
 console.log('--- content integrity ---')
@@ -145,7 +145,7 @@ const ADVICE = [
   /수익.{0,6}보장/,
   /guaranteed (profit|return)/i,
 ]
-await setPlan('STANDARD')
+await setPlan('STARTER')
 let violations = []
 for (const slug of [
   'trading-exchange-basics', 'trading-orderbook-liquidity', 'trading-derivatives-structure',

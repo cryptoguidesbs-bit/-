@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { AlertTriangle, ArrowLeft, Sparkles } from 'lucide-react'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { pageAlternates } from '@/lib/seo'
 
 import { checkFeature } from '@/lib/entitlements'
 import { recordAccess } from '@/lib/billing/usage'
@@ -20,7 +21,11 @@ export async function generateMetadata({ params: { locale, slug } }: Props): Pro
     select: { title: true, summary: true, status: true },
   })
   if (!report || report.status !== 'PUBLISHED') return {}
-  return { title: report.title, description: report.summary ?? undefined }
+  return {
+    title: report.title,
+    description: report.summary ?? undefined,
+    alternates: pageAlternates(`/reports/${slug}`, locale),
+  }
 }
 
 // Minimal markdown rendering for our controlled report format

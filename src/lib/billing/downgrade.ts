@@ -8,10 +8,10 @@ import { syncSubscriptionToDb } from '@/lib/payments/sync'
 import { prisma } from '@/lib/prisma'
 
 const PLAN_KEY: Record<Exclude<SubscriptionPlan, 'FREE'>, PaidPlanKey> = {
-  STANDARD: 'standard',
-  PROFESSIONAL: 'professional',
-  INSTITUTIONAL: 'institutional',
-  LEGENDARY: 'legendary',
+  STARTER: 'starter',
+  TRADER: 'trader',
+  PRO: 'pro',
+  WHALE: 'whale',
 }
 const INTERVAL_KEY: Record<SubscriptionInterval, BillingInterval> = {
   MONTHLY: 'monthly',

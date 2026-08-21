@@ -292,7 +292,7 @@ export function AdminDashboard() {
                     value={m.subscription?.plan ?? 'FREE'}
                     onChange={(e) => patchMember.mutate({ id: m.id, body: { plan: e.target.value } })}
                   >
-                    {['FREE', 'STANDARD', 'PROFESSIONAL', 'INSTITUTIONAL', 'LEGENDARY'].map((p) => (
+                    {['FREE', 'STARTER', 'TRADER', 'PRO', 'WHALE'].map((p) => (
                       <option key={p}>{p}</option>
                     ))}
                   </select>

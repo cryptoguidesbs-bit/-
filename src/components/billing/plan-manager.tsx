@@ -7,8 +7,8 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
-type PaidPlanKey = 'standard' | 'professional' | 'institutional' | 'legendary'
-const PLANS: PaidPlanKey[] = ['standard', 'professional', 'institutional', 'legendary']
+type PaidPlanKey = 'starter' | 'trader' | 'pro' | 'whale'
+const PLANS: PaidPlanKey[] = ['starter', 'trader', 'pro', 'whale']
 const inputCls =
   'h-9 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-1 focus:ring-primary'
 

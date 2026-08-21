@@ -159,9 +159,9 @@ const anon = await fetch(`${APP}/api/patterns?symbol=BTC&interval=4h`)
 ok('anonymous → 401', anon.status === 401)
 for (const [plan, expected] of [
   ['FREE', 403],
-  ['STANDARD', 403],
-  ['PROFESSIONAL', 200],
-  ['INSTITUTIONAL', 200],
+  ['STARTER', 403],
+  ['TRADER', 200],
+  ['PRO', 200],
 ]) {
   await setPlan(plan)
   const res = await get('/api/patterns?symbol=BTC&interval=4h')
@@ -170,7 +170,7 @@ for (const [plan, expected] of [
 
 // --- 3. live pipeline ------------------------------------------------------------------
 console.log('--- live pipeline ---')
-await setPlan('PROFESSIONAL')
+await setPlan('TRADER')
 const live = await get('/api/patterns?symbol=BTC&interval=4h')
 ok('live BTC 4h scan returns candles + structures',
   live.json?.available === true && live.json?.closes?.length >= 100 &&
@@ -207,9 +207,9 @@ ok('rendered page free of directive phrasing (outside the disclaimer)',
   pageViolations.length === 0, pageViolations.slice(0, 3).join('; '))
 
 // Gate for lower tier
-await setPlan('STANDARD')
+await setPlan('STARTER')
 const gated = await fetch(`${APP}/ko/patterns`, { headers: { authorization: `Bearer ${jwt}` } })
-ok('/ko/patterns as STANDARD → upgrade gate', (await gated.text()).includes('data-testid="gate-plan"'))
+ok('/ko/patterns as STARTER → upgrade gate', (await gated.text()).includes('data-testid="gate-plan"'))
 
 // --- cleanup -----------------------------------------------------------------------------
 await prisma.subscription.deleteMany({ where: { userId: dbUser.id } })

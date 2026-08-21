@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server'
 import { z } from 'zod'
 
 import { getPaymentProvider } from '@/lib/payments'
+import { paymentsMode } from '@/lib/payments/mode'
 import { changeDirection, paidPlans, priceEnvVar, type PaidPlanKey } from '@/lib/payments/plans'
 import { syncSubscriptionToDb } from '@/lib/payments/sync'
 import { enforceRateLimit } from '@/lib/security/rate-limit'
@@ -18,10 +19,10 @@ const bodySchema = z.object({
 
 const DB_TO_KEY: Record<string, PaidPlanKey | 'free'> = {
   FREE: 'free',
-  STANDARD: 'standard',
-  PROFESSIONAL: 'professional',
-  INSTITUTIONAL: 'institutional',
-  LEGENDARY: 'legendary',
+  STARTER: 'starter',
+  TRADER: 'trader',
+  PRO: 'pro',
+  WHALE: 'whale',
 }
 const DB_INTERVAL = { MONTHLY: 'monthly', YEARLY: 'yearly' } as const
 
@@ -56,6 +57,16 @@ export async function POST(request: NextRequest) {
   )
   if (direction === 'same') {
     return NextResponse.json({ error: 'already on this plan' }, { status: 409 })
+  }
+
+  // Free-first launch: upgrades charge immediately, so they are blocked in
+  // waitlist mode. Downgrades stay open — they defer to the period end and
+  // only ever reduce what an existing subscriber pays.
+  const waitlistForced =
+    process.env.NODE_ENV !== 'production' &&
+    request.headers.get('x-test-payments-mode') === 'waitlist'
+  if (direction === 'upgrade' && (paymentsMode() === 'waitlist' || waitlistForced)) {
+    return NextResponse.json({ error: 'payments disabled', code: 'WAITLIST' }, { status: 403 })
   }
 
   const newPriceId = process.env[priceEnvVar[parsed.data.plan][parsed.data.interval]]

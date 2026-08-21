@@ -8,7 +8,13 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  // Runtime (app): pooled connection. On serverless (Vercel) this MUST be the
+  // pooled endpoint — e.g. Neon's "-pooler" host — so many short-lived
+  // function invocations don't exhaust Postgres connections.
+  url = env("DATABASE_URL")
+  // Migrations (prisma migrate/db push): a direct, non-pooled connection.
+  // Locally this equals DATABASE_URL; on Neon it's the non-pooler host.
+  directUrl = env("DIRECT_URL")
 }
 
 // ---------------------------------------------------------------------------
@@ -23,10 +29,10 @@ enum UserRole {
 
 enum SubscriptionPlan {
   FREE
-  STANDARD
-  PROFESSIONAL
-  INSTITUTIONAL
-  LEGENDARY
+  STARTER
+  TRADER
+  PRO
+  WHALE
 }
 
 enum SubscriptionStatus {
@@ -301,7 +307,7 @@ model CountryRegulation {
 }
 
 // ---------------------------------------------------------------------------
-// API Center (stage 18, Legendary) — keys, per-day usage aggregation,
+// API Center (stage 18, Whale) — keys, per-day usage aggregation,
 // outbound webhooks. The full key is shown once at creation; only a salted
 // hash and a display prefix are stored.
 // ---------------------------------------------------------------------------
@@ -806,4 +812,43 @@ model ContentAuditLog {
 
   @@index([contentType, contentId, createdAt])
   @@index([userId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Enterprise sales inquiries — the "Contact Sales" form on the pricing page.
+// Enterprise is quoted per contract and has no Stripe price, so a submission
+// is a lead record, not a subscription. Anonymous (no account required).
+// ---------------------------------------------------------------------------
+
+model EnterpriseInquiry {
+  id           String    @id @default(cuid())
+  email        String
+  organization String
+  teamSize     String
+  useCase      String
+  locale       String    @default("en")
+  // Set once an operator has followed up.
+  handledAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Paid-plan waitlist — the free-first launch runs with payments disabled
+// (NEXT_PUBLIC_PAYMENTS_MODE=waitlist) because Stripe live cannot be
+// activated before the LLC exists. Paid-plan CTAs collect an email instead;
+// one row per email (repeat submits upsert the latest plan interest).
+// ---------------------------------------------------------------------------
+
+model WaitlistSignup {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  // Plan key the visitor was interested in when they signed up (starter…whale).
+  plan      String?
+  locale    String   @default("en")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([createdAt])
 }

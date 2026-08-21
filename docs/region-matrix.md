@@ -20,7 +20,7 @@
 | 기능 | 성격 | 화이트리스트(후보) | allowUnknown | 제한 근거 |
 |---|---|---|---|---|
 | `onchain.advanced` | 온체인 심화(웨일·플로우·네트워크) | KR US JP SG GB DE FR NL CA AU HK TW | 예 | 온체인 데이터 제공사 약관 및 일부 관할의 데이터 취급 규제 검토 필요 |
-| `api.center` | Legendary 공개 REST API·웹훅 | KR US JP SG GB DE FR NL CA AU | 예 | 데이터 재배포·국외 이전 및 API 상업적 이용에 대한 관할별 규제 검토 |
+| `api.center` | Whale 공개 REST API·웹훅 | KR US JP SG GB DE FR NL CA AU | 예 | 데이터 재배포·국외 이전 및 API 상업적 이용에 대한 관할별 규제 검토 |
 | `data.export` | 시장 데이터 CSV 내보내기 | KR US JP SG GB DE FR NL CA AU | 예 | 데이터 재배포 라이선스·국외 이전 검토 |
 | `referral.rewards` | 금전 리퍼럴 커미션 | KR US JP SG GB DE FR NL CA AU | 예 | 유료 추천(finder's fee)·경품류 규제(관할별 상이). 링크·랭킹은 전 지역, 커미션만 제한 |
 

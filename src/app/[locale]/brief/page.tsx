@@ -89,7 +89,7 @@ export default async function BriefPage({ params: { locale }, searchParams }: Pr
             <span className="text-xs">· {t('nonPersonalized')}</span>
           </div>
 
-          {/* Tier switch for Professional+ */}
+          {/* Tier switch for Trader+ */}
           {daily.allowed && detailed.allowed && (
             <div className="flex gap-2">
               <Button variant={tier === 'DETAILED' ? 'default' : 'outline'} size="sm" asChild>

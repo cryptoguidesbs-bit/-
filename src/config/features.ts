@@ -7,10 +7,10 @@ import type { SubscriptionPlan } from '@prisma/client'
 
 export const PLAN_RANK: Record<SubscriptionPlan, number> = {
   FREE: 0,
-  STANDARD: 1,
-  PROFESSIONAL: 2,
-  INSTITUTIONAL: 3,
-  LEGENDARY: 4,
+  STARTER: 1,
+  TRADER: 2,
+  PRO: 3,
+  WHALE: 4,
 }
 
 export const FEATURE_MIN_PLAN = {
@@ -22,21 +22,21 @@ export const FEATURE_MIN_PLAN = {
   // (growth funnel); monetary rewards are additionally region-gated below.
   'referral.program': 'FREE',
   'referral.rewards': 'FREE',
-  // Standard
-  'news.full': 'STANDARD',
-  'brief.daily': 'STANDARD',
-  'dashboard.basic': 'STANDARD',
-  // Professional
-  'brief.detailed': 'PROFESSIONAL',
-  'analysis.patterns': 'PROFESSIONAL',
-  'portfolio.tools': 'PROFESSIONAL',
-  'alerts.realtime': 'PROFESSIONAL',
-  // Institutional
-  'onchain.advanced': 'INSTITUTIONAL',
-  'reports.premium': 'INSTITUTIONAL',
-  // Legendary
-  'api.center': 'LEGENDARY',
-  'data.export': 'LEGENDARY',
+  // Starter
+  'news.full': 'STARTER',
+  'brief.daily': 'STARTER',
+  'dashboard.basic': 'STARTER',
+  // Trader
+  'brief.detailed': 'TRADER',
+  'analysis.patterns': 'TRADER',
+  'portfolio.tools': 'TRADER',
+  'alerts.realtime': 'TRADER',
+  // Pro
+  'onchain.advanced': 'PRO',
+  'reports.premium': 'PRO',
+  // Whale
+  'api.center': 'WHALE',
+  'data.export': 'WHALE',
 } as const satisfies Record<string, SubscriptionPlan>
 
 export type FeatureKey = keyof typeof FEATURE_MIN_PLAN

@@ -36,10 +36,10 @@ const ok = (name, cond, detail = '') => {
 
 // A-3 pricing (USD). Yearly = monthly × 10.
 const PLANS = {
-  standard: { monthly: 199, yearly: 1990 },
-  professional: { monthly: 499, yearly: 4990 },
-  institutional: { monthly: 1499, yearly: 14990 },
-  legendary: { monthly: 4999, yearly: 49990 },
+  starter: { monthly: 29, yearly: 290 },
+  trader: { monthly: 79, yearly: 790 },
+  pro: { monthly: 249, yearly: 2490 },
+  whale: { monthly: 799, yearly: 7990 },
 }
 const PRICE_ENV = (plan, interval) =>
   `STRIPE_PRICE_${plan.toUpperCase()}_${interval.toUpperCase()}`
@@ -63,33 +63,39 @@ for (const [plan, amounts] of Object.entries(PLANS)) {
     amounts.yearly === amounts.monthly * 10 && savesPct === 17)
 }
 
-// --- 2. landing expresses both terms -----------------------------------------------
-console.log('--- landing display (both terms) ---')
-const usd = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 })
+// --- 2. landing shows BOTH terms per card + comparison table ------------------------
+console.log("--- landing display (monthly + yearly) ---")
+const usd = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 })
 const html = await fetch(`${APP}/ko`).then((r) => r.text())
+const near = (marker, len = 300) => { const at = html.indexOf(marker); return at >= 0 ? html.slice(at, at + len) : null }
 
-// Default (monthly) view: monthly price + per-month marker + yearly hint
-// containing the discounted yearly amount, per paid plan.
-for (const [plan, amounts] of Object.entries(PLANS)) {
-  const marker = `data-testid="yearly-hint-${plan}"`
-  const at = html.indexOf(marker)
-  const window = at >= 0 ? html.slice(at, at + 300) : ''
-  ok(`${plan}: monthly price + yearly hint (${usd.format(amounts.yearly)}/년)`,
-    html.includes(usd.format(amounts.monthly)) &&
-      html.includes(`data-testid="period-${plan}"`) &&
-      at >= 0 &&
-      window.includes(usd.format(amounts.yearly)),
-    at >= 0 ? '' : 'hint testid missing')
+ok("toggle offers exactly monthly + yearly", html.includes('data-testid="interval-monthly"') && html.includes('data-testid="interval-yearly"'))
+ok("multi-term options removed (3m/6m/2y/3y)", !html.includes('data-testid="term-3m"') && !html.includes('data-testid="term-6m"') && !html.includes('data-testid="term-2y"') && !html.includes('data-testid="term-3y"'))
+for (const name of ["Starter", "Trader", "Pro", "Whale"]) ok(`plan name "${name}" rendered`, html.includes(name))
+
+for (const [plan, a] of Object.entries(PLANS)) {
+  const m = near(`data-testid="price-monthly-${plan}"`), y = near(`data-testid="price-yearly-${plan}"`)
+  ok(`${plan} card shows ${usd.format(a.monthly)}/mo + ${usd.format(a.yearly)}/yr`,
+    m?.includes(usd.format(a.monthly)) && y?.includes(usd.format(a.yearly)), m && y ? "" : "price block missing")
 }
-ok('free tier has no yearly hint', !html.includes('data-testid="yearly-hint-free"'))
-ok('monthly/yearly toggle + "2개월 무료" present',
-  html.includes('월간') && html.includes('연간') && html.includes('2개월 무료'))
-ok('trial note preserved', html.includes('7일 무료 체험'))
+ok("free tier has no yearly block", !html.includes('data-testid="price-yearly-free"'))
+ok("yearly 2-months-free badge present", html.includes("2개월 무료"))
+ok("trial note preserved", html.includes("7일 무료 체험"))
+
+ok("comparison table rendered", html.includes('data-testid="pricing-compare"') && html.includes("요금 총정리"))
+for (const [plan, a] of Object.entries(PLANS)) {
+  const at = html.indexOf(`data-testid="compare-row-${plan}"`)
+  const row = at >= 0 ? html.slice(at, at + 700) : null
+  const saved = a.monthly * 12 - a.yearly
+  ok(`compare row ${plan}: ${usd.format(a.monthly)} / ${usd.format(a.yearly)} / ${usd.format(saved)} saved`,
+    row?.includes(usd.format(a.monthly)) && row?.includes(usd.format(a.yearly)) && row?.includes(usd.format(saved)),
+    row ? "" : "row missing")
+}
 
 const htmlEn = await fetch(`${APP}/en`).then((r) => r.text())
-const enAt = htmlEn.indexOf('data-testid="yearly-hint-standard"')
-ok('EN landing: yearly hint with $1,990',
-  enAt >= 0 && htmlEn.slice(enAt, enAt + 300).includes('$1,990'))
+ok("EN starter card shows $29 and $290",
+  (() => { const at = htmlEn.indexOf('data-testid="price-yearly-starter"'); return at >= 0 && htmlEn.slice(at, at + 260).includes("$290") })() && htmlEn.includes("$29"))
+ok("EN comparison table present", htmlEn.includes('data-testid="pricing-compare"') && htmlEn.includes("Full pricing comparison"))
 
 // --- 3. checkout bills the correct interval price (E2E) -----------------------------
 console.log('--- checkout amounts (Stripe sessions) ---')
@@ -122,19 +128,19 @@ async function checkoutLineItem(plan, interval) {
   return { priceId: items.data[0]?.price?.id, unit: items.data[0]?.price?.unit_amount }
 }
 
-let li = await checkoutLineItem('standard', 'monthly')
-ok('checkout standard/monthly bills $199',
-  li.priceId === process.env[PRICE_ENV('standard', 'monthly')] && li.unit === 19900,
+let li = await checkoutLineItem('starter', 'monthly')
+ok('checkout starter/monthly bills $29',
+  li.priceId === process.env[PRICE_ENV('starter', 'monthly')] && li.unit === 2900,
   JSON.stringify(li))
 
-li = await checkoutLineItem('standard', 'yearly')
-ok('checkout standard/yearly bills $1,990 (discounted, not 199×12)',
-  li.priceId === process.env[PRICE_ENV('standard', 'yearly')] && li.unit === 199000,
+li = await checkoutLineItem('starter', 'yearly')
+ok('checkout starter/yearly bills $290 (discounted, not 29×12)',
+  li.priceId === process.env[PRICE_ENV('starter', 'yearly')] && li.unit === 29000,
   JSON.stringify(li))
 
-li = await checkoutLineItem('professional', 'yearly')
-ok('checkout professional/yearly bills $4,990',
-  li.priceId === process.env[PRICE_ENV('professional', 'yearly')] && li.unit === 499000,
+li = await checkoutLineItem('trader', 'yearly')
+ok('checkout trader/yearly bills $790',
+  li.priceId === process.env[PRICE_ENV('trader', 'yearly')] && li.unit === 79000,
   JSON.stringify(li))
 
 // --- cleanup ---------------------------------------------------------------------------

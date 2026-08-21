@@ -66,7 +66,7 @@ async function resolvePlanAndRole(): Promise<{
   if (!user) return { signedIn: true, plan: 'FREE', role: null }
 
   // Staff bypass: admins see every feature (region rules still apply).
-  if (user.role === 'ADMIN') return { signedIn: true, plan: 'LEGENDARY', role: user.role }
+  if (user.role === 'ADMIN') return { signedIn: true, plan: 'WHALE', role: user.role }
 
   const sub = user.subscription
   const plan: SubscriptionPlan =

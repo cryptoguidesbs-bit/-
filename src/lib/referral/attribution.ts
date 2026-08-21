@@ -25,7 +25,13 @@ export type AttributionResult =
 
 export function hashIp(ip: string | null): string | null {
   if (!ip) return null
-  const salt = process.env.REFERRAL_IP_SALT ?? process.env.CRON_SECRET ?? 'dev-salt'
+  const salt = process.env.REFERRAL_IP_SALT ?? process.env.CRON_SECRET
+  // Fail closed in production: never hash IPs with a guessable default salt —
+  // that would let anyone reverse a stored hash back to an IP.
+  if (!salt) {
+    if (process.env.NODE_ENV === 'production') return null
+    return crypto.createHash('sha256').update(`dev-salt:${ip}`).digest('hex')
+  }
   return crypto.createHash('sha256').update(`${salt}:${ip}`).digest('hex')
 }
 

@@ -281,6 +281,7 @@ export function NewsExplorer() {
           value={input}
           onChange={(event) => setInput(event.target.value)}
           placeholder={t('searchPlaceholder')}
+          aria-label={t('searchPlaceholder')}
           data-testid="news-search"
           className="w-full rounded-lg border bg-card py-2.5 pl-10 pr-4 text-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary"
         />

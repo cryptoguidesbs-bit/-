@@ -16,7 +16,7 @@ import {
 export const dynamic = 'force-dynamic'
 
 // GET /api/patterns?symbol=BTC&interval=4h — pattern scan over live candles.
-// Professional+ (analysis.patterns). Non-personalized: identical output for
+// Trader+ (analysis.patterns). Non-personalized: identical output for
 // every requester of the same symbol/interval.
 export async function GET(request: NextRequest) {
   const gate = await checkFeature('analysis.patterns')

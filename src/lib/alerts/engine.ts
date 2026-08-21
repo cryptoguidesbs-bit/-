@@ -70,7 +70,7 @@ type RuleWithUser = AlertRule & {
 }
 
 function planFor(user: RuleWithUser['user']): SubscriptionPlan {
-  if (user.role === 'ADMIN') return 'LEGENDARY'
+  if (user.role === 'ADMIN') return 'WHALE'
   const sub = user.subscription
   return sub && ENTITLED_STATUSES.includes(sub.status) ? sub.plan : 'FREE'
 }

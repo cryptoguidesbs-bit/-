@@ -8,7 +8,7 @@ import { whaleSources, type WhaleData } from '@/lib/onchain/sources'
 
 export const dynamic = 'force-dynamic'
 
-// Whale tracker + exchange-flow estimate. Institutional+ (onchain.advanced),
+// Whale tracker + exchange-flow estimate. Pro+ (onchain.advanced),
 // region policy applies.
 export async function GET(request: NextRequest) {
   const gate = await checkFeature('onchain.advanced')

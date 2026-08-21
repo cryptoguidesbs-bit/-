@@ -1,4 +1,4 @@
-// Stage 18 — API Center test: Legendary gating, key issue→call→usage
+// Stage 18 — API Center test: Whale gating, key issue→call→usage
 // aggregation E2E, disclaimer/terms on every API response, rate limiting,
 // revocation/plan/region cuts, signed webhooks (verified with a local
 // HTTP receiver).
@@ -93,23 +93,23 @@ console.log('--- gating ---')
 let res = await api('/api/me/api-keys', { authed: false })
 ok('signed-out → 401', res.status === 401)
 
-await setPlan('PROFESSIONAL')
+await setPlan('TRADER')
 res = await api('/api/me/api-keys')
-ok('PROFESSIONAL → 403 (Legendary required)',
-  res.status === 403 && res.json?.requiredPlan === 'LEGENDARY')
+ok('TRADER → 403 (Whale required)',
+  res.status === 403 && res.json?.requiredPlan === 'WHALE')
 
 const pageFree = await page('/ko/api-center', true)
-ok('page below Legendary → plan gate', pageFree.html.includes('data-testid="gate-plan"'))
+ok('page below Whale → plan gate', pageFree.html.includes('data-testid="gate-plan"'))
 
-await setPlan('LEGENDARY')
+await setPlan('WHALE')
 res = await api('/api/me/api-keys')
-ok('LEGENDARY → key list ok', res.status === 200 && Array.isArray(res.json?.keys))
+ok('WHALE → key list ok', res.status === 200 && Array.isArray(res.json?.keys))
 
-const pageLegendary = await page('/ko/api-center', true)
-ok('page LEGENDARY → api center + terms',
-  pageLegendary.html.includes('data-testid="api-center-page"') &&
-    pageLegendary.html.includes('data-testid="api-center-terms"'))
-ok('docs list the v1 endpoints', pageLegendary.html.includes('/api/v1/market/prices'))
+const pageWhale = await page('/ko/api-center', true)
+ok('page WHALE → api center + terms',
+  pageWhale.html.includes('data-testid="api-center-page"') &&
+    pageWhale.html.includes('data-testid="api-center-terms"'))
+ok('docs list the v1 endpoints', pageWhale.html.includes('/api/v1/market/prices'))
 
 // --- 2. key issuance -------------------------------------------------------------
 console.log('--- key issuance ---')
@@ -161,10 +161,10 @@ res = await v1('/api/v1/market/prices', revokeTarget.key)
 ok('revoked key → 401', res.status === 401)
 
 // Plan lapse cuts access at call time.
-await setPlan('PROFESSIONAL')
+await setPlan('TRADER')
 res = await v1('/api/v1/market/prices', KEY)
 ok('lapsed plan → 403', res.status === 403)
-await setPlan('LEGENDARY')
+await setPlan('WHALE')
 
 // Region policy applies to API calls.
 res = await v1('/api/v1/market/prices', KEY, { 'x-vercel-ip-country': 'CN' })

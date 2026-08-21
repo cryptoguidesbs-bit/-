@@ -35,16 +35,22 @@ if (!secret) {
   process.exit(1)
 }
 if (!secret.startsWith('sk_test_')) {
-  console.warn('⚠ STRIPE_SECRET_KEY is not a test key (sk_test_...). Proceeding anyway.')
+  // Repricing archives old prices — refuse to touch a LIVE account unless the
+  // operator passes an explicit --live flag (post-LLC launch step).
+  if (!process.argv.includes('--live')) {
+    console.error('✗ STRIPE_SECRET_KEY is not a test key. Re-run with --live to seed a live account on purpose.')
+    process.exit(1)
+  }
+  console.warn('⚠ Seeding a LIVE Stripe account (--live given).')
 }
 
 const stripe = new Stripe(secret)
 
 const PLANS = [
-  { key: 'standard', name: 'Standard', monthly: 199, yearly: 1990 },
-  { key: 'professional', name: 'Professional', monthly: 499, yearly: 4990 },
-  { key: 'institutional', name: 'Institutional', monthly: 1499, yearly: 14990 },
-  { key: 'legendary', name: 'Legendary', monthly: 4999, yearly: 49990 },
+  { key: 'starter', name: 'Starter', monthly: 29, yearly: 290 },
+  { key: 'trader', name: 'Trader', monthly: 79, yearly: 790 },
+  { key: 'pro', name: 'Pro', monthly: 249, yearly: 2490 },
+  { key: 'whale', name: 'Whale', monthly: 799, yearly: 7990 },
 ]
 const INTERVALS = [
   { id: 'monthly', stripe: 'month' },
@@ -92,12 +98,31 @@ for (const plan of PLANS) {
     const lookupKey = `cg_${plan.key}_${interval.id}`
     let price = existing.data.find((p) => p.lookup_key === lookupKey)
     const amount = plan[interval.id]
+    const wanted = amount * 100
 
-    if (!price) {
+    if (price && price.unit_amount !== wanted) {
+      // Repricing: Stripe prices are immutable, so mint a new one that takes
+      // over the lookup key (transfer_lookup_key) and archive the old price.
+      // Existing subscribers stay on the old price until they change plans.
+      const previous = price
       price = await stripe.prices.create({
         product: product.id,
         currency: 'usd',
-        unit_amount: amount * 100,
+        unit_amount: wanted,
+        recurring: { interval: interval.stripe },
+        lookup_key: lookupKey,
+        transfer_lookup_key: true,
+        metadata: { plan: plan.key, interval: interval.id },
+      })
+      await stripe.prices.update(previous.id, { active: false })
+      console.log(
+        `  ~ ${interval.id} $${previous.unit_amount / 100} → $${amount} (${price.id}; archived ${previous.id})`,
+      )
+    } else if (!price) {
+      price = await stripe.prices.create({
+        product: product.id,
+        currency: 'usd',
+        unit_amount: wanted,
         recurring: { interval: interval.stripe },
         lookup_key: lookupKey,
         metadata: { plan: plan.key, interval: interval.id },
