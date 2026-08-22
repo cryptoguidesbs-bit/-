@@ -1,7 +1,7 @@
-// Language auto-detection test: browser-language (Accept-Language) first-visit
-// detection (ko → /ko, EVERY other language → /en), geo fallback only without
-// Accept-Language, NEXT_LOCALE cookie priority over detection, deep-link path
-// preservation, locale switcher present on all pages, and hreflang tags.
+// Language policy test: first visit is ALWAYS English (/en) regardless of
+// Accept-Language or geo; the NEXT_LOCALE cookie (explicit switcher choice)
+// wins; deep-link path preservation; locale switcher present on all pages;
+// hreflang tags.
 const APP = 'http://localhost:3000'
 
 let pass = 0
@@ -31,7 +31,7 @@ const isRedirectTo = (r, path) => r.status >= 300 && r.status < 400 && r.locatio
 // --- 1. first-visit detection (Accept-Language) --------------------------------
 console.log('--- browser-language detection (first visit) ---')
 let r = await visit('/', { 'accept-language': 'ko-KR,ko;q=0.9,en;q=0.8' })
-ok('Korean browser → /ko', isRedirectTo(r, '/ko'), `→ ${r.status} ${r.location}`)
+ok('Korean browser → /en (first visit is always English)', isRedirectTo(r, '/en'), `→ ${r.status} ${r.location}`)
 
 r = await visit('/', { 'accept-language': 'en-US,en;q=0.9' })
 ok('English browser → /en', isRedirectTo(r, '/en'), `→ ${r.status} ${r.location}`)
@@ -47,19 +47,19 @@ ok('German-primary (ko secondary) → /en (primary tag decides)',
   isRedirectTo(r, '/en'), `→ ${r.status} ${r.location}`)
 
 r = await visit('/', { 'accept-language': 'en;q=0.5,ko;q=0.9' })
-ok('quality ordering respected (ko q=0.9 wins) → /ko',
-  isRedirectTo(r, '/ko'), `→ ${r.status} ${r.location}`)
+ok('ko-preferring quality ordering still → /en (no detection)',
+  isRedirectTo(r, '/en'), `→ ${r.status} ${r.location}`)
 
 // --- 2. geo fallback (only when no Accept-Language) ----------------------------
 console.log('--- geo fallback (no Accept-Language) ---')
 r = await visit('/', { 'x-vercel-ip-country': 'KR' })
-ok('no AL + geo KR → /ko', isRedirectTo(r, '/ko'), `→ ${r.status} ${r.location}`)
+ok('no AL + geo KR → /en (geo not used)', isRedirectTo(r, '/en'), `→ ${r.status} ${r.location}`)
 
 r = await visit('/', { 'x-vercel-ip-country': 'US' })
 ok('no AL + geo US → /en', isRedirectTo(r, '/en'), `→ ${r.status} ${r.location}`)
 
 r = await visit('/', {})
-ok('no signal at all → defaultLocale /ko', isRedirectTo(r, '/ko'), `→ ${r.status} ${r.location}`)
+ok('no signal at all → defaultLocale /en', isRedirectTo(r, '/en'), `→ ${r.status} ${r.location}`)
 
 // Browser language must outrank geo when both are present.
 r = await visit('/', { 'accept-language': 'en-US,en;q=0.9', 'x-vercel-ip-country': 'KR' })
@@ -71,8 +71,8 @@ r = await visit('/news', { 'accept-language': 'fr-FR,fr;q=0.9' })
 ok('/news + French browser → /en/news', isRedirectTo(r, '/en/news'), `→ ${r.status} ${r.location}`)
 
 r = await visit('/education', { 'accept-language': 'ko' })
-ok('/education + Korean browser → /ko/education',
-  isRedirectTo(r, '/ko/education'), `→ ${r.status} ${r.location}`)
+ok('/education + Korean browser → /en/education (first visit is English)',
+  isRedirectTo(r, '/en/education'), `→ ${r.status} ${r.location}`)
 
 // --- 4. manual choice (cookie) outranks detection --------------------------------
 console.log('--- cookie priority ---')
