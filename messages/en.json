@@ -151,8 +151,8 @@
     "qualifiedCount": "{count} conversions"
   },
   "alerts": {
-    "title": "Realtime Alerts",
-    "subtitle": "Set price, whale, pattern, and macro conditions — we notify you when the event occurs.",
+    "title": "Alerts",
+    "subtitle": "Set price, whale, pattern, and macro conditions — we notify you when the event occurs. Conditions are checked about once a minute; including data-source lag, alerts usually arrive within a few minutes (not second-level real time).",
     "disclaimer": "Alerts are informational notices that a condition you configured has occurred. They do not instruct any trading action and do not guarantee investment outcomes; all investment decisions and responsibility remain yours.",
     "newRule": "New alert rule",
     "typeLabel": "Alert type",
@@ -321,7 +321,7 @@
   },
   "news": {
     "title": "News",
-    "subtitle": "Real-time crypto news balanced across US, European and Asian sources, with AI summaries.",
+    "subtitle": "Crypto news collected every 30 minutes, balanced across US, European and Asian sources, with AI summaries.",
     "searchPlaceholder": "Search news…",
     "sentimentTitle": "Market sentiment (news tone)",
     "sentimentMethod": "based on {count} articles from the last 24h",
@@ -473,8 +473,8 @@
       "disclaimer": "This briefing is an automatically generated summary for informational purposes only and is not investment advice or a solicitation to trade any asset."
     },
     "news": {
-      "title": "Live Market News",
-      "subtitle": "Major crypto headlines, collected in real time.",
+      "title": "Latest Market News",
+      "subtitle": "Major crypto headlines, collected every 30 minutes.",
       "sampleNotice": "The live feed is unreachable — showing sample data."
     },
     "dashboard": {
@@ -525,8 +525,8 @@
         "description": "Get a market summary before the day starts."
       },
       "w2": {
-        "title": "Real-time alerts",
-        "description": "Set alerts for price and on-chain events."
+        "title": "Event alerts",
+        "description": "Set alerts for price and on-chain events — detected within minutes."
       },
       "w3": {
         "title": "Portfolio tools",
@@ -583,7 +583,7 @@
           "f2": "Detailed AI briefings",
           "f3": "AI pattern analysis",
           "f4": "Portfolio tools",
-          "f5": "Real-time alerts"
+          "f5": "Event alerts (detected within minutes)"
         },
         "pro": {
           "name": "Pro",
@@ -666,7 +666,7 @@
       },
       "q3": {
         "question": "Is the price data real-time?",
-        "answer": "We stream public data from global exchanges over WebSocket, updating second by second. Slight delays may occur depending on network conditions."
+        "answer": "We stream public data from global exchanges over WebSocket, updating second by second. Where streaming is blocked (some regions/networks) we fall back to 30-second polling, so slight delays may occur."
       },
       "q4": {
         "question": "How do billing and cancellation work?",
