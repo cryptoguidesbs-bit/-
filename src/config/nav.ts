@@ -41,11 +41,14 @@ export type NavGroup = {
   items: NavItem[]
 }
 
-// Home stands alone at the top of the nav, above the grouped sections.
+// Primary destinations — shown first, ungrouped: the home page and the
+// Crypto Map (the home page's main view, so it gets top billing).
 export const homeNavItem: NavItem = { key: 'home', href: '/', icon: Home }
+export const mapNavItem: NavItem = { key: 'map', href: '/map', icon: MapPin }
+export const primaryNavItems: NavItem[] = [homeNavItem, mapNavItem]
 
-// Grouped navigation — the single source of truth for the sidebar and the
-// mobile menu. Sections keep the (otherwise 12-item flat) list scannable.
+// Grouped navigation — the single source of truth for the top nav bar and
+// the mobile menu. Sections keep the (otherwise 12-item flat) list scannable.
 // 'insights' stays out of the nav (placeholder page) until it ships; the
 // /insights URL keeps working.
 export const navGroups: NavGroup[] = [
@@ -75,16 +78,15 @@ export const navGroups: NavGroup[] = [
   {
     key: 'more',
     items: [
-      { key: 'map', href: '/map', icon: MapPin },
       { key: 'referral', href: '/referral', icon: Gift },
       { key: 'apiCenter', href: '/api-center', icon: Code2 },
     ],
   },
 ]
 
-// Flat list (home + every grouped item) — used by the sitemap and footer,
+// Flat list (primary + every grouped item) — used by the sitemap and footer,
 // and for any consumer that just needs every nav destination.
-export const navItems: NavItem[] = [homeNavItem, ...navGroups.flatMap((group) => group.items)]
+export const navItems: NavItem[] = [...primaryNavItems, ...navGroups.flatMap((group) => group.items)]
 
 export function isNavActive(pathname: string, href: string) {
   if (href === '/') return pathname === '/'

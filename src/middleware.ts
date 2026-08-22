@@ -14,9 +14,8 @@ const isProtectedRoute = createRouteMatcher([
   '/billing(.*)',
   '/:locale/dashboard(.*)',
   '/dashboard(.*)',
-  // Crypto Map — login required, all plans free (no plan gate).
-  '/:locale/map(.*)',
-  '/map(.*)',
+  // Crypto Map is PUBLIC (it is the home page's main view) — read-only map
+  // APIs are IP rate-limited instead of login-gated.
 ])
 
 // First-visit locale detection (no cookie, no locale in the URL):

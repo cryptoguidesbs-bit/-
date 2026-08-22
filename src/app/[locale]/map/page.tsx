@@ -1,9 +1,7 @@
 import type { Metadata } from 'next'
-import { redirect } from 'next/navigation'
 import { MapPin } from 'lucide-react'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
-import { getDbUser } from '@/lib/user'
 import { MapApp } from '@/components/map/map-app'
 import { pageAlternates } from '@/lib/seo'
 
@@ -15,19 +13,13 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
     title: t('title'),
     description: t('subtitle'),
     alternates: pageAlternates('/map', locale),
-    // Login-only page — keep it out of search indexes.
-    robots: { index: false },
   }
 }
 
-// Crypto Map — login required (middleware protects the route); all plans
-// free, so NO plan gate. Informational only; not transaction brokering.
+// Crypto Map — PUBLIC (also the home page's main view); read APIs are IP
+// rate-limited. Informational only; not transaction brokering.
 export default async function MapPage({ params: { locale } }: Props) {
   setRequestLocale(locale)
-
-  // Belt & suspenders: middleware already redirects, but re-verify.
-  const user = await getDbUser()
-  if (!user) redirect(`/${locale}/sign-in`)
 
   const t = await getTranslations({ locale, namespace: 'map' })
 

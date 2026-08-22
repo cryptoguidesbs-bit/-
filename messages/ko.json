@@ -46,7 +46,8 @@
       "research": "리서치",
       "tools": "내 도구",
       "more": "더보기"
-    }
+    },
+    "topNav": "상단 메뉴"
   },
   "map": {
     "title": "결제 지도",
@@ -98,7 +99,8 @@
       "RESTRICTED": "제한적",
       "HOSTILE": "금지",
       "UNCLEAR": "불명확"
-    }
+    },
+    "openFull": "전체 화면 지도 →"
   },
   "apiCenter": {
     "title": "API Center",

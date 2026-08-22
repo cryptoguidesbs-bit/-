@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { setRequestLocale } from 'next-intl/server'
 
 import { MarketTicker } from '@/components/home/market-ticker'
-import { HeroSection } from '@/components/home/hero-section'
+import { MapHeroSection } from '@/components/home/map-hero-section'
 import { AiBriefSection } from '@/components/home/ai-brief-section'
 import { NewsSection } from '@/components/home/news-section'
 import { MarketDashboardSection } from '@/components/home/market-dashboard-section'
@@ -20,13 +20,15 @@ export function generateMetadata({ params: { locale } }: Props): Metadata {
   }
 }
 
+// The Crypto Map is the home page's main view (public); the marketing
+// sections follow below it.
 export default function HomePage({ params: { locale } }: Props) {
   setRequestLocale(locale)
 
   return (
     <>
       <MarketTicker />
-      <HeroSection locale={locale} />
+      <MapHeroSection locale={locale} />
       <AiBriefSection locale={locale} />
       <NewsSection />
       <MarketDashboardSection />

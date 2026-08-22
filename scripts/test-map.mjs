@@ -74,12 +74,10 @@ const ALPHA_BBOX = '-160.3,-0.1,-159.9,0.3' // contains the two alpha seeds only
 // --- 1. access control ---------------------------------------------------------
 console.log('--- access control ---')
 let res = await api('/api/map/places?bbox=126,37,128,38', { authed: false })
-ok('places signed-out → 401', res.status === 401)
+ok('places signed-out → 200 (public map)', res.status === 200)
 
 const pg = await page('/ko/map', false)
-ok('page signed-out → redirect to sign-in',
-  (pg.status === 307 || pg.status === 302) && (pg.headers.get('location') ?? '').includes('sign-in'),
-  `status=${pg.status}`)
+ok('page signed-out → 200 (public map)', pg.status === 200, `status=${pg.status}`)
 
 const pgAuth = await page('/ko/map', true)
 ok('page signed-in → map page + disclaimer',
@@ -115,7 +113,7 @@ ok('q search filter', res.json?.places?.length === 1)
 // --- 2b. locate fallback (geolocation denied path) -------------------------------
 console.log('--- locate fallback ---')
 res = await api('/api/map/locate?locale=ko', { authed: false })
-ok('locate signed-out → 401', res.status === 401)
+ok('locate signed-out → 200 (public)', res.status === 200)
 
 res = await api('/api/map/locate?locale=ko')
 ok('no geo header → locale default center (Seoul)',
@@ -139,7 +137,7 @@ ok('regulation seeded + served',
   res.status === 200 && res.json?.regulations?.length >= 10 &&
     res.json.regulations.some((r) => r.countryCode === 'KR' && r.status))
 res = await api('/api/map/regulation', { authed: false })
-ok('regulation signed-out → 401', res.status === 401)
+ok('regulation signed-out → 200 (public)', res.status === 200)
 
 // --- 5. sync (cron/admin, upstream blocked) -----------------------------------
 console.log('--- sync ---')

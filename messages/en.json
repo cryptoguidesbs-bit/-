@@ -46,7 +46,8 @@
       "research": "Research",
       "tools": "My tools",
       "more": "More"
-    }
+    },
+    "topNav": "Main navigation"
   },
   "map": {
     "title": "Crypto Map",
@@ -98,7 +99,8 @@
       "RESTRICTED": "Restricted",
       "HOSTILE": "Banned",
       "UNCLEAR": "Unclear"
-    }
+    },
+    "openFull": "Open full map →"
   },
   "apiCenter": {
     "title": "API Center",
