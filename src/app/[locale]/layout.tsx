@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { Analytics } from '@vercel/analytics/next'
 import { ClerkProvider } from '@clerk/nextjs'
 import { koKR } from '@clerk/localizations'
 import { dark } from '@clerk/themes'
@@ -109,6 +110,9 @@ export default async function LocaleLayout({
                   <SiteFooter />
                 </div>
                 <ConsentGate />
+                {/* Vercel Web Analytics — page views, visitors, referrers, countries.
+                    Cookieless; enable it once in the Vercel project (Analytics tab). */}
+                <Analytics />
               </QueryProvider>
             </ThemeProvider>
           </NextIntlClientProvider>
