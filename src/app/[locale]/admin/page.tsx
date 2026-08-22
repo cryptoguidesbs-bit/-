@@ -4,7 +4,9 @@ import { setRequestLocale } from 'next-intl/server'
 
 import { getDbUser } from '@/lib/user'
 import { AdminDashboard } from '@/components/admin/admin-dashboard'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Link } from '@/i18n/navigation'
 
 export const metadata: Metadata = { title: 'Admin', robots: { index: false } }
 
@@ -33,12 +35,17 @@ export default async function AdminPage({ params: { locale } }: Props) {
 
   return (
     <div className="space-y-6 py-6" data-testid="admin-page">
-      <div className="space-y-1.5">
-        <h1 className="text-3xl font-bold tracking-tight">운영 콘솔</h1>
-        <p className="text-muted-foreground">
-          회원·매출·파이프라인·지역 정책·로그를 한 곳에서 관리합니다. 이상 징후는 모니터가
-          자동으로 감지해 알림을 보냅니다.
-        </p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="space-y-1.5">
+          <h1 className="text-3xl font-bold tracking-tight">운영 콘솔</h1>
+          <p className="text-muted-foreground">
+            회원·매출·파이프라인·지역 정책·로그를 한 곳에서 관리합니다. 이상 징후는 모니터가
+            자동으로 감지해 알림을 보냅니다.
+          </p>
+        </div>
+        <Button asChild variant="outline" data-testid="admin-board-link">
+          <Link href="/admin/board">대시보드 모드 →</Link>
+        </Button>
       </div>
       <AdminDashboard />
     </div>
