@@ -19,7 +19,7 @@ export default async function AdminPage({ params: { locale } }: Props) {
   const user = await getDbUser()
   if (!user || user.role !== 'ADMIN') {
     return (
-      <div className="flex justify-center py-16" data-testid="admin-denied">
+      <div className="flex justify-center py-16" data-testid="admin-denied" lang="ko" translate="no">
         <Card className="w-full max-w-md">
           <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
             <ShieldAlert className="h-8 w-8 text-muted-foreground" />
@@ -34,7 +34,7 @@ export default async function AdminPage({ params: { locale } }: Props) {
   }
 
   return (
-    <div className="space-y-6 py-6" data-testid="admin-page">
+    <div className="space-y-6 py-6" data-testid="admin-page" lang="ko" translate="no">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="space-y-1.5">
           <h1 className="text-3xl font-bold tracking-tight">운영 콘솔</h1>
