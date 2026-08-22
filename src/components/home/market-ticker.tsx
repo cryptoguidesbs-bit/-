@@ -53,7 +53,7 @@ export function MarketTicker() {
             ))}
           </div>
         ) : (
-          <div className="relative flex-1 overflow-hidden">
+          <div className="relative flex-1 overflow-hidden" translate="no">
             <div className="animate-marquee flex w-max">
               {[0, 1].map((copy) => (
                 <div key={copy} className="flex" aria-hidden={copy === 1}>

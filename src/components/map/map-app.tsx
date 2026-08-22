@@ -162,6 +162,7 @@ export function MapApp({ locale }: { locale: string }) {
               type="button"
               onClick={() => toggleCoin(c)}
               aria-pressed={coins.has(c)}
+              translate="no"
               className={cn(
                 'rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
                 coins.has(c)

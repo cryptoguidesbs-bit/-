@@ -132,7 +132,7 @@ export function PricingSection() {
                 <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2">{t('popular')}</Badge>
               )}
               <CardHeader className="space-y-2 pb-4">
-                <p className="font-semibold">{t(`tiers.${tier.key}.name`)}</p>
+                <p className="font-semibold" translate="no">{t(`tiers.${tier.key}.name`)}</p>
 
                 {tier.key === 'free' ? (
                   <div className="flex items-baseline gap-1">

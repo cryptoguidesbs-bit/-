@@ -15,7 +15,7 @@ export function SiteFooter() {
     <footer className="border-t">
       <div className="container grid gap-10 py-10 md:grid-cols-[2fr_1fr_1fr]">
         <div className="space-y-4">
-          <p className="font-semibold tracking-tight">{tCommon('appName')}</p>
+          <p className="font-semibold tracking-tight" translate="no">{tCommon('appName')}</p>
           {/* Site-wide legal disclaimer (5 points), shown on every page. */}
           <ul
             className="max-w-prose space-y-1 text-xs leading-relaxed text-muted-foreground"
@@ -63,7 +63,7 @@ export function SiteFooter() {
       <div className="border-t">
         <div className="container flex h-12 items-center">
           <p className="text-xs text-muted-foreground">
-            © {year} {tCommon('appName')}. {t('rights')}
+            © {year} <span translate="no">{tCommon('appName')}</span>. {t('rights')}
           </p>
         </div>
       </div>
