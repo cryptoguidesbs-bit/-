@@ -209,7 +209,7 @@ export function MapApp({ locale }: { locale: string }) {
         {/* Map */}
         <div className="relative">
           <div
-            className="relative h-[600px] w-full overflow-hidden rounded-xl border"
+            className="relative isolate z-0 h-[600px] w-full overflow-hidden rounded-xl border"
             data-testid="map-canvas"
           >
             <CryptoMap
