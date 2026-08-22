@@ -1,7 +1,7 @@
 {
   "metadata": {
     "title": "CryptoGuide",
-    "description": "AI-powered real-time crypto market insights — prices, news, briefings and on-chain data in one place"
+    "description": "Real-time prices, AI news digests, daily market briefings and on-chain data. The clearest way to read the crypto market."
   },
   "privacy": {
     "title": "Privacy & Data",
@@ -24,7 +24,12 @@
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
     "comingSoon": "Coming soon",
-    "skipToContent": "Skip to content"
+    "skipToContent": "Skip to content",
+    "koSuggest": {
+      "text": "이 페이지는 한국어로도 볼 수 있습니다.",
+      "cta": "한국어로 보기",
+      "dismiss": "닫기"
+    }
   },
   "nav": {
     "home": "Home",
@@ -51,14 +56,14 @@
   },
   "map": {
     "title": "Crypto Map",
-    "subtitle": "Explore merchants, ATMs and online services that accept crypto, plus per-country regulation status.",
+    "subtitle": "Find merchants, ATMs and online services that accept crypto, plus regulation status by country.",
     "disclaimer": "This map is for informational purposes only and does not broker transactions. Merchant and ATM data comes from third parties (BTCMap/OpenStreetMap) and is not guaranteed to be accurate or current; per-country regulation status is for reference only and is not legal advice. You are responsible for your own visits, transactions and regulatory compliance.",
     "nearMe": "Near me",
     "onlineToggle": "Online services",
     "allCategories": "All categories",
     "searchPlaceholder": "Search name or address",
     "zoomInHint": "Zoom in to load merchants and ATMs.",
-    "capped": "Too many results — zoom in for a more precise view.",
+    "capped": "Too many results to show at once. Zoom in for a more precise view.",
     "loading": "Loading…",
     "resultCount": "Showing {count}",
     "pinLegendTitle": "Pin colors",
@@ -71,10 +76,10 @@
     "legendTitle": "Country regulation status",
     "legendNote": "Regulation status is a reference summary, not legal advice. Actual rules vary by jurisdiction and change frequently.",
     "geoUnavailable": "Location is not available in this browser.",
-    "geoDenied": "Location permission was denied, so we can't move to your area.",
-    "geoFallbackCountry": "Location permission is off, so we moved to your country's approximate position. Allow location in your browser's site permissions for a precise view.",
-    "geoFallbackDefault": "Location permission is off, so we moved to a default position. Allow location in your browser's site permissions for a precise view.",
-    "noResults": "No registered places in this area. Pan the map to explore other regions.",
+    "geoDenied": "Location access was denied, so we can't show your area.",
+    "geoFallbackCountry": "Location access is off, so we centered the map on your country. To see your exact area, allow location in your browser's site settings.",
+    "geoFallbackDefault": "Location access is off, so we moved the map to a default position. To see your exact area, allow location in your browser's site settings.",
+    "noResults": "No places listed in this area. Move the map to look elsewhere.",
     "coins": {
       "btc": "Bitcoin",
       "lightning": "Lightning",
@@ -104,7 +109,7 @@
   },
   "apiCenter": {
     "title": "API Center",
-    "subtitle": "Integrate CryptoGuide data via REST API and webhooks. Exclusive to the Whale plan.",
+    "subtitle": "Pull CryptoGuide data into your own tools with the REST API and webhooks. Whale plan only.",
     "terms": "All data served by the API is informational only and is not investment advice. Redistribution, resale, or public re-publication is prohibited; every response carries the same terms in its meta field.",
     "keys": "API keys",
     "keyName": "Key name (e.g. production)",
@@ -122,9 +127,9 @@
     "noWebhooks": "No webhooks registered.",
     "webhookSigning": "Every webhook request includes an x-cryptoguide-signature header (HMAC-SHA256). Verify it with the secret issued at registration.",
     "docs": "Documentation",
-    "docsPrices": "BTC/ETH/SOL USD quotes (resilient fetcher, includes staleness flag)",
+    "docsPrices": "BTC/ETH/SOL USD prices (keeps the last known value during outages; includes a stale flag)",
     "docsSentiment": "Crypto Fear & Greed index",
-    "docsBriefs": "Latest published AI Market Brief (detailed tier, AI-generated label)",
+    "docsBriefs": "Latest AI Market Brief (detailed tier, with AI-generated label)",
     "authExample": "Authentication example",
     "rateLimitNote": "Rate limit: 60 requests per minute per key. Exceeding it returns 429 with a Retry-After header.",
     "metaNote": "Every response includes a meta field with the disclaimer and usage terms (no redistribution)."
@@ -133,7 +138,7 @@
     "title": "Referral Program",
     "subtitle": "Invite friends with your referral link and earn a commission when they start a paid plan.",
     "disclaimer": "Referral rewards are reviewed only when the referred member starts a paid subscription, and are voided if abuse is detected (self-referral, duplicate accounts, etc.). Program terms may change with prior notice.",
-    "regionBlocked": "Monetary rewards are not offered in your region pending regulatory review. Your referral link and the ranking remain available.",
+    "regionBlocked": "Monetary rewards aren't offered in your region pending regulatory review. Your referral link and ranking are still available.",
     "myLink": "My referral link",
     "clicks": "Clicks",
     "pending": "Signed up",
@@ -154,8 +159,8 @@
   },
   "alerts": {
     "title": "Alerts",
-    "subtitle": "Set price, whale, pattern, and macro conditions — we notify you when the event occurs. Conditions are checked about once a minute; including data-source lag, alerts usually arrive within a few minutes (not second-level real time).",
-    "disclaimer": "Alerts are informational notices that a condition you configured has occurred. They do not instruct any trading action and do not guarantee investment outcomes; all investment decisions and responsibility remain yours.",
+    "subtitle": "Get notified when a price, whale, pattern or macro condition is met. Conditions are checked about once a minute, so alerts usually arrive within a few minutes of the event. This is not second-by-second real time.",
+    "disclaimer": "Alerts only tell you that a condition you set has been met. They are not instructions to trade and do not guarantee any investment outcome; all investment decisions and responsibility remain yours.",
     "newRule": "New alert rule",
     "typeLabel": "Alert type",
     "channelLabel": "Delivery channel",
@@ -174,8 +179,8 @@
     "fields": {
       "symbol": "Symbol",
       "direction": "Condition",
-      "above": "Reaches above",
-      "below": "Reaches below",
+      "above": "At or above",
+      "below": "At or below",
       "threshold": "Threshold (USD)",
       "minUsd": "Minimum size (USD)",
       "interval": "Interval",
@@ -187,14 +192,14 @@
     },
     "create": "Add rule",
     "myRules": "My alert rules",
-    "noRules": "No rules yet — create your first one on the left.",
+    "noRules": "No rules yet. Create your first one on the left.",
     "active": "Active",
     "paused": "Paused",
     "delete": "Delete",
     "channelSettings": "Channel settings",
     "configured": "Configured",
     "save": "Save",
-    "pushHint": "Browser push activates in the deployed environment. In-app alerts work immediately with no setup.",
+    "pushHint": "Browser push works on the live site only. In-app alerts need no setup.",
     "history": "Delivery history",
     "noHistory": "No alerts delivered yet.",
     "status": {
@@ -206,7 +211,7 @@
   },
   "education": {
     "title": "Education",
-    "subtitle": "Crypto fundamentals taught level by level — from trading basics to psychology.",
+    "subtitle": "Crypto fundamentals from trading basics to psychology, organized by level.",
     "levels": {
       "beginner": "Beginner",
       "intermediate": "Intermediate",
@@ -215,7 +220,7 @@
     "tracks": {
       "trading": {
         "name": "Trading Basics",
-        "description": "Understand how trading works — exchanges, orders, liquidity, derivatives."
+        "description": "How trading works: exchanges, orders, liquidity and derivatives."
       },
       "technical": {
         "name": "Technical Analysis",
@@ -223,7 +228,7 @@
       },
       "risk": {
         "name": "Risk Management",
-        "description": "Volatility, position sizing and risk metrics — the principles of managing losses."
+        "description": "The principles of managing losses: volatility, position sizing and risk metrics."
       },
       "psychology": {
         "name": "Psychology",
@@ -237,18 +242,18 @@
     },
     "minutes": "{count} min",
     "backToCurriculum": "Back to curriculum",
-    "gateAuthTitle": "Free members can read this",
-    "gateAuthDescription": "This lesson unlocks with a free account. Beginner lessons stay open without signing in.",
+    "gateAuthTitle": "This lesson is free with an account",
+    "gateAuthDescription": "Create a free account to read this lesson. Beginner lessons are open without signing in.",
     "gateAuthCta": "Sign up free and continue",
     "gatePlanTitle": "This lesson opens with the Starter plan",
-    "gatePlanDescription": "Advanced lessons are for Starter subscribers and above. Beginner and intermediate lessons remain free.",
+    "gatePlanDescription": "Advanced lessons are included with the Starter plan and above. Beginner and intermediate lessons stay free.",
     "gatePlanCta": "View pricing",
-    "note": "This educational content explains concepts for informational purposes — it is not investment advice or a recommendation to take any action."
+    "note": "This content explains concepts for informational purposes only. It is not investment advice or a recommendation to take any action."
   },
   "reports": {
     "title": "Premium Research",
-    "subtitle": "ETF / Macro / On-chain research reports published weekly, monthly and quarterly.",
-    "disclaimer": "These reports are AI-generated, pass an automated expression review, and are non-personalized informational content — not investment advice or a solicitation to trade. You are solely responsible for your own investment decisions.",
+    "subtitle": "ETF, macro and on-chain research, published weekly, monthly and quarterly.",
+    "disclaimer": "These reports are AI-generated and automatically reviewed before publication. They are non-personalized, informational content and not investment advice or a solicitation to trade. You are solely responsible for your own investment decisions.",
     "nonPersonalized": "Identical for every subscriber",
     "aiLabel": "AI-generated ({model})",
     "all": "All",
@@ -264,14 +269,14 @@
     },
     "backToList": "Back to reports",
     "save": "Save report",
-    "unsave": "Remove bookmark",
+    "unsave": "Unsave",
     "empty": "No reports published yet."
   },
   "patterns": {
     "title": "AI Pattern",
     "subtitle": "Automatic detection of chart patterns and support/resistance levels from candle data.",
-    "disclaimer": "Pattern detections on this page are non-personalized information served identically to all users — not investment advice or a solicitation to trade. No trade instructions (entry, target, or stop levels) are provided.",
-    "confidenceNote": "Confidence is a SHAPE-match score for the detected pattern — not a prediction of price direction or outcome.",
+    "disclaimer": "Pattern detections are non-personalized information shown identically to all users. They are not investment advice or a solicitation to trade, and no entry, target or stop levels are provided.",
+    "confidenceNote": "Confidence measures how closely the shape matches the pattern. It is not a prediction of price direction or outcome.",
     "detectedTitle": "Detected patterns",
     "levelsTitle": "Support · Resistance levels",
     "types": {
@@ -282,7 +287,7 @@
       "doubleBottom": "Double Bottom",
       "headShoulders": "Head & Shoulders"
     },
-    "empty": "Nothing detected in the current window.",
+    "empty": "No patterns detected in this window.",
     "unavailable": "Candle data is unavailable. Please try again shortly."
   },
   "onchain": {
@@ -295,20 +300,20 @@
     "inflow": "Exchange inflow",
     "outflow": "Exchange outflow",
     "netflow": "Net flow",
-    "flowMethod": "Estimate based on a mempool sample of large transactions ({matched} of {sample} matched) against a public exchange-wallet list. Actual total flows may differ.",
+    "flowMethod": "Estimated from a sample of large mempool transactions ({matched} of {sample} matched) checked against a public list of exchange wallets. Actual total flows may differ.",
     "networkTitle": "Network Activity (BTC, 30d)",
     "activeAddresses": "Active addresses",
     "transactions": "Daily transactions",
     "hashRate": "Hash rate",
     "minerRevenue": "Miner revenue (Miner Flow)",
     "stablecoinTitle": "Stablecoin Supply (market cap)",
-    "sources": "Data: Blockchair · blockchain.info · CoinGecko. Informational purposes only; delays and inaccuracies possible."
+    "sources": "Data: Blockchair · blockchain.info · CoinGecko. For information only; data may be delayed or inaccurate."
   },
   "brief": {
     "title": "AI Market Brief",
     "subtitle": "A daily market briefing generated automatically from market data and the latest news.",
     "disclaimer": "This briefing is AI-generated content for informational and educational purposes only. It is not investment advice or a solicitation to trade. You are solely responsible for your own investment decisions and their outcomes.",
-    "nonPersonalized": "Non-personalized — identical for every subscriber",
+    "nonPersonalized": "Non-personalized: identical for every subscriber",
     "aiLabel": "AI-generated ({model})",
     "tierStandard": "Standard",
     "tierDetailed": "Detailed",
@@ -323,11 +328,11 @@
   },
   "news": {
     "title": "News",
-    "subtitle": "Crypto news collected every 30 minutes, balanced across US, European and Asian sources, with AI summaries.",
+    "subtitle": "Crypto news from a balanced mix of US, European and Asian sources, refreshed every 30 minutes, with AI summaries.",
     "searchPlaceholder": "Search news…",
     "sentimentTitle": "Market sentiment (news tone)",
     "sentimentMethod": "based on {count} articles from the last 24h",
-    "sentimentDisclaimer": "Derived from news-headline tone analysis — not an investment signal.",
+    "sentimentDisclaimer": "Based on headline tone only. Not an investment signal.",
     "sentiment": {
       "bullish": "Bullish",
       "neutral": "Neutral",
@@ -352,12 +357,12 @@
     },
     "aiLabel": "AI-generated summary",
     "summaryPending": "AI summary in progress…",
-    "summaryHeld": "Summary held — did not pass quality checks",
+    "summaryHeld": "Summary withheld: did not pass quality checks",
     "empty": "No news matches your filters.",
     "loadMore": "Load more",
     "loading": "Loading…",
     "save": "Save article",
-    "unsave": "Remove bookmark"
+    "unsave": "Unsave"
   },
   "portfolioAnalytics": {
     "pnl": "Total P&L",
@@ -373,18 +378,18 @@
     "effectiveAssets": "Effective assets",
     "effectiveExplain": "Effective assets (1/HHI) expresses the current allocation as the equivalent number of equally-weighted assets.",
     "topWeight": "Largest weight",
-    "aiTitle": "AI educational commentary",
+    "aiTitle": "Educational AI commentary",
     "aiGenerate": "Generate",
     "aiGenerating": "Generating…",
-    "aiEmpty": "Generate an educational explanation of your current diversification metrics.",
+    "aiEmpty": "Get a plain-language explanation of your current diversification metrics.",
     "aiLabel": "AI-generated ({model})",
-    "aiBlocked": "The generated commentary did not pass the no-advice expression check and was not shown. Please try again.",
+    "aiBlocked": "The generated commentary contained advice-like wording, so it was not shown. Please try again.",
     "aiFailed": "Generation failed. Please try again shortly.",
-    "aiDisclaimer": "This commentary is an educational explanation of the metrics only — not investment advice, a rebalancing recommendation, or a solicitation to trade. Interpretation and all decisions remain yours."
+    "aiDisclaimer": "This commentary explains the metrics for educational purposes only. It is not investment advice, a rebalancing recommendation or a solicitation to trade; interpretation and all decisions remain yours."
   },
   "dashboard": {
     "title": "Dashboard",
-    "greeting": "Your watchlist, saved content and notifications in one place.",
+    "greeting": "Your watchlist, saved content and notifications.",
     "greetingNamed": "Welcome back, {name}.",
     "portfolio": {
       "title": "Portfolio",
@@ -400,7 +405,7 @@
       "avgCost": "Avg cost (USD)",
       "price": "Price",
       "value": "Value",
-      "diff": "Difference",
+      "diff": "P&L",
       "add": "Add",
       "save": "Save",
       "remove": "Remove",
@@ -413,7 +418,7 @@
       "placeholder": "Symbol (e.g. BTC)",
       "duplicate": "Already in your watchlist.",
       "invalid": "Please check the symbol.",
-      "empty": "Add assets you want to follow.",
+      "empty": "Your watchlist is empty. Add symbols you want to follow.",
       "remove": "Remove"
     },
     "notifications": {
@@ -465,23 +470,23 @@
     },
     "brief": {
       "title": "AI Market Brief",
-      "subtitle": "Every morning, AI summarizes what is moving the market. Below is a sample preview.",
+      "subtitle": "Every morning, AI summarizes what's moving the market.",
       "sampleLabel": "Sample preview",
       "headline": "Daily Market Briefing — Sample",
-      "generatedNote": "Published daily at 08:00 KST · The content below is a format example",
-      "p1": "Bitcoin continues to trade in a narrow range around key moving averages, with derivatives positioning observed to be close to neutral.",
-      "p2": "On-chain activity across Ethereum layer-2 networks keeps rising, extending the growth in ecosystem-wide usage metrics.",
-      "p3": "Macro calendar: with the US CPI release due this week, broader market volatility may increase and warrants attention.",
+      "generatedNote": "Published daily at 08:00 KST · Sample text to show the format",
+      "p1": "Bitcoin continues to trade in a narrow range around key moving averages, and derivatives positioning looks close to neutral.",
+      "p2": "On-chain activity on Ethereum layer-2 networks keeps rising, and usage across the ecosystem is growing with it.",
+      "p3": "Macro calendar: US CPI is due this week, and volatility may pick up across the market.",
       "disclaimer": "This briefing is an automatically generated summary for informational purposes only and is not investment advice or a solicitation to trade any asset."
     },
     "news": {
       "title": "Latest Market News",
-      "subtitle": "Major crypto headlines, collected every 30 minutes.",
+      "subtitle": "Top crypto headlines, refreshed every 30 minutes.",
       "sampleNotice": "The live feed is unreachable — showing sample data."
     },
     "dashboard": {
       "title": "Market Dashboard",
-      "subtitle": "Crypto and global assets at a glance — last values are kept even during outages.",
+      "subtitle": "Crypto and global assets at a glance. If a feed drops, the last value stays on screen.",
       "crypto": "Crypto",
       "traditional": "Global markets",
       "live": "LIVE",
@@ -496,14 +501,14 @@
       "staleNotice": "Delayed — last value as of {time}",
       "unavailable": "Data is temporarily unavailable. We will retry automatically.",
       "retry": "Retry",
-      "source": "Data: CoinGecko · CoinPaprika · Binance · Yahoo Finance · Alternative.me. Provided for informational purposes only."
+      "source": "Sources: CoinGecko · CoinPaprika · Binance · Yahoo Finance · Alternative.me. For informational purposes only."
     },
     "why": {
       "title": "Why CryptoGuide",
-      "subtitle": "In a flood of information, only what your decisions need.",
+      "subtitle": "Cut through the noise. Only what you need to make your own call.",
       "ai": {
-        "title": "AI-digested analysis",
-        "description": "AI reads the endless stream of news and data and distills the essentials. Cut your market catch-up time with a morning briefing."
+        "title": "AI summaries",
+        "description": "AI reads the flood of news and data and keeps only what matters. A morning briefing gets you up to speed faster."
       },
       "realtime": {
         "title": "Real-time market data",
@@ -514,13 +519,13 @@
         "description": "Track what market participants are doing through wallet flows, exchange inflows/outflows and other on-chain data."
       },
       "transparency": {
-        "title": "Transparent by principle",
+        "title": "Data and sources, not predictions",
         "description": "Data and sources instead of predictions or guarantees. The final call is always yours."
       }
     },
     "preview": {
       "title": "Dashboard Preview",
-      "subtitle": "A first look at the upcoming dashboard.",
+      "subtitle": "A preview of the dashboard you get after signing up.",
       "chartLabel": "Live chart (example screen)",
       "w1": {
         "title": "AI daily briefing",
@@ -528,11 +533,11 @@
       },
       "w2": {
         "title": "Event alerts",
-        "description": "Set alerts for price and on-chain events — detected within minutes."
+        "description": "Set alerts for price and on-chain events, detected within minutes."
       },
       "w3": {
         "title": "Portfolio tools",
-        "description": "Organize and track your holdings in one place."
+        "description": "Organize and track everything you hold."
       },
       "caption": "This screen is a design preview, not real data."
     },
@@ -550,8 +555,8 @@
         "plan": "Plan",
         "monthly": "Monthly",
         "yearly": "Yearly",
-        "perMonthYearly": "Yearly, per month",
-        "save": "Yearly saving"
+        "perMonthYearly": "Per month, billed yearly",
+        "save": "Yearly savings"
       },
       "compareSaveSuffix": "saved",
       "perMonthEquiv": "≈ {price}/mo",
@@ -566,14 +571,14 @@
       "tiers": {
         "free": {
           "name": "Free",
-          "tagline": "The basics to get into the crypto market",
+          "tagline": "The basics for following the crypto market",
           "f1": "Basic real-time prices",
           "f2": "Limited news feed",
           "f3": "Limited market briefings"
         },
         "starter": {
           "name": "Starter",
-          "tagline": "Never miss the daily market flow",
+          "tagline": "Keep up with the market every day",
           "f1": "AI news digests",
           "f2": "Daily market briefing",
           "f3": "Basic dashboard"
@@ -608,11 +613,11 @@
           "f2": "Institutional API with contracted volume limits",
           "f3": "Historical data access via API and CSV",
           "f4": "Bulk data export (CSV, JSON)",
-          "f5": "Multi portfolio monitoring for teams",
+          "f5": "Multi-portfolio monitoring for teams",
           "f6": "Custom threshold alerts to Slack, Telegram, and webhooks",
           "f7": "Scheduled PDF report delivery to your team",
           "f8": "Whale movement alerts with custom thresholds",
-          "f9": "AI project overview covering team, tokenomics, and on chain activity",
+          "f9": "AI project overview covering team, tokenomics, and on-chain activity",
           "f10": "Internal use across your organization",
           "f11": "Uptime and support terms defined per contract",
           "f12": "Named point of contact",
@@ -636,14 +641,14 @@
           "submit": "Send",
           "sending": "Sending…",
           "close": "Close",
-          "success": "Thanks. We have your request and will be in touch.",
+          "success": "Thanks. We've received your request and will be in touch.",
           "error": "We could not send your request. Please try again shortly.",
           "privacyNote": "We use these details only to respond to your inquiry. See our Privacy Policy for details."
         }
       },
       "waitlist": {
         "cta": "Notify me at launch",
-        "note": "Paid plans open soon. Leave your email and we will let you know at launch.",
+        "note": "Paid plans are coming soon. Leave your email and we'll let you know when they open.",
         "title": "Get notified at launch",
         "description": "We will email you when paid plans open. The Free plan is available right now.",
         "email": "Email",
@@ -652,7 +657,7 @@
         "success": "You are on the list. We will email you at launch.",
         "error": "Could not sign you up. Please try again shortly.",
         "close": "Close",
-        "privacyNote": "We store your email, plan of interest, and language only to send the paid-plan launch notice."
+        "privacyNote": "We keep your email, the plan you picked, and your language only to let you know when paid plans launch."
       }
     },
     "faq": {
@@ -660,7 +665,7 @@
       "subtitle": "Answers to the questions we hear most.",
       "q1": {
         "question": "What is CryptoGuide?",
-        "answer": "A crypto market information platform that brings real-time prices, AI news digests, daily market briefings and on-chain data together in one place."
+        "answer": "A crypto market information platform with real-time prices, AI news digests, daily market briefings and on-chain data."
       },
       "q2": {
         "question": "Do you provide investment advice?",
@@ -676,7 +681,7 @@
       },
       "q5": {
         "question": "Can I change plans later?",
-        "answer": "Yes — upgrade or downgrade anytime; the difference is applied to your next bill."
+        "answer": "Yes. You can upgrade or downgrade anytime, and the difference is applied to your next bill."
       },
       "q6": {
         "question": "Do you offer an API?",
@@ -718,13 +723,13 @@
     "cancelYes": "Cancel it",
     "cancelNo": "Keep it",
     "cancelError": "Cancellation failed. Please try again shortly.",
-    "cancelScheduled": "Your subscription is scheduled to end at the close of the current billing period.",
+    "cancelScheduled": "Your subscription will end when the current billing period is over.",
     "checkoutSuccess": "Payment complete. Your subscription is now active.",
     "noSubscription": "No active subscription. Pick a plan from the pricing section.",
     "viewPricing": "View pricing",
-    "billingNote": "Receipts and payment history are sent to the email used at checkout. For card changes and other requests, contact support.",
-    "trialBadge": "7-day free trial in progress — cancel before it ends and you won't be charged.",
-    "pendingDowngrade": "Scheduled to change to the {plan} plan at the end of the current period.",
+    "billingNote": "Receipts and payment details are sent to the email you used at checkout. To change your card or for anything else, contact support.",
+    "trialBadge": "You're on a 7-day free trial. Cancel before it ends and you won't be charged.",
+    "pendingDowngrade": "Your plan will change to {plan} at the end of the current billing period.",
     "changePlan": "Change plan",
     "changePlanDescription": "Upgrades apply immediately with a prorated charge. Downgrades take effect at the end of the current period.",
     "selectPlan": "Plan",
@@ -734,7 +739,7 @@
     "changeDowngraded": "Downgrade scheduled for the end of the current period.",
     "changeError": "Could not change your plan. Please try again shortly.",
     "refundTitle": "Annual subscription refund",
-    "refundEligible": "You're within 14 days of purchase with no service usage — a full refund is available.",
+    "refundEligible": "You're within 14 days of purchase and haven't used the service yet, so a full refund is available.",
     "refundButton": "Request full refund",
     "refundDone": "Your refund has been processed and the subscription canceled.",
     "refundError": "Could not process the refund. Please contact support."
@@ -742,7 +747,7 @@
   "pages": {
     "insights": {
       "title": "Insights",
-      "description": "Market analysis and crypto insights will be published here."
+      "description": "Market analysis and crypto insights are coming soon."
     },
     "portfolio": {
       "title": "Portfolio",
@@ -996,7 +1001,7 @@
   },
   "notFound": {
     "title": "Page not found",
-    "description": "The page you requested does not exist or has been moved.",
+    "description": "This page doesn't exist or has been moved.",
     "backHome": "Back to home"
   },
   "error": {
