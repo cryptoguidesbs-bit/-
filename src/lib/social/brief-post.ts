@@ -83,37 +83,38 @@ export function briefUrl(lang: BriefLang): string {
 }
 
 /**
- * X post: header + two one-line takeaways (BTC, today's watch point) + link,
- * always inside the weighted 280 budget. Sentences share whatever budget is
- * left after the fixed parts, so nothing is ever cut mid-URL.
+ * X post — matches the account's existing voice (plain text, numbers-first,
+ * no emoji, cashtags + hashtags on the last line): a dated header, two
+ * one-sentence takeaways (BTC, today's watch point), the brief link, tags.
+ * Always inside the weighted 280 budget: the sentences share whatever is
+ * left after the fixed parts, so nothing is ever cut mid-URL or mid-tag.
  */
 export function composeXPost(sections: BriefSections, lang: BriefLang, now = new Date()): string {
   const header =
     lang === 'ko'
-      ? `📊 ${dateLabel(lang, now)} 크립토 데일리 브리핑`
-      : `📊 Crypto Daily Brief · ${dateLabel(lang, now)}`
-  const footer = lang === 'ko' ? `👉 ${briefUrl(lang)}\n※ 정보 제공 목적 · 투자 조언 아님` : `👉 ${briefUrl(lang)}\nNot financial advice.`
+      ? `${dateLabel(lang, now)} 크립토 데일리 브리핑`
+      : `Crypto Daily Brief · ${dateLabel(lang, now)}`
+  const footer =
+    lang === 'ko'
+      ? `전체 브리핑: ${briefUrl(lang)}\n$BTC $ETH #비트코인 #크립토`
+      : `Full brief: ${briefUrl(lang)}\n$BTC $ETH #Bitcoin #Crypto`
 
-  const lines = [
-    { icon: '₿', text: firstSentence(sections.btc[lang]) },
-    { icon: '🔭', text: firstSentence(sections.today[lang]) },
-  ]
+  const lines = [firstSentence(sections.btc[lang]), firstSentence(sections.today[lang])]
 
-  const fixed = weightedLength(`${header}\n\n${lines.map((l) => `${l.icon} `).join('\n')}\n\n${footer}`)
+  const fixed = weightedLength(`${header}\n\n${lines.map(() => '').join('\n')}\n\n${footer}`)
   const perLine = Math.max(24, Math.floor((X_BUDGET - fixed) / lines.length))
 
-  const body = lines.map((l) => `${l.icon} ${truncateWeighted(l.text, perLine)}`).join('\n')
-  let post = `${header}\n\n${body}\n\n${footer}`
+  const render = (shaveLast: number) =>
+    `${header}\n\n${lines
+      .map((text, i) =>
+        truncateWeighted(text, i === lines.length - 1 ? perLine - shaveLast : perLine),
+      )
+      .join('\n')}\n\n${footer}`
+
+  let post = render(0)
   // Safety: if rounding still overshoots, shave the last body line further.
   let guard = 0
-  while (weightedLength(post) > 280 && guard++ < 10) {
-    const shorter = lines.map((l, i) =>
-      i === lines.length - 1
-        ? `${l.icon} ${truncateWeighted(l.text, perLine - 8 * guard)}`
-        : `${l.icon} ${truncateWeighted(l.text, perLine)}`,
-    )
-    post = `${header}\n\n${shorter.join('\n')}\n\n${footer}`
-  }
+  while (weightedLength(post) > 280 && guard++ < 10) post = render(8 * guard)
   return post
 }
 
@@ -128,8 +129,8 @@ export function composeTelegramPost(sections: BriefSections, lang: BriefLang, no
   }
   const title =
     lang === 'ko'
-      ? `📊 <b>${dateLabel(lang, now)} 크립토 데일리 브리핑</b>`
-      : `📊 <b>Crypto Daily Brief · ${dateLabel(lang, now)}</b>`
+      ? `<b>${dateLabel(lang, now)} 크립토 데일리 브리핑</b>`
+      : `<b>Crypto Daily Brief · ${dateLabel(lang, now)}</b>`
   const parts = (Object.keys(labels) as (keyof BriefSections)[]).map((key) => {
     const text = (sections[key]?.[lang] ?? '').replace(/\s+/g, ' ').trim()
     // Sentence = up to a terminator that is followed by whitespace/end, so
@@ -140,8 +141,8 @@ export function composeTelegramPost(sections: BriefSections, lang: BriefLang, no
   })
   const footer =
     lang === 'ko'
-      ? `전체 브리핑 👉 ${briefUrl(lang)}\n※ 정보 제공 목적이며 투자 조언이 아닙니다.`
-      : `Full brief 👉 ${briefUrl(lang)}\nInformational only — not financial advice.`
+      ? `전체 브리핑: ${briefUrl(lang)}\n정보 제공 목적이며 투자 조언이 아닙니다.`
+      : `Full brief: ${briefUrl(lang)}\nInformational only, not financial advice.`
   return [title, ...parts, footer].join('\n\n').slice(0, 4000)
 }
 
