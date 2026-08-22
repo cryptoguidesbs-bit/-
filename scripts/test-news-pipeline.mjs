@@ -46,7 +46,8 @@ ok('ingest without secret → 403', noAuth.status === 403, `status=${noAuth.stat
 
 // --- 1. ingest (collection, region balance) ----------------------------------
 console.log('--- ingest ---')
-const ingest = await post('/api/news/ingest')
+// summarize:false keeps the two pipeline steps separately observable here
+const ingest = await post('/api/news/ingest', { summarize: false })
 ok('ingest succeeds', ingest.status === 200, `status=${ingest.status}`)
 const okSources = (ingest.json?.sources ?? []).filter((s) => !s.error)
 const failedSources = (ingest.json?.sources ?? []).filter((s) => s.error)
