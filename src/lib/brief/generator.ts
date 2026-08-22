@@ -13,6 +13,7 @@ import { checkGuidelines, type BriefSections } from '@/lib/brief/guidelines'
 import { resilientFetch } from '@/lib/market/resilient'
 import { cryptoSources, sentimentSources, type AssetQuote } from '@/lib/market/sources'
 import { prisma } from '@/lib/prisma'
+import { announceBrief } from '@/lib/social/brief-post'
 
 const MAX_ATTEMPTS = 2
 
@@ -148,6 +149,15 @@ async function generateTier(
 
         // API Center webhooks (stage 18) — fire-and-forget notification.
         await dispatchWebhooks('brief.published', { briefDate: date, tier }).catch(() => {})
+
+        // Distribution: tease the STANDARD brief on X / Telegram (best-effort,
+        // credentials optional). Only on a fresh publish — the idempotent
+        // "already published" skip above means a cron retry never re-posts.
+        if (tier === 'STANDARD') {
+          await announceBrief({ briefDate: date, sections: sections as BriefSections }).catch(
+            () => {},
+          )
+        }
 
         return { tier, status: 'published', attempts }
       }
