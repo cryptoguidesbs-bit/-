@@ -18,7 +18,7 @@ export function SiteHeader() {
       <div className="container flex h-14 items-center gap-6">
         <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
           <CgMark className="h-6 w-6" />
-          <span>{t('appName')}</span>
+          <span translate="no">{t('appName')}</span>
         </Link>
         <div className="ml-auto flex items-center gap-2">
           <div className="hidden lg:block">
