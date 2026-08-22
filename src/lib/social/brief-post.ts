@@ -212,9 +212,11 @@ export async function announceBrief(input: {
   const now = new Date()
 
   for (const lang of locales) {
+    // Dry run always shows the composed text — even before credentials exist —
+    // so the post can be previewed while wiring things up.
     const xText = composeXPost(input.sections, lang, now)
-    if (!xCreds) outcomes.push({ channel: 'x', lang, status: 'skipped', detail: 'no credentials' })
-    else if (dryRun) outcomes.push({ channel: 'x', lang, status: 'dry-run', detail: xText })
+    if (dryRun) outcomes.push({ channel: 'x', lang, status: 'dry-run', detail: xText })
+    else if (!xCreds) outcomes.push({ channel: 'x', lang, status: 'skipped', detail: 'no credentials' })
     else {
       const r = await postTweet(xCreds, xText)
       outcomes.push(
@@ -225,8 +227,8 @@ export async function announceBrief(input: {
     }
 
     const tgText = composeTelegramPost(input.sections, lang, now)
-    if (!telegramOn) outcomes.push({ channel: 'telegram', lang, status: 'skipped', detail: 'not configured' })
-    else if (dryRun) outcomes.push({ channel: 'telegram', lang, status: 'dry-run', detail: tgText })
+    if (dryRun) outcomes.push({ channel: 'telegram', lang, status: 'dry-run', detail: tgText })
+    else if (!telegramOn) outcomes.push({ channel: 'telegram', lang, status: 'skipped', detail: 'not configured' })
     else {
       const r = await sendTelegram(tgText)
       outcomes.push(
@@ -238,7 +240,8 @@ export async function announceBrief(input: {
   }
 
   const report: AnnounceReport = { briefDate: input.briefDate, locales, outcomes }
-  const attempted = outcomes.filter((o) => o.status !== 'skipped')
+  // Previews and "nothing configured" leave no trace; only real sends log.
+  const attempted = outcomes.filter((o) => o.status === 'sent' || o.status === 'failed')
   if (attempted.length === 0) return report
 
   const failed = outcomes.filter((o) => o.status === 'failed')
