@@ -11,7 +11,6 @@ import { siteUrl } from '@/lib/site'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { QueryProvider } from '@/components/providers/query-provider'
 import { SiteHeader } from '@/components/site-header'
-import { SiteSidebar } from '@/components/site-sidebar'
 import { SiteFooter } from '@/components/site-footer'
 import { ConsentGate } from '@/components/auth/consent-gate'
 
@@ -102,12 +101,11 @@ export default async function LocaleLayout({
                 </a>
                 <div className="relative flex min-h-screen flex-col">
                   <SiteHeader />
-                  <div className="container flex flex-1 gap-6">
-                    <SiteSidebar />
-                    <main id="main-content" className="min-w-0 flex-1 py-6">
-                      {children}
-                    </main>
-                  </div>
+                  {/* Navigation lives in the header (TopNav on lg+, hamburger
+                      below) — content gets the full container width. */}
+                  <main id="main-content" className="container min-w-0 flex-1 py-6">
+                    {children}
+                  </main>
                   <SiteFooter />
                 </div>
                 <ConsentGate />

@@ -19,7 +19,7 @@ export function Section({
   className?: string
 }) {
   return (
-    <section id={id} className={cn('scroll-mt-20 py-14 md:py-20', className)}>
+    <section id={id} className={cn('scroll-mt-20 py-14 md:py-20 lg:scroll-mt-28', className)}>
       <Reveal>
         {title && <h2 className="text-3xl font-bold tracking-tight md:text-4xl">{title}</h2>}
         {subtitle && <p className="mt-3 max-w-2xl text-muted-foreground">{subtitle}</p>}

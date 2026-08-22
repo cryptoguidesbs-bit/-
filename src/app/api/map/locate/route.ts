@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { getDbUser } from '@/lib/user'
+import { enforceRateLimit } from '@/lib/security/rate-limit'
 
 export const dynamic = 'force-dynamic'
 
@@ -29,8 +29,8 @@ const LOCALE_DEFAULT: Record<string, { lat: number; lng: number }> = {
 
 // GET /api/map/locate?locale=ko — country-level approximate position.
 export async function GET(request: NextRequest) {
-  const user = await getDbUser()
-  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  const limited = enforceRateLimit({ name: 'map-locate', limit: 30, request })
+  if (limited) return limited
 
   const country =
     request.headers.get('x-vercel-ip-country')?.toUpperCase() ??

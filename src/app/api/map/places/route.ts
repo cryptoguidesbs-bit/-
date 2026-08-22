@@ -2,17 +2,17 @@ import { NextRequest, NextResponse } from 'next/server'
 import type { Prisma } from '@prisma/client'
 
 import { MAP_PLACES_LIMIT } from '@/config/crypto-map'
-import { getDbUser } from '@/lib/user'
+import { enforceRateLimit } from '@/lib/security/rate-limit'
 import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
 // GET /api/map/places?bbox=minLng,minLat,maxLng,maxLat&coins=btc,lightning
-//   &category=cafe&q=search — viewport places for signed-in members.
-// All plans free; login required.
+//   &category=cafe&q=search — viewport places. PUBLIC read (the map is the
+// home page's main view); abuse is bounded by a per-IP rate limit.
 export async function GET(request: NextRequest) {
-  const user = await getDbUser()
-  if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+  const limited = enforceRateLimit({ name: 'map-places', limit: 120, request })
+  if (limited) return limited
 
   const params = request.nextUrl.searchParams
   const bbox = params.get('bbox')?.split(',').map(Number)

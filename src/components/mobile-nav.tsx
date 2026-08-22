@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { Menu, X } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 
-import { homeNavItem, isNavActive, navGroups, type NavItem } from '@/config/nav'
+import { isNavActive, navGroups, primaryNavItems, type NavItem } from '@/config/nav'
 import { Link, usePathname } from '@/i18n/navigation'
 import { Button } from '@/components/ui/button'
 import { LocaleSwitcher } from '@/components/locale-switcher'
@@ -64,7 +64,7 @@ export function MobileNav() {
           className="fixed inset-x-0 top-14 z-40 h-[calc(100vh-3.5rem)] overflow-y-auto border-t bg-background"
         >
           <nav className="container flex flex-col gap-1 py-4">
-            {renderLink(homeNavItem)}
+            {primaryNavItems.map(renderLink)}
             {navGroups.map((group) => (
               <div key={group.key} className="mt-4 flex flex-col gap-1">
                 <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60">
