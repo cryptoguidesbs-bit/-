@@ -125,6 +125,13 @@ for (const path of ['/ko', '/en', '/ko/news', '/en/legal/refund']) {
   ok('unknown /ko path → 404 status', r2.status === 404)
   const r3 = await fetch(`${APP}/en/news`, { redirect: 'manual' })
   ok('known path still 200', r3.status === 200)
+  // Dotted paths under a locale and non-existent metadata names are 404 too.
+  for (const p of ['/en/foo.txt', '/ko/sitemap.xml', '/en/twitter-image', '/en/icon']) {
+    const r4 = await fetch(`${APP}${p}`, { redirect: 'manual' })
+    ok(`${p} → 404 status`, r4.status === 404, String(r4.status))
+  }
+  const og = await fetch(`${APP}/en/opengraph-image`)
+  ok('/en/opengraph-image → 200 png', og.status === 200 && (og.headers.get('content-type') ?? '').includes('image/png'))
 }
 
 console.log(`\nSUMMARY: ${pass} passed, ${fail} failed — ${fail === 0 ? 'ALL PASS' : 'SOME FAILED'}`)

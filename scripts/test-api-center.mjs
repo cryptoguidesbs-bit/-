@@ -100,6 +100,9 @@ ok('TRADER → 403 (Whale required)',
 
 const pageFree = await page('/ko/api-center', true)
 ok('page below Whale → plan gate', pageFree.html.includes('data-testid="gate-plan"'))
+ok('page below Whale still shows the docs', pageFree.html.includes('data-testid="api-docs-card"') && pageFree.html.includes('/api/v1/market/prices'))
+const pageAnon = await page('/en/api-center', false)
+ok('anonymous → sign-in gate + docs', pageAnon.html.includes('data-testid="gate-auth"') && pageAnon.html.includes('data-testid="api-docs-card"'))
 
 await setPlan('WHALE')
 res = await api('/api/me/api-keys')

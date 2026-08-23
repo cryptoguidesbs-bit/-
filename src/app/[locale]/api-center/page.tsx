@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { checkFeature } from '@/lib/entitlements'
 import { ApiCenter } from '@/components/api-center/api-center'
+import { ApiDocs } from '@/components/api-center/api-docs'
 import { UpgradeRequired } from '@/components/entitlements/upgrade-required'
 import { pageAlternates } from '@/lib/seo'
 
@@ -18,17 +19,31 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
   }
 }
 
-// Premium: the API Center requires the Whale plan (api.center) and is
-// region-gated. API responses always carry the disclaimer/terms meta.
+// Premium: key management / usage / webhooks require the Whale plan
+// (api.center) and are region-gated. The DOCUMENTATION is public — a buyer
+// has to be able to read what they would get before subscribing. API
+// responses always carry the disclaimer/terms meta.
 export default async function ApiCenterPage({ params: { locale } }: Props) {
   setRequestLocale(locale)
 
   const gate = await checkFeature('api.center')
+  const t = await getTranslations({ locale, namespace: 'apiCenter' })
+
   if (!gate.allowed) {
-    return <UpgradeRequired gate={gate} />
+    return (
+      <div className="space-y-6 py-6" data-testid="api-center-docs-only">
+        <div className="space-y-1.5">
+          <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
+          <p className="text-muted-foreground">{t('subtitle')}</p>
+        </div>
+        <UpgradeRequired gate={gate} />
+        <div className="grid gap-6 lg:grid-cols-2">
+          <ApiDocs />
+        </div>
+      </div>
+    )
   }
 
-  const t = await getTranslations({ locale, namespace: 'apiCenter' })
   return (
     <div className="space-y-6 py-6" data-testid="api-center-page">
       <div className="space-y-1.5">

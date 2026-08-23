@@ -51,7 +51,7 @@
 - [x] `X-Frame-Options: SAMEORIGIN` + CSP `frame-ancestors 'self'`
 - [x] `Referrer-Policy: strict-origin-when-cross-origin`
 - [x] `Strict-Transport-Security` (HSTS, 2년, includeSubDomains, preload)
-- [x] `Permissions-Policy` (camera/mic/geolocation/FLoC 차단)
+- [x] `Permissions-Policy` (camera/mic/FLoC 차단, geolocation은 자체 문서만 `self` — 지도 "내 위치")
 - [x] `Content-Security-Policy` — **프로덕션 전면 정책** (`next.config.mjs`
   `buildCsp()`): default-src 'self'; script-src self + Clerk FAPI(발행키에서
   도출) + challenges.cloudflare.com; img-src self/data/blob + img.clerk.com +

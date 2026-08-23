@@ -83,7 +83,8 @@ ok('X-Content-Type-Options nosniff', h.headers.get('x-content-type-options') ===
 ok('X-Frame-Options SAMEORIGIN', h.headers.get('x-frame-options') === 'SAMEORIGIN')
 ok('Referrer-Policy set', (h.headers.get('referrer-policy') ?? '').includes('strict-origin'))
 ok('HSTS present', (h.headers.get('strict-transport-security') ?? '').includes('max-age='))
-ok('Permissions-Policy present', (h.headers.get('permissions-policy') ?? '').includes('geolocation=()'))
+const permissionsPolicy = h.headers.get('permissions-policy') ?? ''
+ok('Permissions-Policy present (geolocation self-only, camera/mic off)', permissionsPolicy.includes('geolocation=(self)') && permissionsPolicy.includes('camera=()') && permissionsPolicy.includes('microphone=()'))
 ok('CSP frame-ancestors/base-uri', (h.headers.get('content-security-policy') ?? '').includes("frame-ancestors 'self'"))
 ok('X-Powered-By removed', !h.headers.get('x-powered-by'))
 
