@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { TrackView } from '@/components/analytics/track-view'
 import { AlertTriangle, Sparkles } from 'lucide-react'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
@@ -58,6 +59,7 @@ export default async function BriefPage({ params: { locale }, searchParams }: Pr
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-6 py-6" data-testid="brief-page">
+      <TrackView name="brief_view" />
       <div className="space-y-1.5">
         <h1 className="flex items-center gap-2 text-3xl font-bold tracking-tight">
           <Sparkles className="h-7 w-7 text-primary" />

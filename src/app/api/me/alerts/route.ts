@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { recordEvent } from '@/lib/events'
 import { z } from 'zod'
 
 import { checkFeature } from '@/lib/entitlements'
+import { checkLimit, limitResponse } from '@/lib/entitlements/limits'
 import { getDbUser } from '@/lib/user'
 import { prisma } from '@/lib/prisma'
 import { ruleParamsSchemaByType } from '@/lib/alerts/types'
 
 export const dynamic = 'force-dynamic'
-
-const MAX_RULES = 20
 
 // GET /api/me/alerts — the requester's alert rules (Trader+).
 export async function GET() {
@@ -59,10 +59,10 @@ export async function POST(request: NextRequest) {
     )
   }
 
+  // Per-plan cap (config/limits.ts) — counts every rule, paused included.
   const count = await prisma.alertRule.count({ where: { userId: user.id } })
-  if (count >= MAX_RULES) {
-    return NextResponse.json({ error: `rule limit reached (${MAX_RULES})` }, { status: 409 })
-  }
+  const cap = checkLimit(gate.plan, 'alertRules', count)
+  if (!cap.allowed) return limitResponse(cap)
 
   const rule = await prisma.alertRule.create({
     data: {
@@ -72,5 +72,6 @@ export async function POST(request: NextRequest) {
       params: paramsParsed.data,
     },
   })
+  await recordEvent({ name: 'alert_rule_created', userId: user.id, meta: { type: rule.type } })
   return NextResponse.json({ ok: true, rule }, { status: 201 })
 }

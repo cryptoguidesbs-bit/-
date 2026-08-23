@@ -4,13 +4,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
 import { checkFeature } from '@/lib/entitlements'
+import { checkLimit, limitResponse } from '@/lib/entitlements/limits'
 import { WEBHOOK_EVENTS } from '@/lib/api/webhooks'
 import { getDbUser } from '@/lib/user'
 import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
-
-const MAX_WEBHOOKS = 5
 
 function gateResponse(gate: Awaited<ReturnType<typeof checkFeature>>) {
   return NextResponse.json(
@@ -69,9 +68,9 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) return NextResponse.json({ error: 'invalid webhook' }, { status: 400 })
 
   const count = await prisma.apiWebhook.count({ where: { userId: user.id } })
-  if (count >= MAX_WEBHOOKS) {
-    return NextResponse.json({ error: `webhook limit reached (${MAX_WEBHOOKS})` }, { status: 409 })
-  }
+  // Per-plan cap (config/limits.ts) — counts active and inactive endpoints.
+  const cap = checkLimit(gate.plan, 'webhooks', count)
+  if (!cap.allowed) return limitResponse(cap)
 
   const secret = `whsec_${crypto.randomBytes(24).toString('hex')}`
   const webhook = await prisma.apiWebhook.create({

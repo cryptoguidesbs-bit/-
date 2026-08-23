@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { recordEvent } from '@/lib/events'
 import { z } from 'zod'
 
 import { routing } from '@/i18n/routing'
@@ -42,6 +43,7 @@ export async function POST(request: NextRequest) {
   const inquiry = await prisma.enterpriseInquiry.create({
     data: { email, organization, teamSize, useCase, locale },
   })
+  await recordEvent({ name: 'enterprise_inquiry', locale })
 
   // Notify operators in-app, mirroring the admin announcement pattern.
   // Never block the submission on notification failures.

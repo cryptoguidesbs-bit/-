@@ -142,7 +142,7 @@ ok('regulation signed-out → 200 (public)', res.status === 200)
 // --- 5. sync (cron/admin, upstream blocked) -----------------------------------
 console.log('--- sync ---')
 res = await api('/api/map/sync', { method: 'POST', authed: false })
-ok('sync no auth → 401', res.status === 401)
+ok('sync no auth → 401/403', res.status === 401 || res.status === 403)
 res = await api('/api/map/sync', {
   method: 'POST',
   authed: false,

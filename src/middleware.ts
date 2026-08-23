@@ -1,6 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import createIntlMiddleware from 'next-intl/middleware'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse, type NextFetchEvent, type NextMiddleware } from 'next/server'
 
 import { routing, type Locale } from './i18n/routing'
 
@@ -42,27 +42,89 @@ function isCsrfProtected(pathname: string): boolean {
     pathname.startsWith('/api/me/') ||
     pathname.startsWith('/api/admin/') ||
     pathname === '/api/consent' ||
+    pathname === '/api/events' ||
     pathname === '/api/billing/checkout' ||
     pathname === '/api/billing/cancel' ||
     pathname === '/api/billing/change' ||
-    pathname === '/api/billing/refund'
+    pathname === '/api/billing/refund' ||
+    // Pipeline triggers: cron (x-cron-secret, exempt below) or a signed-in
+    // admin — the admin path is cookie-auth, so same-origin applies.
+    pathname === '/api/news/ingest' ||
+    pathname === '/api/news/summarize' ||
+    pathname === '/api/brief/generate' ||
+    pathname === '/api/brief/announce' ||
+    pathname === '/api/reports/generate' ||
+    pathname === '/api/alerts/run' ||
+    pathname === '/api/referral/qualify' ||
+    pathname === '/api/map/sync'
   )
 }
 
 function sameOriginOk(request: NextRequest): boolean {
   const origin = request.headers.get('origin')
   if (!origin) return false
-  let originHost: string
+  let parsed: URL
   try {
-    originHost = new URL(origin).host
+    parsed = new URL(origin)
   } catch {
     return false
   }
   const host = request.headers.get('x-forwarded-host') ?? request.headers.get('host')
-  return !!host && originHost === host
+  if (!host) return false
+  // Compare scheme + host, not host alone: http://host must not satisfy a
+  // check for https://host.
+  const proto =
+    request.headers.get('x-forwarded-proto')?.split(',')[0].trim() ||
+    request.nextUrl.protocol.replace(':', '')
+  return parsed.origin === `${proto}://${host}`
 }
 
-export default clerkMiddleware(async (auth, request) => {
+// Clerk's session cookie is a JWT (header.payload.signature). A cookie with
+// three segments whose header/payload are not base64url JSON makes
+// clerkMiddleware throw (500 on every page until the cookie expires). Treat
+// such a cookie as absent and clear it on the way out.
+const SESSION_COOKIE = '__session'
+function base64UrlJsonOk(part: string): boolean {
+  try {
+    const b64 = part.replace(/-/g, '+').replace(/_/g, '/')
+    const padded = b64 + '='.repeat((4 - (b64.length % 4)) % 4)
+    JSON.parse(atob(padded))
+    return true
+  } catch {
+    return false
+  }
+}
+function sessionCookieMalformed(value: string | undefined): boolean {
+  if (!value) return false
+  const parts = value.split('.')
+  if (parts.length !== 3) return true
+  return !(base64UrlJsonOk(parts[0]) && base64UrlJsonOk(parts[1]))
+}
+function withoutSessionCookie(request: NextRequest): NextRequest {
+  const headers = new Headers(request.headers)
+  const cookie = (request.headers.get('cookie') ?? '')
+    .split(';')
+    .map((c) => c.trim())
+    .filter((c) => c && !c.startsWith(`${SESSION_COOKIE}=`))
+    .join('; ')
+  if (cookie) headers.set('cookie', cookie)
+  else headers.delete('cookie')
+  // NextRequest(input: Request) copies only the URL — pass method/body
+  // explicitly so API mutations keep their semantics (CSRF check, handler).
+  return new NextRequest(request.url, {
+    method: request.method,
+    headers,
+    body: request.body,
+    // Required by undici/edge for stream bodies; not in RequestInit typings.
+    ...({ duplex: 'half' } as Record<string, unknown>),
+  })
+}
+
+// Internal Clerk diagnostics (x-clerk-auth-status/-reason/-message) must not
+// reach browsers.
+const CLERK_DEBUG_HEADERS = ['x-clerk-auth-status', 'x-clerk-auth-reason', 'x-clerk-auth-message']
+
+const clerkHandler = clerkMiddleware(async (auth, request) => {
   const { pathname } = request.nextUrl
 
   // API routes only need Clerk's auth context, not locale routing.
@@ -114,6 +176,32 @@ export default clerkMiddleware(async (auth, request) => {
 
   return intlMiddleware(request)
 })
+
+export default async function middleware(request: NextRequest, event: NextFetchEvent) {
+  const rawSession = request.cookies.get(SESSION_COOKIE)?.value
+  const malformed = sessionCookieMalformed(rawSession)
+  const incoming = malformed ? withoutSessionCookie(request) : request
+
+  let response: Awaited<ReturnType<NextMiddleware>>
+  try {
+    response = await clerkHandler(incoming, event)
+  } catch (err) {
+    // Last resort: if Clerk still throws while a session cookie is present,
+    // clear it and reload once so the visitor is not stuck on a 500.
+    if (rawSession) {
+      const reload = NextResponse.redirect(request.url, 307)
+      reload.cookies.delete(SESSION_COOKIE)
+      return reload
+    }
+    throw err
+  }
+
+  if (response) {
+    for (const h of CLERK_DEBUG_HEADERS) response.headers.delete(h)
+    if (malformed && response instanceof NextResponse) response.cookies.delete(SESSION_COOKIE)
+  }
+  return response
+}
 
 export const config = {
   // Run on everything except Next internals and static files, plus all API

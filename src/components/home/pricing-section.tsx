@@ -5,7 +5,14 @@ import { Check } from 'lucide-react'
 import { useAuth } from '@clerk/nextjs'
 import { useLocale, useTranslations } from 'next-intl'
 
-import { ENTERPRISE_FROM_MONTHLY, pricingTiers, tierAmount, type PricingTierKey } from '@/config/pricing'
+import { PLAN_LIMITS, type PlanLimits } from '@/config/limits'
+import {
+  ENTERPRISE_FROM_MONTHLY,
+  pricingTiers,
+  tierAmount,
+  tierPlan,
+  type PricingTierKey,
+} from '@/config/pricing'
 import { paymentsMode } from '@/lib/payments/mode'
 import type { BillingInterval } from '@/lib/payments/plans'
 import { useRouter } from '@/i18n/navigation'
@@ -27,6 +34,23 @@ const usd = new Intl.NumberFormat('en-US', {
 // Cards show at most this many features up front; the rest collapse into a
 // <details> so long lists (Enterprise: 14) can't stretch the whole card row.
 const VISIBLE_FEATURES = 6
+
+const int = new Intl.NumberFormat('en-US')
+
+// Feature copy interpolates the SAME numbers the API enforces
+// (config/limits.ts) — "alerts: {alerts}" can never drift from the 409 cap.
+function limitValues(limits: PlanLimits): Record<string, string> {
+  const fmt = (n: number | null) => (n === null ? '∞' : int.format(n))
+  return {
+    watchlist: fmt(limits.watchlistItems),
+    alerts: fmt(limits.alertRules),
+    holdings: fmt(limits.portfolioHoldings),
+    apiKeys: fmt(limits.apiKeys),
+    webhooks: fmt(limits.webhooks),
+    rpm: fmt(limits.apiRequestsPerMinute),
+    monthly: fmt(limits.apiCallsPerMonth),
+  }
+}
 
 export function PricingSection() {
   const t = useTranslations('home.pricing')
@@ -55,6 +79,14 @@ export function PricingSection() {
       router.push('/sign-up')
       return
     }
+
+    // Funnel: interest in a paid plan (both waitlist and live modes).
+    void fetch('/api/events', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: 'paid_cta_click', path: `/pricing#${tier}`, locale }),
+      keepalive: true,
+    }).catch(() => {})
 
     // Waitlist mode: paid checkout is disabled — collect an email instead.
     if (mode === 'waitlist') {
@@ -120,7 +152,9 @@ export function PricingSection() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {pricingTiers.map((tier, index) => (
+        {pricingTiers.map((tier, index) => {
+          const values = limitValues(PLAN_LIMITS[tierPlan[tier.key]])
+          return (
           <Reveal key={tier.key} delay={index * 60}>
             <Card
               className={cn(
@@ -200,7 +234,7 @@ export function PricingSection() {
                     <li key={i} className="flex gap-2 text-sm">
                       <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                       <span className="text-muted-foreground">
-                        {t(`tiers.${tier.key}.f${i + 1}`)}
+                        {t(`tiers.${tier.key}.f${i + 1}`, values)}
                       </span>
                     </li>
                   ))}
@@ -217,7 +251,7 @@ export function PricingSection() {
                             <li key={i} className="flex gap-2 text-sm">
                               <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
                               <span className="text-muted-foreground">
-                                {t(`tiers.${tier.key}.f${i + VISIBLE_FEATURES + 1}`)}
+                                {t(`tiers.${tier.key}.f${i + VISIBLE_FEATURES + 1}`, values)}
                               </span>
                             </li>
                           ))}
@@ -251,7 +285,8 @@ export function PricingSection() {
               </CardContent>
             </Card>
           </Reveal>
-        ))}
+          )
+        })}
       </div>
 
       {/* Full comparison table — every plan's monthly and yearly price.

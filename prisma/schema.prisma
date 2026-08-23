@@ -852,3 +852,22 @@ model WaitlistSignup {
 
   @@index([createdAt])
 }
+
+// ---------------------------------------------------------------------------
+// Product funnel events (first-party, minimal). Page views for the core
+// surfaces and a handful of actions, so the operator board can show
+// signups → brief readers → alert creators → waitlist. No IP, no UA, no
+// third-party analytics; userId only when signed in.
+// ---------------------------------------------------------------------------
+model ProductEvent {
+  id        String   @id @default(cuid())
+  name      String
+  userId    String?
+  locale    String?
+  path      String?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([name, createdAt])
+  @@index([userId, createdAt])
+}

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { TrackView } from '@/components/analytics/track-view'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { NewsExplorer } from '@/components/news/news-explorer'
@@ -21,6 +22,7 @@ export default async function NewsPage({ params: { locale } }: Props) {
 
   return (
     <div className="space-y-6 py-6" data-testid="news-page">
+      <TrackView name="news_view" />
       <div className="space-y-1.5">
         <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
         <p className="text-muted-foreground">{t('subtitle')}</p>

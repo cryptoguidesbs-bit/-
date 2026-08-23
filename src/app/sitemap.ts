@@ -6,11 +6,12 @@ import { getPathname } from '@/i18n/navigation'
 import { routing, type Locale } from '@/i18n/routing'
 import { siteUrl } from '@/lib/site'
 
-// /map is login-only (hard redirect to sign-in), so it stays out of the
-// sitemap and carries robots noindex on the page itself.
+// Every public nav destination (the Crypto Map is public now), the legal
+// documents and the Data & methodology page.
 const routes = [
-  ...navItems.map((item) => item.href).filter((href) => href !== '/map'),
+  ...navItems.map((item) => item.href),
   ...legalSlugs.map((s) => `/legal/${s}`),
+  '/data',
 ]
 
 function absoluteUrl(href: string, locale: Locale) {

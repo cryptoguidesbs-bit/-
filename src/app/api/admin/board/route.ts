@@ -106,6 +106,42 @@ export async function GET() {
     resilientFetch('sentiment', sentimentSources, { freshMs: 10 * 60_000 }),
   ])
 
+  // ---- Product funnel (first-party ProductEvent rows) ----------------------
+  const since30d = new Date(now.getTime() - 30 * 86_400_000)
+  // Fail-soft: if the ProductEvent migration has not been applied yet the
+  // rest of the board must still render (tiles show zeros).
+  const [ev30, evToday, briefReaders30, alertCreators30] = await Promise.all([
+    prisma.productEvent.groupBy({ by: ['name'], where: { createdAt: { gte: since30d } }, _count: { name: true } }),
+    prisma.productEvent.groupBy({ by: ['name'], where: { createdAt: { gte: todayStart } }, _count: { name: true } }),
+    prisma.productEvent.groupBy({
+      by: ['userId'],
+      where: { name: 'brief_view', userId: { not: null }, createdAt: { gte: since30d } },
+    }),
+    prisma.productEvent.groupBy({
+      by: ['userId'],
+      where: { name: 'alert_rule_created', userId: { not: null }, createdAt: { gte: since30d } },
+    }),
+  ]).catch(() => [[], [], [], []])
+  const count = (rows: readonly { name: string; _count: { name: number } }[], name: string) =>
+    rows.find((r) => r.name === name)?._count.name ?? 0
+  const funnel = {
+    signups: count(ev30, 'signup'),
+    briefReaders: briefReaders30.length,
+    alertCreators: alertCreators30.length,
+    paidCtaClicks: count(ev30, 'paid_cta_click'),
+    waitlist: count(ev30, 'waitlist_signup'),
+    inquiries: count(ev30, 'enterprise_inquiry'),
+  }
+  const viewsToday = {
+    brief: count(evToday, 'brief_view'),
+    news: count(evToday, 'news_view'),
+    map: count(evToday, 'map_view'),
+    reports: count(evToday, 'reports_view'),
+    patterns: count(evToday, 'patterns_view'),
+    onchain: count(evToday, 'onchain_view'),
+    education: count(evToday, 'education_view'),
+  }
+
   const newsAge = ageMinutes(latestNews?.ingestedAt)
   const briefAge = ageMinutes(latestBriefs[0]?.createdAt)
   const mapAge = ageMinutes(lastMapSync?.syncedAt)
@@ -155,5 +191,7 @@ export async function GET() {
       mock: (latestBriefs[0]?.aiModel ?? '').startsWith('mock'),
     },
     ops: { open: openOps, latest: latestOps },
+    funnel,
+    viewsToday,
   })
 }

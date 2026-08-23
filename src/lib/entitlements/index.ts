@@ -10,6 +10,7 @@ import {
   planHasFeature,
   type FeatureKey,
 } from '@/config/features'
+import { PLAN_LIMITS, type PlanLimits } from '@/config/limits'
 import {
   allowedWithOverride,
   getRegionOverrides,
@@ -39,6 +40,8 @@ export type Entitlements = {
   role: UserRole | null
   country: string | null
   features: Record<FeatureKey, { allowed: boolean; reason: GateReason }>
+  /** Numeric caps for the plan (null = unlimited) — see config/limits.ts. */
+  limits: PlanLimits
 }
 
 // Country from the hosting platform's geo header. Locally there is none →
@@ -51,7 +54,7 @@ function requestCountry(): string | null {
   )
 }
 
-async function resolvePlanAndRole(): Promise<{
+export async function resolvePlanAndRole(): Promise<{
   signedIn: boolean
   plan: SubscriptionPlan
   role: UserRole | null
@@ -128,5 +131,5 @@ export async function getEntitlements(): Promise<Entitlements> {
     features[feature] = evaluate(feature, { signedIn, plan, country, overrides })
   }
 
-  return { signedIn, plan, role, country, features }
+  return { signedIn, plan, role, country, features, limits: PLAN_LIMITS[plan] }
 }

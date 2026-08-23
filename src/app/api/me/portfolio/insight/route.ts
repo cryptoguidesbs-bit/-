@@ -8,6 +8,7 @@ import { checkPortfolioCommentary } from '@/lib/portfolio/guidelines'
 import { getUsdQuotes } from '@/lib/market/quotes'
 import { getDbUser } from '@/lib/user'
 import { prisma } from '@/lib/prisma'
+import { enforceRateLimit } from '@/lib/security/rate-limit'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -26,6 +27,11 @@ export async function POST(request: NextRequest) {
   }
   const user = await getDbUser()
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
+
+  // Per-user cap on top of the global AI budget — one click per ~10s is
+  // plenty for an explanation that only changes when holdings change.
+  const limited = enforceRateLimit({ name: 'portfolio-insight', limit: 6, identifier: user.id, request })
+  if (limited) return limited
 
   const body = (await request.json().catch(() => ({}))) as { mockScenario?: string }
   const mockScenario =

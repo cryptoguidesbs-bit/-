@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { TrackView } from '@/components/analytics/track-view'
 import { AlertTriangle, FileText, Sparkles } from 'lucide-react'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import type { Prisma, ReportCadence, ReportCategory } from '@prisma/client'
@@ -68,6 +69,7 @@ export default async function ReportsPage({ params: { locale }, searchParams }: 
 
   return (
     <div className="space-y-6 py-6" data-testid="reports-page">
+      <TrackView name="reports_view" />
       <div className="space-y-1.5">
         <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
         <p className="text-muted-foreground">{t('subtitle')}</p>

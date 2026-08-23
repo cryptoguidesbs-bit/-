@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { recordEvent } from '@/lib/events'
 import { z } from 'zod'
 
 import { paidPlans } from '@/lib/payments/plans'
@@ -41,5 +42,6 @@ export async function POST(request: NextRequest) {
     create: { email, plan, locale },
   })
 
+  await recordEvent({ name: 'waitlist_signup', locale, meta: { plan: plan ?? null } })
   return NextResponse.json({ ok: true }, { status: 201 })
 }

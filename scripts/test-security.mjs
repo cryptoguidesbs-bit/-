@@ -157,6 +157,35 @@ ok('bearer mutation is CSRF-exempt (not 403)', res.status !== 403)
 res = await fetch(`${APP}/api/me/entitlements`, { headers: { origin: 'https://evil.example' } })
 ok('cross-origin GET not blocked', res.status !== 403)
 
+// Scheme must match too: an http:// origin cannot satisfy the check for an
+// https:// site (and vice versa).
+res = await fetch(`${APP}/api/me/watchlist`, {
+  method: 'POST',
+  headers: { 'content-type': 'application/json', origin: APP.replace('http://', 'https://'), cookie: '__session=x' },
+  body: JSON.stringify({ symbol: 'BTC' }),
+})
+ok('origin with wrong scheme → 403', res.status === 403)
+// Pipeline triggers are cookie-or-cron: a bare cross-origin POST is blocked.
+res = await fetch(`${APP}/api/news/ingest`, { method: 'POST', headers: { origin: 'https://evil.example' } })
+ok('pipeline trigger cross-origin POST → 403', res.status === 403)
+
+// --- 4b. session-cookie hygiene + response headers ----------------------------------
+console.log('--- session cookie / headers ---')
+// A malformed 3-part __session cookie used to crash clerkMiddleware (500 on
+// every page). It must now be ignored and cleared.
+res = await fetch(`${APP}/en`, { headers: { cookie: '__session=a.b.c' }, redirect: 'manual' })
+ok('malformed __session cookie → page still 200', res.status === 200)
+ok('malformed __session cookie is cleared', (res.headers.get('set-cookie') ?? '').includes('__session=;'))
+res = await fetch(`${APP}/api/me/watchlist`, { headers: { cookie: '__session=a.b.c' } })
+ok('malformed __session on API → 401 (not 500)', res.status === 401)
+ok('authenticated JSON is private/no-store', (res.headers.get('cache-control') ?? '').includes('no-store'))
+ok('Clerk debug headers stripped', !res.headers.get('x-clerk-auth-status') && !res.headers.get('x-clerk-auth-reason'))
+res = await fetch(`${APP}/api/v1/market/prices`)
+ok('v1 401 carries WWW-Authenticate', res.status === 401 && /bearer/i.test(res.headers.get('www-authenticate') ?? ''))
+res = await fetch(`${APP}/robots.txt`)
+const robots = await res.text()
+ok('robots disallows /admin', robots.includes('Disallow: /admin') && robots.includes('Disallow: /api/'))
+
 // --- 5. input validation --------------------------------------------------------
 console.log('--- input validation ---')
 await prisma.user.update({ where: { id: me.id }, data: { role: 'ADMIN' } })

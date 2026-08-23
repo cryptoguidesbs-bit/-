@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { checkFeature } from '@/lib/entitlements'
 import { getDbUser } from '@/lib/user'
 import { prisma } from '@/lib/prisma'
+import { enforceRateLimit } from '@/lib/security/rate-limit'
 import { channelConfigSchemaByChannel, type ConfigurableChannel } from '@/lib/alerts/types'
 
 export const dynamic = 'force-dynamic'
@@ -38,6 +39,9 @@ export async function PUT(request: NextRequest) {
   const user = await getDbUser()
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
+  const limited = enforceRateLimit({ name: 'alert-channels', limit: 20, identifier: user.id, request })
+  if (limited) return limited
+
   const parsed = putSchema.safeParse(await request.json().catch(() => ({})))
   if (!parsed.success) return NextResponse.json({ error: 'invalid channel' }, { status: 400 })
 
@@ -48,6 +52,23 @@ export async function PUT(request: NextRequest) {
       { error: 'invalid config', issues: configParsed.error.issues.map((i) => i.message) },
       { status: 400 },
     )
+  }
+
+  // Destinations must belong to the requester: alerts may only be e-mailed to
+  // the account address (prevents using the alert engine to mail strangers),
+  // and never to the operator's broadcast chat.
+  if (channel === 'EMAIL') {
+    const address = (configParsed.data as { address: string }).address.toLowerCase()
+    if (!user.email || address !== user.email.toLowerCase()) {
+      return NextResponse.json({ error: 'email must match your account address' }, { status: 400 })
+    }
+  }
+  if (channel === 'TELEGRAM') {
+    const chatId = (configParsed.data as { chatId: string }).chatId
+    const official = process.env.TELEGRAM_BRIEF_CHAT_ID?.trim()
+    if (official && chatId === official.replace(/^-/, '')) {
+      return NextResponse.json({ error: 'invalid config' }, { status: 400 })
+    }
   }
 
   const saved = await prisma.alertChannelConfig.upsert({

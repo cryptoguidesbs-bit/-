@@ -179,10 +179,25 @@ res = await api('/api/me/alerts/channels', {
   body: { channel: 'TELEGRAM', config: { chatId: 'not-a-chat-id' } },
 })
 ok('invalid telegram chatId → 400', res.status === 400)
+res = await api('/api/me/alerts/channels', {
+  method: 'PUT',
+  body: { channel: 'TELEGRAM', config: { chatId: '-1001234567890' } },
+})
+ok('group/channel (negative) telegram chatId → 400', res.status === 400)
+res = await api('/api/me/alerts/channels', {
+  method: 'PUT',
+  body: { channel: 'PUSH', config: { subscription: { endpoint: 'https://evil.example/collect', keys: { p256dh: 'x'.repeat(20), auth: 'y'.repeat(10) } } } },
+})
+ok('push endpoint outside known push services → 400', res.status === 400)
 
 res = await api('/api/me/alerts/channels', {
   method: 'PUT',
-  body: { channel: 'EMAIL', config: { address: 'alerts@example.com' } },
+  body: { channel: 'EMAIL', config: { address: 'someone-else@example.com' } },
+})
+ok('email config for a foreign address → 400', res.status === 400)
+res = await api('/api/me/alerts/channels', {
+  method: 'PUT',
+  body: { channel: 'EMAIL', config: { address: EMAIL } },
 })
 ok('PUT email config', res.status === 200)
 
@@ -198,7 +213,9 @@ ok('list channels → 2 configured', res.json?.channels?.length === 2)
 // --- 4. engine run: auth + delivery ------------------------------------------------
 console.log('--- engine run ---')
 res = await api('/api/alerts/run', { method: 'POST', authed: false })
-ok('run without auth → 401', res.status === 401)
+// No bearer + no Origin → blocked by the CSRF same-origin check (403) before
+// the handler's own 401; both mean 'not allowed'.
+ok('run without auth → 401/403', res.status === 401 || res.status === 403)
 
 res = await api('/api/alerts/run', {
   method: 'POST',

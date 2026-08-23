@@ -2,13 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
 import { checkFeature } from '@/lib/entitlements'
+import { checkLimit, limitResponse } from '@/lib/entitlements/limits'
 import { generateApiKey } from '@/lib/api/keys'
 import { getDbUser } from '@/lib/user'
 import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
-
-const MAX_KEYS = 5
 
 function gateResponse(gate: Awaited<ReturnType<typeof checkFeature>>) {
   return NextResponse.json(
@@ -55,9 +54,9 @@ export async function POST(request: NextRequest) {
   const activeCount = await prisma.apiKey.count({
     where: { userId: user.id, revokedAt: null },
   })
-  if (activeCount >= MAX_KEYS) {
-    return NextResponse.json({ error: `key limit reached (${MAX_KEYS})` }, { status: 409 })
-  }
+  // Per-plan cap on ACTIVE (non-revoked) keys — config/limits.ts.
+  const cap = checkLimit(gate.plan, 'apiKeys', activeCount)
+  if (!cap.allowed) return limitResponse(cap)
 
   const { key, prefix, keyHash } = generateApiKey()
   const created = await prisma.apiKey.create({

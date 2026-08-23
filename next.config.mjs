@@ -3,6 +3,58 @@ import createNextIntlPlugin from 'next-intl/plugin'
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
 
+const isProd = process.env.NODE_ENV === 'production'
+
+// Clerk Frontend API host is encoded in the publishable key
+// (pk_live_<base64("clerk.example.com$")>).
+function clerkFrontendApiHost() {
+  const key = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ?? ''
+  const encoded = key.split('_')[2]
+  if (!encoded) return null
+  try {
+    return Buffer.from(encoded, 'base64').toString('utf8').replace(/\$/, '')
+  } catch {
+    return null
+  }
+}
+function sentryIngestOrigin() {
+  const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN
+  if (!dsn) return null
+  try {
+    return new URL(dsn).origin
+  } catch {
+    return null
+  }
+}
+
+// Content-Security-Policy. Production gets the full allowlist (verified
+// against Clerk, Leaflet/OSM tiles, Binance stream, Vercel Analytics,
+// Sentry); development keeps the conservative frame/base/form policy only,
+// because Next dev + HMR need eval and the toolchain changes often.
+function buildCsp() {
+  const base = "frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'"
+  if (!isProd) return base
+  const clerk = clerkFrontendApiHost()
+  const clerkOrigin = clerk ? `https://${clerk}` : ''
+  const sentry = sentryIngestOrigin() ?? ''
+  const vercelLive = process.env.VERCEL_ENV === 'preview' ? 'https://vercel.live' : ''
+  const directives = [
+    "default-src 'self'",
+    // Next inline bootstrap needs 'unsafe-inline'; no eval in production.
+    `script-src 'self' 'unsafe-inline' ${clerkOrigin} https://challenges.cloudflare.com ${vercelLive}`,
+    "style-src 'self' 'unsafe-inline'",
+    `img-src 'self' data: blob: https://img.clerk.com https://*.tile.openstreetmap.org ${clerkOrigin}`,
+    "font-src 'self' data:",
+    `connect-src 'self' ${clerkOrigin} https://*.protect.clerk.com wss://stream.binance.com:9443 ${sentry} ${vercelLive}`,
+    `frame-src 'self' https://challenges.cloudflare.com https://*.protect.clerk.com ${clerkOrigin} ${vercelLive}`,
+    "worker-src 'self' blob:",
+    "manifest-src 'self'",
+    'upgrade-insecure-requests',
+    base,
+  ]
+  return directives.map((d) => d.replace(/\s+/g, ' ').trim()).join('; ')
+}
+
 const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
   { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
@@ -19,16 +71,14 @@ const securityHeaders = [
     key: 'Permissions-Policy',
     value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
   },
-  // Conservative CSP: clickjacking (frame-ancestors), base-tag injection
-  // (base-uri) and form-hijack (form-action) protection without restricting
-  // script sources — a full script-src policy is a documented deploy-time
-  // hardening step (needs browser verification against Clerk/Next inline
-  // bootstrap; see docs/security-checklist.md).
-  {
-    key: 'Content-Security-Policy',
-    value: "frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'",
-  },
+  // CSP — full allowlist in production, frame/base/form-only in dev
+  // (see buildCsp above and docs/security-checklist.md).
+  { key: 'Content-Security-Policy', value: buildCsp() },
 ]
+
+// Authenticated / keyed JSON must never be cached by shared caches or the
+// browser back/forward cache.
+const privateNoStore = [{ key: 'Cache-Control', value: 'private, no-store' }]
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -54,7 +104,12 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error', 'warn'] } : false,
   },
   async headers() {
-    return [{ source: '/:path*', headers: securityHeaders }]
+    return [
+      { source: '/:path*', headers: securityHeaders },
+      { source: '/api/me/:path*', headers: privateNoStore },
+      { source: '/api/admin/:path*', headers: privateNoStore },
+      { source: '/api/v1/:path*', headers: privateNoStore },
+    ]
   },
 }
 

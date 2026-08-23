@@ -15,6 +15,8 @@ import {
   Users,
   MapPin,
   Mail,
+  Eye,
+  Filter,
 } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 
@@ -51,6 +53,8 @@ type Board = {
   }
   ai: { callsToday: number; model: string | null; mock: boolean }
   ops: { open: number; latest: { id: string; kind: string; severity: string; message: string; createdAt: string }[] }
+  funnel: { signups: number; briefReaders: number; alertCreators: number; paidCtaClicks: number; waitlist: number; inquiries: number }
+  viewsToday: Record<'brief' | 'news' | 'map' | 'reports' | 'patterns' | 'onchain' | 'education', number>
 }
 
 const HEALTH_DOT: Record<Health, string> = {
@@ -274,6 +278,53 @@ export function AdminBoard() {
                 </li>
               ))}
             </ul>
+          </Tile>
+          {/* Row 4 — funnel (30d) + today's views */}
+          <Tile title="퍼널 (30일)" icon={Filter} className="md:col-span-2">
+            {(() => {
+              const f = data.funnel
+              const pct = (a: number, b: number) => (b > 0 ? `${Math.round((a / b) * 100)}%` : '—')
+              const steps = [
+                { label: '가입', v: f.signups, note: '' },
+                { label: '브리핑 열람(회원)', v: f.briefReaders, note: pct(f.briefReaders, f.signups) },
+                { label: '알림 생성', v: f.alertCreators, note: pct(f.alertCreators, f.signups) },
+                { label: '유료 CTA 클릭', v: f.paidCtaClicks, note: '' },
+                { label: '대기자 신청', v: f.waitlist, note: '' },
+              ]
+              return (
+                <div className="grid grid-cols-5 gap-2">
+                  {steps.map((st) => (
+                    <div key={st.label} className="rounded-lg border bg-background/40 p-2 text-center">
+                      <div className="text-2xl font-bold tabular-nums">{n.format(st.v)}</div>
+                      <div className="text-[11px] text-muted-foreground">{st.label}</div>
+                      {st.note && <div className="text-[11px] text-emerald-400">{st.note}</div>}
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
+            <div className="text-xs text-muted-foreground">가입 대비 비율 · 기업 문의 {data.funnel.inquiries}건 · 첫 집계 시작 이후 누적(30일 창)</div>
+          </Tile>
+          <Tile title="오늘 페이지 조회" icon={Eye} className="md:col-span-2">
+            <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
+              {(
+                [
+                  ['브리핑', data.viewsToday.brief],
+                  ['뉴스', data.viewsToday.news],
+                  ['지도', data.viewsToday.map],
+                  ['리포트', data.viewsToday.reports],
+                  ['패턴', data.viewsToday.patterns],
+                  ['온체인', data.viewsToday.onchain],
+                  ['교육', data.viewsToday.education],
+                ] as [string, number][]
+              ).map(([label, v]) => (
+                <div key={label} className="rounded-lg border bg-background/40 p-2 text-center">
+                  <div className="text-xl font-bold tabular-nums">{n.format(v)}</div>
+                  <div className="text-[11px] text-muted-foreground">{label}</div>
+                </div>
+              ))}
+            </div>
+            <div className="text-xs text-muted-foreground">자체 집계(페이지 로드당 1회, 비로그인 포함) · 방문자·유입 경로는 Vercel Analytics</div>
           </Tile>
           <Tile title="운영 경보" icon={AlertTriangle} health={data.ops.open === 0 ? 'ok' : data.ops.latest.some((e) => e.severity === 'critical') ? 'down' : 'warn'}>
             <Big value={n.format(data.ops.open)} label="열린 경보" tone={data.ops.open > 0 ? 'down' : 'muted'} />

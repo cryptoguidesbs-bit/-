@@ -2,6 +2,7 @@ import 'server-only'
 
 import crypto from 'node:crypto'
 import { lookup as dnsLookup } from 'node:dns/promises'
+import { BlockList, isIP } from 'node:net'
 
 import { prisma } from '@/lib/prisma'
 
@@ -11,28 +12,42 @@ import { prisma } from '@/lib/prisma'
 // scheme and reject any host that resolves to a private/reserved address.
 // (A determined attacker can still DNS-rebind between this check and the fetch;
 // pinning the resolved IP would close that, but this blocks the common cases.)
-function isPrivateAddress(ip: string): boolean {
-  const v4 = ip.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/)
-  if (v4) {
-    const a = Number(v4[1])
-    const b = Number(v4[2])
-    if (a === 0 || a === 10 || a === 127) return true // this-host / private / loopback
-    if (a === 169 && b === 254) return true // link-local + cloud metadata (169.254.169.254)
-    if (a === 172 && b >= 16 && b <= 31) return true // private
-    if (a === 192 && b === 168) return true // private
-    if (a === 100 && b >= 64 && b <= 127) return true // CGNAT
-    if (a >= 224) return true // multicast / reserved
-    return false
+const PRIVATE_RANGES = new BlockList()
+// IPv4: this-host, private, loopback, link-local (+ cloud metadata), CGNAT,
+// benchmarking, multicast + reserved.
+for (const [net, prefix] of [
+  ['0.0.0.0', 8], ['10.0.0.0', 8], ['127.0.0.0', 8], ['169.254.0.0', 16],
+  ['172.16.0.0', 12], ['192.168.0.0', 16], ['100.64.0.0', 10], ['198.18.0.0', 15],
+  ['224.0.0.0', 3],
+] as const) PRIVATE_RANGES.addSubnet(net, prefix, 'ipv4')
+// IPv6: unspecified, loopback, link-local, unique-local, discard, doc.
+for (const [net, prefix] of [
+  ['::', 128], ['::1', 128], ['fe80::', 10], ['fc00::', 7], ['100::', 64], ['2001:db8::', 32],
+] as const) PRIVATE_RANGES.addSubnet(net, prefix, 'ipv6')
+
+/** Unwrap IPv4-mapped IPv6 (dotted or hex form) so v4 rules apply. */
+function unmapIpv6(ip: string): string {
+  const low = ip.toLowerCase()
+  const dotted = low.match(/^(?:0*:)*:?ffff:(\d+\.\d+\.\d+\.\d+)$/)
+  if (dotted) return dotted[1]
+  const hex = low.match(/^(?:0*:)*:?ffff:([0-9a-f]{1,4}):([0-9a-f]{1,4})$/)
+  if (hex) {
+    const hi = parseInt(hex[1], 16)
+    const lo = parseInt(hex[2], 16)
+    return `${hi >> 8}.${hi & 255}.${lo >> 8}.${lo & 255}`
   }
-  const v6 = ip.toLowerCase()
-  if (v6 === '::1' || v6 === '::') return true
-  if (v6.startsWith('fe80') || v6.startsWith('fc') || v6.startsWith('fd')) return true // link-local / ULA
-  const mapped = v6.match(/^::ffff:(\d+\.\d+\.\d+\.\d+)$/)
-  if (mapped) return isPrivateAddress(mapped[1])
-  return false
+  return ip
 }
 
-async function assertPublicWebhookUrl(rawUrl: string): Promise<void> {
+export function isPrivateAddress(rawIp: string): boolean {
+  const ip = unmapIpv6(rawIp.replace(/^\[|\]$/g, '').split('%')[0])
+  const family = isIP(ip)
+  if (family === 4) return PRIVATE_RANGES.check(ip, 'ipv4')
+  if (family === 6) return PRIVATE_RANGES.check(ip, 'ipv6')
+  return true // not an IP literal we understand → treat as unsafe
+}
+
+export async function assertPublicWebhookUrl(rawUrl: string): Promise<void> {
   let url: URL
   try {
     url = new URL(rawUrl)
@@ -47,6 +62,7 @@ async function assertPublicWebhookUrl(rawUrl: string): Promise<void> {
   // local mock receiver.
   if (process.env.NODE_ENV !== 'production') return
   const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, '')
+  if (isIP(host) && isPrivateAddress(host)) throw new Error('webhook url targets a private address')
   if (host === 'localhost' || host.endsWith('.localhost') || host.endsWith('.local') || host.endsWith('.internal')) {
     throw new Error('webhook url targets a private host')
   }
@@ -90,8 +106,14 @@ export async function deliverWebhook(
       },
       body,
       signal: AbortSignal.timeout(5_000),
+      // Never follow redirects: a public URL could 302 to an internal address
+      // after the DNS check. A 3xx counts as a failed delivery.
+      redirect: 'manual',
     })
-    result = { delivered: res.ok, status: res.status }
+    result =
+      res.status >= 300 && res.status < 400
+        ? { delivered: false, status: res.status, error: 'redirect not followed' }
+        : { delivered: res.ok, status: res.status }
   } catch (err) {
     result = { delivered: false, status: null, error: String(err) }
   }

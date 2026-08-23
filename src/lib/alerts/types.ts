@@ -50,17 +50,43 @@ export type MacroParams = z.infer<typeof macroParamsSchema>
 // no configuration (delivered to the in-app notification center).
 // ---------------------------------------------------------------------------
 
+// Personal chats only (positive ids). Group/channel ids are negative and
+// would let a user point alerts at a channel they do not control.
 export const telegramConfigSchema = z.object({
-  chatId: z.string().regex(/^-?\d{4,20}$/),
+  chatId: z.string().regex(/^\d{4,20}$/, 'telegram chatId must be a personal chat id'),
 })
 
 export const emailConfigSchema = z.object({
   address: z.string().email().max(200),
 })
 
+// Browser push endpoints are issued by a handful of push services; anything
+// else is not a subscription we could deliver to (and would be an SSRF hop).
+const PUSH_ENDPOINT_HOSTS = [
+  /(^|\.)push\.services\.mozilla\.com$/,
+  /(^|\.)googleapis\.com$/, // fcm.googleapis.com, android.googleapis.com
+  /(^|\.)notify\.windows\.com$/,
+  /(^|\.)push\.apple\.com$/,
+  /(^|\.)pushsvc\.[a-z0-9-]+\.[a-z]+$/i, // misc. Edge/Chromium vendors
+]
+export function isKnownPushEndpoint(endpoint: string): boolean {
+  try {
+    const u = new URL(endpoint)
+    if (u.protocol !== 'https:') return false
+    if (process.env.NODE_ENV !== 'production' && u.hostname === 'localhost') return true
+    return PUSH_ENDPOINT_HOSTS.some((re) => re.test(u.hostname))
+  } catch {
+    return false
+  }
+}
+
 export const pushConfigSchema = z.object({
   subscription: z.object({
-    endpoint: z.string().url().max(2000),
+    endpoint: z
+      .string()
+      .url()
+      .max(2000)
+      .refine(isKnownPushEndpoint, 'push endpoint must be a known push service'),
     keys: z.object({
       p256dh: z.string().min(10).max(500),
       auth: z.string().min(5).max(200),
