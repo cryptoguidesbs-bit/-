@@ -25,6 +25,25 @@ const isProtectedRoute = createRouteMatcher([
 // Accept-Language negotiation is bypassed by forcing the header to 'en'.
 const FIRST_VISIT_LOCALE: Locale = 'en'
 
+// Top-level page segments that exist under /[locale]. Anything else is a
+// 404 — but because [locale]/loading.tsx streams the shell first, a
+// notFound() thrown by the catch-all page arrives after the 200 status has
+// been sent (soft 404). Middleware knows the answer before rendering, so it
+// rewrites unknown paths with a real 404 status (the localized not-found
+// page still renders).
+const KNOWN_SEGMENTS = new Set([
+  'admin', 'alerts', 'api-center', 'billing', 'brief', 'dashboard', 'data', 'education',
+  'insights', 'legal', 'map', 'news', 'onchain', 'patterns', 'portfolio', 'profile',
+  'referral', 'reports', 'sign-in', 'sign-up',
+])
+function isUnknownPage(pathname: string): boolean {
+  const locale = pathnameLocale(pathname)
+  if (!locale) return false
+  const rest = pathname.slice(locale.length + 1).replace(/^\/+/, '')
+  if (!rest) return false
+  return !KNOWN_SEGMENTS.has(rest.split('/')[0])
+}
+
 function pathnameLocale(pathname: string): Locale | undefined {
   return routing.locales.find(
     (locale) => pathname === `/${locale}` || pathname.startsWith(`/${locale}/`),
@@ -174,7 +193,16 @@ const clerkHandler = clerkMiddleware(async (auth, request) => {
     return intlMiddleware(new NextRequest(request, { headers }))
   }
 
-  return intlMiddleware(request)
+  const response = intlMiddleware(request)
+  if (hasLocalePrefix && isUnknownPage(pathname) && response.status === 200) {
+    // Same rendering (the catch-all → localized not-found page), honest status.
+    const notFound = NextResponse.rewrite(request.nextUrl, { status: 404 })
+    response.headers.forEach((value, key) => {
+      if (key.toLowerCase() !== 'x-middleware-rewrite') notFound.headers.set(key, value)
+    })
+    return notFound
+  }
+  return response
 })
 
 export default async function middleware(request: NextRequest, event: NextFetchEvent) {
