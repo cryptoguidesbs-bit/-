@@ -66,10 +66,12 @@ const securityHeaders = [
     key: 'Strict-Transport-Security',
     value: 'max-age=63072000; includeSubDomains; preload',
   },
-  // Drop access to powerful features the app never uses.
+  // Drop access to powerful features the app never uses. Geolocation is
+  // allowed for our own document only (Crypto Map "locate me"); camera/mic
+  // and FLoC stay off everywhere, and no third-party frame gets any of them.
   {
     key: 'Permissions-Policy',
-    value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+    value: 'camera=(), microphone=(), geolocation=(self), interest-cohort=()',
   },
   // CSP — full allowlist in production, frame/base/form-only in dev
   // (see buildCsp above and docs/security-checklist.md).
