@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { TrackView } from '@/components/analytics/track-view'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { checkFeature } from '@/lib/entitlements'
@@ -30,6 +31,7 @@ export default async function OnchainPage({ params: { locale } }: Props) {
   const t = await getTranslations({ locale, namespace: 'onchain' })
   return (
     <div className="space-y-6 py-6" data-testid="onchain-page">
+      <TrackView name="onchain_view" />
       <div className="space-y-1.5">
         <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
         <p className="text-muted-foreground">{t('subtitle')}</p>

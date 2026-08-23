@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { authenticateApiKey, rateHeaders } from '@/lib/api/auth'
+import { apiErrorHeaders, authenticateApiKey, rateHeaders } from '@/lib/api/auth'
 import { apiMeta } from '@/lib/api/meta'
 import { prisma } from '@/lib/prisma'
 
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   if (!auth.ok) {
     return NextResponse.json(
       { error: auth.error },
-      { status: auth.status, headers: rateHeaders(auth.rate) },
+      { status: auth.status, headers: apiErrorHeaders(auth) },
     )
   }
 

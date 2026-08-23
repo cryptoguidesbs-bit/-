@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { recordEvent } from '@/lib/events'
 import { auth, clerkClient } from '@clerk/nextjs/server'
 
 import { CONSENT_VERSION } from '@/config/consent'
@@ -99,5 +100,6 @@ export async function POST(request: NextRequest) {
     await attributeReferral({ referredUserId: user.id, code: refCode, ip }).catch(() => {})
   }
 
+  await recordEvent({ name: 'signup', userId: user.id, locale })
   return NextResponse.json({ ok: true, version: CONSENT_VERSION })
 }

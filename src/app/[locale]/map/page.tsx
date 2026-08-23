@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { TrackView } from '@/components/analytics/track-view'
 import { MapPin } from 'lucide-react'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
@@ -25,6 +26,7 @@ export default async function MapPage({ params: { locale } }: Props) {
 
   return (
     <div className="space-y-4 py-6" data-testid="map-page">
+      <TrackView name="map_view" />
       <div className="space-y-1.5">
         <h1 className="flex items-center gap-2 text-3xl font-bold tracking-tight">
           <MapPin className="h-6 w-6 text-primary" />

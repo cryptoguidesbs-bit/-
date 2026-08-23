@@ -127,13 +127,186 @@
     "sendTest": "Send test",
     "noWebhooks": "No webhooks registered.",
     "webhookSigning": "Every webhook request includes an x-cryptoguide-signature header (HMAC-SHA256). Verify it with the secret issued at registration.",
-    "docs": "Documentation",
+    "docs": {
+      "intro": "Three read-only JSON endpoints under /api/v1, one key per request, and signed webhooks for new briefs and reports. Everything below matches the running code.",
+      "baseUrl": "Base URL",
+      "auth": {
+        "title": "Authentication",
+        "body": "Send your key in an Authorization: Bearer header or in x-api-key. Keys start with cg_live_, are shown once when issued, and can be revoked here at any time. Up to 5 active keys per account. A key stops working the moment the Whale subscription lapses and is also subject to the regional availability of the API."
+      },
+      "envelope": {
+        "title": "Response shape",
+        "body": "Every successful response is a JSON object with a data field and a meta field. Market endpoints add stale and updatedAt. stale: true means every upstream source failed and you are seeing our last good value; updatedAt is when that value was fetched. data is null only if we have never had a value for that endpoint (or, for briefs, if nothing has been published yet)."
+      },
+      "endpoints": {
+        "title": "Endpoints",
+        "request": "Request",
+        "response": "Response",
+        "fields": "Fields",
+        "prices": {
+          "summary": "USD quotes for BTC, ETH and SOL with 24h change. Sources: CoinGecko → CoinPaprika → Binance; served from a 20-second server cache.",
+          "fields": [
+            {
+              "name": "data[].id",
+              "desc": "BTC | ETH | SOL"
+            },
+            {
+              "name": "data[].name",
+              "desc": "Display name"
+            },
+            {
+              "name": "data[].price",
+              "desc": "USD price (number)"
+            },
+            {
+              "name": "data[].changePct",
+              "desc": "24h change in percent (number, may be 0 when the source omits it)"
+            },
+            {
+              "name": "stale",
+              "desc": "true when all sources failed and this is the last good value"
+            },
+            {
+              "name": "updatedAt",
+              "desc": "ISO-8601 time the value was fetched, or null"
+            }
+          ]
+        },
+        "sentiment": {
+          "summary": "Crypto Fear & Greed index from Alternative.me; served from a 5-minute server cache. The index itself updates about once a day.",
+          "fields": [
+            {
+              "name": "data.value",
+              "desc": "0–100"
+            },
+            {
+              "name": "data.classification",
+              "desc": "Provider label, e.g. \"Extreme Fear\", \"Fear\", \"Neutral\", \"Greed\", \"Extreme Greed\""
+            },
+            {
+              "name": "data.timestamp",
+              "desc": "Provider timestamp in milliseconds since epoch"
+            },
+            {
+              "name": "stale / updatedAt",
+              "desc": "As above"
+            }
+          ]
+        },
+        "briefs": {
+          "summary": "The most recent published AI Market Brief, detailed tier, in Korean and English. Non-personalized, AI-generated; the aiModel field names the model (or mock-v1 for the template fallback).",
+          "fields": [
+            {
+              "name": "data.briefDate",
+              "desc": "YYYY-MM-DD — the calendar date the brief was generated for (UTC date at generation time unless the job passes an explicit date)"
+            },
+            {
+              "name": "data.tier",
+              "desc": "Always DETAILED on this endpoint"
+            },
+            {
+              "name": "data.sections",
+              "desc": "btc, eth, altcoin, macro, today — each an object with ko and en text"
+            },
+            {
+              "name": "data.aiModel",
+              "desc": "Model label shown on the site"
+            },
+            {
+              "name": "data.createdAt",
+              "desc": "ISO-8601 publish time"
+            },
+            {
+              "name": "data.aiGenerated",
+              "desc": "Always true"
+            }
+          ]
+        }
+      },
+      "limits": {
+        "title": "Rate limit and quota",
+        "perMinute": "60 requests per minute per key, counted in a fixed one-minute window.",
+        "perMonth": "100,000 calls per calendar month (UTC) across all keys on the account. The usage card above counts the same rows the quota is enforced on.",
+        "headers": "Every response that passed authentication carries X-RateLimit-Limit, X-RateLimit-Remaining and Retry-After (seconds until the current minute window resets). 401 and 403 responses carry no rate-limit headers.",
+        "advice": "Cache on your side: prices change at most every 20 s, sentiment every 5 min, briefs once a day. Polling faster than that only spends quota."
+      },
+      "errors": {
+        "title": "Errors",
+        "columns": {
+          "status": "Status",
+          "error": "error",
+          "meaning": "Meaning",
+          "action": "What to do"
+        },
+        "rows": [
+          {
+            "status": "401",
+            "error": "missing api key",
+            "meaning": "No Authorization: Bearer or x-api-key header",
+            "action": "Add the header"
+          },
+          {
+            "status": "401",
+            "error": "invalid api key",
+            "meaning": "Key not recognised",
+            "action": "Check for truncation; issue a new key if needed"
+          },
+          {
+            "status": "401",
+            "error": "api key revoked",
+            "meaning": "Key was revoked on this page",
+            "action": "Issue a new key"
+          },
+          {
+            "status": "403",
+            "error": "api access requires the Whale plan",
+            "meaning": "Subscription lapsed or is below Whale",
+            "action": "Renew or upgrade; keys resume automatically"
+          },
+          {
+            "status": "403",
+            "error": "api access is not available in your region",
+            "meaning": "Regional availability policy",
+            "action": "Not overridable by key or plan"
+          },
+          {
+            "status": "429",
+            "error": "rate limit exceeded",
+            "meaning": "More than 60 requests in the current minute",
+            "action": "Wait Retry-After seconds, then retry"
+          },
+          {
+            "status": "429",
+            "error": "monthly quota exceeded",
+            "meaning": "100,000 calls used this UTC month",
+            "action": "Resets on the 1st (UTC); the Retry-After header here only reflects the minute window"
+          }
+        ],
+        "shape": "Error bodies are a JSON object with a single error string, using the messages above verbatim."
+      },
+      "meta": {
+        "title": "The meta field",
+        "body": "Every response ends with a meta object: provider (\"CryptoGuide API v1\"), docs (link to this page), disclaimer (ko and en) and terms (ko and en). The data is informational only and not investment advice; redistribution, resale and public re-publication are prohibited. If you store or display the data, keep the disclaimer and terms with it."
+      },
+      "webhooks": {
+        "title": "Webhooks",
+        "body": "Register an http(s) URL and we POST to it when a brief or report is published. Up to 5 webhooks per account. Deliveries have a 5-second timeout and are not retried; the last HTTP status is shown next to each webhook. URLs that resolve to private or internal addresses are rejected.",
+        "events": "Events and their data fields: brief.published (briefDate, tier); report.published (slug, locale, cadence, category, periodKey); test.ping (message — sent by the Send test button). The body is always event, data and sentAt.",
+        "headers": "Headers: content-type: application/json, x-cryptoguide-event: <event>, x-cryptoguide-signature: sha256=<hex HMAC-SHA256 of the raw body, keyed with your webhook secret>.",
+        "verify": "Verify by recomputing the HMAC over the raw request body and comparing with a constant-time compare. Reject anything that doesn't match; reject old sentAt values if you need replay protection."
+      },
+      "versioning": {
+        "title": "Versioning",
+        "body": "This is v1. Fields may be added; existing fields are not renamed or removed without a new version prefix."
+      }
+    },
     "docsPrices": "BTC/ETH/SOL USD prices (keeps the last known value during outages; includes a stale flag)",
     "docsSentiment": "Crypto Fear & Greed index",
     "docsBriefs": "Latest AI Market Brief (detailed tier, with AI-generated label)",
     "authExample": "Authentication example",
     "rateLimitNote": "Rate limit: 60 requests per minute per key. Exceeding it returns 429 with a Retry-After header.",
-    "metaNote": "Every response includes a meta field with the disclaimer and usage terms (no redistribution)."
+    "metaNote": "Every response includes a meta field with the disclaimer and usage terms (no redistribution).",
+    "docsTitle": "Documentation"
   },
   "referral": {
     "title": "Referral Program",
@@ -575,14 +748,16 @@
           "tagline": "The basics for following the crypto market",
           "f1": "Basic real-time prices",
           "f2": "Limited news feed",
-          "f3": "Limited market briefings"
+          "f3": "Limited market briefings",
+          "f4": "Watchlist: {watchlist} symbols"
         },
         "starter": {
           "name": "Starter",
           "tagline": "Keep up with the market every day",
           "f1": "AI news digests",
           "f2": "Daily market briefing",
-          "f3": "Basic dashboard"
+          "f3": "Basic dashboard",
+          "f4": "Watchlist: {watchlist} symbols"
         },
         "trader": {
           "name": "Trader",
@@ -590,22 +765,25 @@
           "f1": "Everything in Starter",
           "f2": "Detailed AI briefings",
           "f3": "AI pattern analysis",
-          "f4": "Portfolio tools",
-          "f5": "Event alerts (detected within minutes)"
+          "f4": "Portfolio tools · {holdings} holdings",
+          "f5": "Event alerts: {alerts} rules (detected within minutes)",
+          "f6": "Watchlist: {watchlist} symbols"
         },
         "pro": {
           "name": "Pro",
           "tagline": "For teams that need deeper data",
           "f1": "Everything in Trader",
           "f2": "Advanced on-chain / whale data",
-          "f3": "Premium research reports (weekly/monthly/quarterly)"
+          "f3": "Premium research reports (weekly/monthly/quarterly)",
+          "f4": "{alerts} alerts · {holdings} holdings · {watchlist} watchlist symbols"
         },
         "whale": {
           "name": "Whale",
           "tagline": "Every feature and dataset, unlimited",
           "f1": "Everything included",
-          "f2": "API Center",
-          "f3": "Data export"
+          "f2": "API Center: {apiKeys} keys · {rpm} req/min · {monthly} calls/mo",
+          "f3": "Data export · {webhooks} webhooks",
+          "f4": "{alerts} alerts · unlimited watchlist & holdings"
         },
         "enterprise": {
           "name": "Enterprise",
@@ -998,7 +1176,8 @@
     "disclaimer": "All information on this site is provided for general informational purposes only and does not constitute investment advice, a solicitation to buy or sell any financial product, or legal/tax advice. Investing in crypto assets involves the risk of principal loss; you are solely responsible for your own investment decisions and their outcomes.",
     "navigation": "Menu",
     "legal": "Legal",
-    "rights": "All rights reserved."
+    "rights": "All rights reserved.",
+    "dataLink": "How our data works →"
   },
   "notFound": {
     "title": "Page not found",
@@ -1009,5 +1188,245 @@
     "title": "Something went wrong",
     "description": "This is a temporary error. Please try again in a moment.",
     "retry": "Try again"
+  },
+  "data": {
+    "title": "Data & methodology",
+    "subtitle": "Where our numbers come from, how often they refresh, how the AI text is written, and what can go wrong.",
+    "updated": "Last updated: August 24, 2026",
+    "intro": "CryptoGuide is an information service. Almost everything you see here is pulled from public third-party sources and reassembled — we do not run an exchange, hold funds, or produce a price feed of our own. This page explains, in plain terms, what each feature is built on, how fresh it is, how the automated text is produced, and the limits to keep in mind. It is written to match the code that actually runs; when we change a source or a schedule, we update this page.",
+    "sources": {
+      "title": "Where the data comes from",
+      "intro": "Each feature reads from one or more public sources, in a fixed order. If the first source fails or rate-limits us, we try the next one.",
+      "items": [
+        {
+          "heading": "Crypto prices (dashboard, ticker, watchlist, portfolio)",
+          "body": "USD prices for BTC, ETH and SOL on the dashboard, and for the 8-coin ticker (BTC, ETH, SOL, BNB, XRP, ADA, DOGE, AVAX), come from CoinGecko first, then CoinPaprika, then Binance. While your browser can reach Binance, the ticker also streams live updates over Binance's public WebSocket; where it can't (from US networks, for example), the ticker falls back to polling our snapshot every 30 seconds. Watchlist and portfolio valuations use Binance USDT spot prices with CoinPaprika as the fallback; when several coins share a ticker symbol, the highest-ranked one wins."
+        },
+        {
+          "heading": "Global markets",
+          "body": "NASDAQ, S&P 500, KOSPI, gold, WTI crude and the US Dollar Index come from the Yahoo Finance chart endpoint, with a mirror host as fallback. The daily change is the current price against the previous close."
+        },
+        {
+          "heading": "Fear & Greed",
+          "body": "The crypto Fear & Greed index is the one published by Alternative.me; we show its value and classification unchanged. The provider updates the index about once a day."
+        },
+        {
+          "heading": "News",
+          "body": "Headlines are collected from six RSS feeds, balanced across regions: CoinDesk and Cointelegraph (US), BeInCrypto and CryptoNews (Europe), AMBCrypto and TokenPost (Asia). We take at most 8 items per source per run so no single outlet dominates, de-duplicate by link, and store the headline, link, source and publish time. The summary under each headline is written by us automatically (see “How the AI text is produced”). The “market sentiment (news tone)” gauge aggregates the per-article tone over the last 24 hours — it reflects how headlines read, not where the market is going."
+        },
+        {
+          "heading": "Chart patterns",
+          "body": "Pattern and support/resistance detection runs on Binance candle (OHLC) data, 200 candles per symbol and interval. The detection itself is a set of fixed geometric rules, not an AI model. The confidence score measures how well the candles fit the shape; it says nothing about where price goes next."
+        },
+        {
+          "heading": "On-chain",
+          "body": "The whale tracker lists recent Bitcoin transactions of $5M or more from Blockchair (the 15 most recent), falling back to the largest transactions in blockchain.info's unconfirmed-transaction sample when Blockchair is unavailable. Exchange inflow/outflow is an estimate: we take that sample and match inputs and outputs against a public list of known exchange wallets, so it reflects a sample, not total flows. Network activity (active addresses, transactions, hash rate, miner revenue, 30 days) comes from blockchain.info charts; stablecoin supply (USDT, USDC and DAI market caps) comes from CoinGecko."
+        },
+        {
+          "heading": "Crypto Map",
+          "body": "Merchants and ATMs come from BTCMap, which is built on OpenStreetMap data contributed by volunteers. We import the location, name, address, category and payment tags (on-chain / Lightning); where an entry has no explicit payment tag we assume Bitcoin. The list of online services and the per-country regulation status are curated by us (see the map notes below)."
+        },
+        {
+          "heading": "AI brief and reports",
+          "body": "The daily brief and the weekly, monthly and quarterly reports are written from the inputs above: the current BTC/ETH/SOL quotes, the Fear & Greed reading, the last 24 hours of published headlines and, for reports, the on-chain series. Nothing else goes in."
+        }
+      ]
+    },
+    "cadence": {
+      "title": "How often things refresh",
+      "intro": "Two things matter: how often we ask the source, and how often your screen asks us. The figures below are the ones in the code.",
+      "columns": {
+        "what": "Feature",
+        "cadence": "Refresh"
+      },
+      "rows": [
+        {
+          "what": "Crypto prices (dashboard)",
+          "cadence": "Server keeps a quote for 20 seconds; the page refetches every 30 seconds."
+        },
+        {
+          "what": "Live ticker",
+          "cadence": "Real-time over WebSocket where Binance is reachable from your browser; otherwise our snapshot, refreshed every 15 seconds on the server and polled every 30 seconds by the page."
+        },
+        {
+          "what": "Watchlist & portfolio prices",
+          "cadence": "Server keeps the price list for 15 seconds."
+        },
+        {
+          "what": "Global markets",
+          "cadence": "Every 60 seconds."
+        },
+        {
+          "what": "Fear & Greed",
+          "cadence": "Checked every 5 minutes; the index itself changes about once a day."
+        },
+        {
+          "what": "News",
+          "cadence": "New headlines are collected every 30 minutes; summaries are written in the same run (up to 20 per run), with a follow-up job for anything left over."
+        },
+        {
+          "what": "AI market brief",
+          "cadence": "Once a day, in the morning (Korea Standard Time), in a standard and a detailed version."
+        },
+        {
+          "what": "Research reports",
+          "cadence": "Weekly, monthly and quarterly."
+        },
+        {
+          "what": "Whale transactions",
+          "cadence": "Server keeps the list for 60 seconds."
+        },
+        {
+          "what": "Network activity & stablecoin supply",
+          "cadence": "Every 10 minutes."
+        },
+        {
+          "what": "Chart patterns",
+          "cadence": "Candles are cached for 5 minutes."
+        },
+        {
+          "what": "Alerts",
+          "cadence": "Conditions are evaluated about once a minute, so an alert normally arrives within a few minutes of the event — not second by second."
+        },
+        {
+          "what": "Crypto Map",
+          "cadence": "Merchant and ATM data is synced from BTCMap about once a day (only entries changed since the last sync). Regulation status changes when we edit it."
+        }
+      ]
+    },
+    "resilience": {
+      "title": "What happens when a source is down",
+      "body": "Every market call has a short timeout and one retry. If a source answers with a rate limit, we leave it alone for 60 seconds and move on to the next one. If every source fails, we show the last value we did get and mark it stale (the API returns stale: true; the dashboard keeps the last value on screen). We never fill a gap with an invented number — if we have never received a value, the section simply stays empty until we do."
+    },
+    "ai": {
+      "title": "How the AI text is produced",
+      "intro": "News summaries, the daily market brief, research reports and the portfolio commentary are written automatically by a large language model (Anthropic's Claude when configured). The model only sees the inputs listed above — it has no web access and no memory of you — and every piece of generated text is labeled with the model that produced it.",
+      "rulesTitle": "Rules the text must follow",
+      "rules": [
+        "It must be grounded in the data and headlines it was given. No invented facts, numbers or events.",
+        "No definitive predictions. It may say a move “could” or “appears to” be happening; it may not say that a price will reach a level.",
+        "No instructions to buy, sell, enter, exit or rebalance, and no entry, target or stop levels.",
+        "No profit guarantees or “risk-free” claims.",
+        "Non-personalized: the brief and reports are generated once and shown identically to everyone. Portfolio commentary explains diversification metrics only — the model receives percentages and index values, never amounts, holdings tied to you, or identifiers — and is discarded after it is shown."
+      ],
+      "checksTitle": "Automatic checks",
+      "checks": "Before anything is published, the output goes through automatic checks: length, formatting artifacts, and a list of banned phrases in Korean and English (definitive predictions, trade directives, profit guarantees). If a check fails we retry once; if it still fails the item is held back and shown as “withheld” rather than published. There is also a daily cap on model calls; when it is reached, pending items wait for the next day.",
+      "fallbackTitle": "When the model is unavailable",
+      "fallback": "Summaries and briefs are generated automatically. When the language model is not available, a rule-based template fallback writes the text from the same numbers and headlines, and the AI label shows “mock-v1” instead of a model name. Treat these the same way as any other automated text: a starting point for your own reading, not a conclusion.",
+      "notAdvice": "None of this is a recommendation. The tone is deliberately descriptive; if a sentence reads like advice, that is a bug and we would like to hear about it."
+    },
+    "limitations": {
+      "title": "Known limitations",
+      "items": [
+        {
+          "heading": "Delays",
+          "body": "Prices can be up to about 30 seconds behind the market, global market quotes up to a minute, news up to 30 minutes, and the Fear & Greed index a day. Nothing here is suitable for timing trades."
+        },
+        {
+          "heading": "Third-party accuracy",
+          "body": "We pass sources through; we do not audit them. An error upstream — a bad print, a mis-tagged merchant, a stale RSS item — will appear here too."
+        },
+        {
+          "heading": "Coverage",
+          "body": "The dashboard tracks 3 coins and the ticker 8; the watchlist and portfolio support whatever Binance or CoinPaprika lists. Global markets are 6 instruments. News is 6 English- and Korean-language outlets. The map shows what BTCMap contributors have mapped, which in many regions is a fraction of the places that actually accept crypto."
+        },
+        {
+          "heading": "Regional differences",
+          "body": "Binance is unreachable from some networks (the US, for example). There the ticker polls instead of streaming, and chart patterns may show “candle data unavailable” until another source is added."
+        },
+        {
+          "heading": "Symbol collisions",
+          "body": "Many coins share a ticker symbol. For watchlist and portfolio prices we resolve a symbol to the highest-ranked coin with that ticker — usually, but not always, the one you mean."
+        },
+        {
+          "heading": "Estimates",
+          "body": "Exchange inflow/outflow is computed from a sample of unconfirmed transactions matched against a public wallet list; actual totals differ. Pattern confidence is a shape score, not a probability."
+        },
+        {
+          "heading": "AI text",
+          "body": "Even when grounded and checked, model output can misread a headline, over-weight a detail, or phrase things awkwardly. Held items are not shown; published items can still be wrong. The template fallback is a further step down in nuance."
+        },
+        {
+          "heading": "Availability",
+          "body": "Scheduled jobs (news, brief, map sync, alerts) can run late. When they do, the timestamps on each page tell you how old the data is."
+        }
+      ]
+    },
+    "map": {
+      "title": "Crypto Map: extra notes",
+      "items": [
+        "Merchant data is community-maintained. A pin means someone added the place to OpenStreetMap/BTCMap and said it accepts Bitcoin — not that we checked. Places close, stop accepting crypto, or move. Where a “verified” date is shown, that is the last survey date recorded by contributors.",
+        "From the map data we show Bitcoin on-chain and Lightning acceptance only; coins listed for online services come from our own curated list.",
+        "Country regulation status is our summary, in five coarse labels (friendly / regulated / restricted / banned / unclear), for a limited set of countries, and is edited by hand. It is a starting point for reading, not legal advice: rules differ inside a country, change often, and our label may lag a change by weeks or more.",
+        "The map does not broker, verify or guarantee any transaction, and we are not a party to anything you do at a listed place."
+      ]
+    },
+    "retention": {
+      "title": "What we store about you",
+      "intro": "The full version is the Privacy Policy; this is the short, practical list based on what the database actually holds.",
+      "items": [
+        {
+          "heading": "Account",
+          "body": "Email, name and profile image (managed by Clerk), plus your language, time zone and country code."
+        },
+        {
+          "heading": "Consent records",
+          "body": "Which document version you agreed to, when, and the IP address and browser string at that moment — kept as evidence of consent."
+        },
+        {
+          "heading": "Subscription",
+          "body": "Stripe customer and subscription identifiers. Card details never touch our servers."
+        },
+        {
+          "heading": "Your content",
+          "body": "Portfolios and holdings, watchlists, saved articles and reports, notifications, alert rules, alert channel settings (a Telegram chat ID or email address you give us) and delivery history."
+        },
+        {
+          "heading": "Referral",
+          "body": "Your referral code, who referred whom, and a salted hash of the signup IP (the raw address is not kept)."
+        },
+        {
+          "heading": "API (Whale plan)",
+          "body": "A hash and a short prefix of each API key (the full key is shown once and not stored), per-day call counts per key and endpoint, and webhook URLs and secrets."
+        },
+        {
+          "heading": "Usage signal",
+          "body": "One row per hour per feature noting that you used the service — kept to determine refund eligibility, not for analytics."
+        },
+        {
+          "heading": "Security log",
+          "body": "Account deletion, data export, admin actions and blocked requests, with IP and browser string. This log is append-only and survives account deletion: the link to your user record is removed, but the entry keeps the acting email address."
+        },
+        {
+          "heading": "Forms",
+          "body": "Paid-plan waitlist sign-ups (email, plan, language) and enterprise inquiries (work email, organization, team size, intended use)."
+        },
+        {
+          "heading": "Product events",
+          "body": "Lightweight events (event name, page, locale) used to understand which features are used."
+        }
+      ],
+      "notStoredTitle": "What we do not keep",
+      "notStored": [
+        "Card numbers (Stripe holds them).",
+        "Raw signup IP addresses (only a salted hash).",
+        "Portfolio AI commentary (generated on request, returned, discarded).",
+        "Full API keys or the contents of webhook deliveries."
+      ],
+      "controls": "From your profile you can export everything stored on your account as JSON and delete the account. Deletion cascades to all of the above except the security log."
+    },
+    "corrections": {
+      "title": "Corrections and questions",
+      "body": "If a number looks wrong, a merchant pin is out of date, a regulation label is behind, or an AI sentence reads like advice, tell us. Include the page, roughly when you saw it and, if you can, a screenshot. We fix what is ours and report upstream what isn't.",
+      "cta": "Email {email}",
+      "mapTip": "For merchant pins, the fastest route is often to fix the entry on BTCMap/OpenStreetMap directly; we pick the change up on the next sync."
+    },
+    "related": {
+      "title": "Related",
+      "disclaimer": "Disclaimer",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "apiCenter": "API Center"
+    }
   }
 }

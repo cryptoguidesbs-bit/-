@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { TrackView } from '@/components/analytics/track-view'
 import { AlertTriangle } from 'lucide-react'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
@@ -31,6 +32,7 @@ export default async function PatternsPage({ params: { locale } }: Props) {
   const t = await getTranslations({ locale, namespace: 'patterns' })
   return (
     <div className="space-y-6 py-6" data-testid="patterns-page">
+      <TrackView name="patterns_view" />
       <div className="space-y-1.5">
         <h1 className="text-3xl font-bold tracking-tight">{t('title')}</h1>
         <p className="text-muted-foreground">{t('subtitle')}</p>

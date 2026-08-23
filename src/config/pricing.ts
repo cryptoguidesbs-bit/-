@@ -1,3 +1,5 @@
+import type { SubscriptionPlan } from '@prisma/client'
+
 import { planAmounts, type BillingInterval, type PaidPlanKey } from '@/lib/payments/plans'
 
 // Pricing matrix — all prices in USD. Amounts for paid tiers come from the
@@ -17,13 +19,27 @@ export type PricingTier = {
 }
 
 export const pricingTiers: PricingTier[] = [
-  { key: 'free', featureCount: 3 },
-  { key: 'starter', featureCount: 3 },
-  { key: 'trader', featureCount: 5, popular: true },
-  { key: 'pro', featureCount: 3 },
-  { key: 'whale', featureCount: 3 },
+  { key: 'free', featureCount: 4 },
+  { key: 'starter', featureCount: 4 },
+  { key: 'trader', featureCount: 6, popular: true },
+  { key: 'pro', featureCount: 4 },
+  { key: 'whale', featureCount: 4 },
   { key: 'enterprise', featureCount: 14, contact: true },
 ]
+
+/**
+ * Subscription plan each card represents — drives the numeric limits that
+ * the feature lines interpolate from config/limits.ts (enterprise is
+ * contract-priced; it shows the Whale caps as its floor).
+ */
+export const tierPlan: Record<PricingTierKey, SubscriptionPlan> = {
+  free: 'FREE',
+  starter: 'STARTER',
+  trader: 'TRADER',
+  pro: 'PRO',
+  whale: 'WHALE',
+  enterprise: 'WHALE',
+}
 
 /** Entry price shown as "From $X/mo" on the Enterprise card. Not billed by Stripe. */
 export const ENTERPRISE_FROM_MONTHLY = 1999

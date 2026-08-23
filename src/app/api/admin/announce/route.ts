@@ -9,7 +9,13 @@ export const dynamic = 'force-dynamic'
 const announceSchema = z.object({
   title: z.string().min(1).max(200),
   body: z.string().max(1000).optional(),
-  href: z.string().max(300).optional(),
+  // Site-relative paths only ("/en/brief"); no protocol-relative ("//evil")
+  // or javascript: values can reach the notification link.
+  href: z
+    .string()
+    .max(300)
+    .regex(/^\/(?!\/)[A-Za-z0-9\-._~!  href: z.string().max(300).optional(),'()*+,;=:@%\/?#]*$/, 'href must be a site-relative path')
+    .optional(),
 })
 
 // POST /api/admin/announce — broadcast an in-app announcement to all users.

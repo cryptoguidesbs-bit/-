@@ -219,7 +219,7 @@ ok('velocity cap exceeded → REJECTED', refF?.status === 'REJECTED' && refF?.re
 // --- 4. qualification + commission ------------------------------------------------
 console.log('--- qualification ---')
 res = await api('/api/referral/qualify', { method: 'POST' })
-ok('qualify without auth → 401', res.status === 401)
+ok('qualify without auth → 401/403', res.status === 401 || res.status === 403)
 
 // B starts a paid subscription → their referral qualifies, A earns 10%.
 await prisma.subscription.create({

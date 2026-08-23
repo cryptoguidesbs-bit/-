@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from 'next-intl'
 
 import { Badge } from '@/components/ui/badge'
+import { ApiDocs } from '@/components/api-center/api-docs'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -37,12 +38,6 @@ type WebhookRow = {
 
 const inputCls =
   'h-9 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-1 focus:ring-primary'
-
-const ENDPOINTS = [
-  { method: 'GET', path: '/api/v1/market/prices', desc: { key: 'docsPrices' } },
-  { method: 'GET', path: '/api/v1/market/sentiment', desc: { key: 'docsSentiment' } },
-  { method: 'GET', path: '/api/v1/briefs/latest', desc: { key: 'docsBriefs' } },
-] as const
 
 export function ApiCenter() {
   const t = useTranslations('apiCenter')
@@ -287,33 +282,8 @@ export function ApiCenter() {
         </CardContent>
       </Card>
 
-      {/* Documentation */}
-      <Card data-testid="api-docs-card">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <BookOpen className="h-4 w-4" /> {t('docs')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-3">
-          {ENDPOINTS.map((e) => (
-            <div key={e.path} className="space-y-1 rounded-lg border p-3" data-testid="api-doc-row">
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary">{e.method}</Badge>
-                <code className="text-xs">{e.path}</code>
-              </div>
-              <p className="text-xs text-muted-foreground">{t(e.desc.key)}</p>
-            </div>
-          ))}
-          <div className="space-y-1 rounded-lg border p-3">
-            <p className="text-xs font-medium">{t('authExample')}</p>
-            <code className="block overflow-x-auto whitespace-pre text-xs text-muted-foreground">
-              {`curl -H "Authorization: Bearer cg_live_..." \\\n  ${typeof window !== 'undefined' ? window.location.origin : ''}/api/v1/market/prices`}
-            </code>
-          </div>
-          <p className="text-xs leading-relaxed text-muted-foreground">{t('rateLimitNote')}</p>
-          <p className="text-xs leading-relaxed text-muted-foreground">{t('metaNote')}</p>
-        </CardContent>
-      </Card>
+      {/* Documentation — samples, limits, errors, meta, webhooks */}
+      <ApiDocs />
     </div>
   )
 }

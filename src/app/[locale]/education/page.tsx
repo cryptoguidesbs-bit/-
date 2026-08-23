@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { TrackView } from '@/components/analytics/track-view'
 import { Clock, GraduationCap, Lock } from 'lucide-react'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
@@ -34,6 +35,7 @@ export default async function EducationPage({ params: { locale } }: Props) {
 
   return (
     <div className="space-y-8 py-6" data-testid="education-page">
+      <TrackView name="education_view" />
       <div className="space-y-1.5">
         <h1 className="flex items-center gap-2 text-3xl font-bold tracking-tight">
           <GraduationCap className="h-8 w-8 text-primary" />

@@ -56,6 +56,15 @@ export function SiteFooter() {
                 </Link>
               </li>
             ))}
+            <li>
+              <Link
+                href="/data"
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+                data-testid="footer-data-link"
+              >
+                {t('dataLink')}
+              </Link>
+            </li>
           </ul>
         </nav>
       </div>

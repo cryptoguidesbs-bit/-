@@ -28,8 +28,13 @@
 - [x] **공개 API v1** — 키당 분당 60회, 초과 429 + Retry-After (18단계)
 - [x] **민감 뮤테이션** — consent·checkout·data-export·account-delete·admin에
   IP/식별자 기반 제한 (`src/lib/security/rate-limit.ts`), 초과 429
-- [~] **다중 인스턴스** — 현재 인메모리 고정창(단일 인스턴스). 프로덕션 수평
-  확장 시 Redis/Upstash로 교체 (호출 형태 동일). PROGRESS.md 배포 목록 등재
+- [~] **다중 인스턴스 (알려진 한계)** — 레이트리밋 저장소는 인메모리 고정창이라
+  Vercel 인스턴스마다 따로 센다(실효 한도 = 설정값 × 활성 인스턴스 수). 현재
+  트래픽에서는 비용·복잡도 대비 실익이 없어 의도적으로 유지. 유료 트래픽이
+  붙으면 Redis/Upstash로 교체 (호출 형태 동일, `src/lib/security/rate-limit.ts`)
+- [x] **뮤테이션 추가 제한** — 알림 채널 설정(20/분), 포트폴리오 AI 해설(6/분),
+  웹훅 테스트(6/분, Whale 게이트), 뉴스 목록(120/분·page≤200), 추천 랜딩(30/분),
+  퍼널 이벤트(60/분)
 
 ## XSS · CSRF · 입력 검증
 
@@ -47,11 +52,26 @@
 - [x] `Referrer-Policy: strict-origin-when-cross-origin`
 - [x] `Strict-Transport-Security` (HSTS, 2년, includeSubDomains, preload)
 - [x] `Permissions-Policy` (camera/mic/geolocation/FLoC 차단)
-- [x] `Content-Security-Policy` — frame-ancestors·base-uri·form-action·object-src
+- [x] `Content-Security-Policy` — **프로덕션 전면 정책** (`next.config.mjs`
+  `buildCsp()`): default-src 'self'; script-src self + Clerk FAPI(발행키에서
+  도출) + challenges.cloudflare.com; img-src self/data/blob + img.clerk.com +
+  *.tile.openstreetmap.org; connect-src self + Clerk + *.protect.clerk.com +
+  wss://stream.binance.com:9443 + Sentry ingest(DSN에서 도출); frame-src Clerk/
+  Turnstile; worker-src self blob; object-src none; upgrade-insecure-requests.
+  개발 모드는 frame-ancestors·base-uri·form-action·object-src만(HMR eval 필요).
+  `next build && next start`로 홈(지도 타일·티커 WS)·로그인(Clerk 폼·OAuth 버튼)
+  콘솔 CSP 위반 0건 확인. Vercel preview에서는 vercel.live 자동 허용
 - [x] `X-Powered-By` 제거
-- [~] **CSP script-src 강화** — 현재 CSP는 클릭재킹·base-tag·form-hijack 방어에
-  집중(스크립트 소스 미제한). 전면 script-src 정책은 Clerk/Next 인라인 부트스트랩
-  검증이 필요한 배포 시 강화 항목(프리뷰 브라우저 불능으로 이번에 미검증)
+- [x] **인증 JSON 캐시 금지** — `/api/me/*`, `/api/admin/*`, `/api/v1/*`에
+  `Cache-Control: private, no-store`
+- [x] **세션 쿠키 위생** — 손상된 3분절 `__session`(JWT 아님)은 무시·삭제
+  (기존: clerkMiddleware 예외로 전 페이지 500). Clerk 진단 헤더
+  `x-clerk-auth-*` 응답에서 제거. CSRF 동일출처 검사는 스킴+호스트 비교
+- [x] **SSRF** — 웹훅 URL: 리다이렉트 미추종(`redirect: 'manual'`, 3xx는 실패),
+  `net.BlockList` 기반 사설/예약 대역(IPv4-mapped IPv6 포함) 차단, 푸시 엔드포인트는
+  알려진 푸시 서비스 호스트만 허용
+- [x] **알림 목적지 소유 검증** — 이메일은 계정 주소만, 텔레그램은 개인 chat id
+  (양수)만·운영 채널 id 거부
 
 ## 감사 로그
 
@@ -82,5 +102,7 @@ npm run dev                 # 서버 기동
 node scripts/test-security.mjs   # 32/32
 ```
 
-배포 후 추가 확인: `npx lighthouse`(SEO/Best-Practices), CSP script-src 강화,
-레이트리밋 공유 스토어 전환, `CLERK_WEBHOOK_SECRET`/`SENTRY_*` 실제 값 설정.
+배포 후 추가 확인: `npx lighthouse`(SEO/Best-Practices), 레이트리밋 공유 스토어
+전환(유료 트래픽 시), `CLERK_WEBHOOK_SECRET`(Clerk 대시보드 → Webhooks →
+`https://cryptoguide.live/api/webhooks/clerk`, user.* 이벤트) / `SENTRY_*` 실제 값 설정,
+`DIRECT_URL`(빌드 시 `prisma migrate deploy`가 사용) 존재 확인.

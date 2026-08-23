@@ -116,5 +116,16 @@ for (const path of ['/ko', '/en', '/ko/news', '/en/legal/refund']) {
     `ko=${hasKo} en=${hasEn} xd=${hasDefault} canon=${hasCanonical}`)
 }
 
+// Unknown paths under a locale must answer with a real 404 status (the
+// [locale]/loading.tsx streaming shell used to turn them into soft 404s).
+{
+  const r = await fetch(`${APP}/en/definitely-not-a-page`, { redirect: 'manual' })
+  ok('unknown /en path → 404 status', r.status === 404)
+  const r2 = await fetch(`${APP}/ko/nope/deeper`, { redirect: 'manual' })
+  ok('unknown /ko path → 404 status', r2.status === 404)
+  const r3 = await fetch(`${APP}/en/news`, { redirect: 'manual' })
+  ok('known path still 200', r3.status === 200)
+}
+
 console.log(`\nSUMMARY: ${pass} passed, ${fail} failed — ${fail === 0 ? 'ALL PASS' : 'SOME FAILED'}`)
 process.exit(fail === 0 ? 0 : 1)

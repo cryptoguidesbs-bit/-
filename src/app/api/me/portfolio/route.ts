@@ -2,22 +2,27 @@ import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
 
 import { checkFeature } from '@/lib/entitlements'
+import { checkLimit, limitResponse } from '@/lib/entitlements/limits'
 import { getUsdQuotes } from '@/lib/market/quotes'
 import { getDbUser } from '@/lib/user'
 import { prisma } from '@/lib/prisma'
 
 export const dynamic = 'force-dynamic'
 
-// Portfolio tools are a Trader+ feature (A-3 matrix).
+// Portfolio tools are a Trader+ feature (A-3 matrix). Returns the gate so
+// callers can reuse `gate.plan` for the per-plan holding cap.
 async function gatePortfolio() {
   const gate = await checkFeature('portfolio.tools')
   if (!gate.allowed) {
-    return NextResponse.json(
-      { error: 'forbidden', reason: gate.reason, requiredPlan: gate.requiredPlan },
-      { status: gate.reason === 'auth' ? 401 : 403 },
-    )
+    return {
+      error: NextResponse.json(
+        { error: 'forbidden', reason: gate.reason, requiredPlan: gate.requiredPlan },
+        { status: gate.reason === 'auth' ? 401 : 403 },
+      ),
+      gate,
+    }
   }
-  return null
+  return { error: null, gate }
 }
 
 async function getDefaultPortfolio(userId: string) {
@@ -30,7 +35,7 @@ async function getDefaultPortfolio(userId: string) {
 
 // GET /api/me/portfolio — holdings with live valuation.
 export async function GET() {
-  const gateError = await gatePortfolio()
+  const { error: gateError } = await gatePortfolio()
   if (gateError) return gateError
   const user = await getDbUser()
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
@@ -83,7 +88,7 @@ const addSchema = z.object({
 
 // POST /api/me/portfolio — add (or replace) a holding.
 export async function POST(request: NextRequest) {
-  const gateError = await gatePortfolio()
+  const { error: gateError, gate } = await gatePortfolio()
   if (gateError) return gateError
   const user = await getDbUser()
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
@@ -94,6 +99,19 @@ export async function POST(request: NextRequest) {
   }
 
   const portfolio = await getDefaultPortfolio(user.id)
+
+  // Per-plan cap on distinct holdings (config/limits.ts). Replacing an
+  // existing symbol never counts as a new holding.
+  const existing = await prisma.portfolioItem.findUnique({
+    where: { portfolioId_symbol: { portfolioId: portfolio.id, symbol: parsed.data.symbol } },
+    select: { id: true },
+  })
+  if (!existing) {
+    const used = await prisma.portfolioItem.count({ where: { portfolioId: portfolio.id } })
+    const cap = checkLimit(gate.plan, 'portfolioHoldings', used)
+    if (!cap.allowed) return limitResponse(cap)
+  }
+
   const item = await prisma.portfolioItem.upsert({
     where: {
       portfolioId_symbol: { portfolioId: portfolio.id, symbol: parsed.data.symbol },

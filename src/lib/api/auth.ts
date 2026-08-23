@@ -4,6 +4,7 @@ import type { NextRequest } from 'next/server'
 import type { ApiKey } from '@prisma/client'
 
 import { planHasFeature } from '@/config/features'
+import { planLimit } from '@/config/limits'
 import { isFeatureAllowedInCountryLive } from '@/lib/entitlements/region'
 import type { SubscriptionPlan } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
@@ -18,6 +19,11 @@ import { checkRateLimit, defaultRateLimit, type RateLimitResult } from './rate-l
 // ---------------------------------------------------------------------------
 
 const ENTITLED_STATUSES = ['ACTIVE', 'TRIALING', 'PAST_DUE']
+
+/** First day of the current UTC month, YYYY-MM-DD (ApiUsage.day format). */
+function monthStartUtc(now = new Date()): string {
+  return `${now.getUTCFullYear()}-${String(now.getUTCMonth() + 1).padStart(2, '0')}-01`
+}
 
 export type ApiAuthResult =
   | { ok: true; apiKey: ApiKey; rate: RateLimitResult }
@@ -69,10 +75,30 @@ export async function authenticateApiKey(
     process.env.NODE_ENV !== 'production'
       ? Number(request.headers.get('x-test-rate-limit'))
       : NaN
-  const limit = Number.isFinite(testLimit) && testLimit > 0 ? testLimit : defaultRateLimit()
+  const planRpm = planLimit(plan, 'apiRequestsPerMinute')
+  const limit =
+    Number.isFinite(testLimit) && testLimit > 0
+      ? testLimit
+      : planRpm && planRpm > 0
+        ? planRpm
+        : defaultRateLimit()
   const rate = checkRateLimit(apiKey.id, limit)
   if (!rate.allowed) {
     return { ok: false, status: 429, error: 'rate limit exceeded', rate }
+  }
+
+  // Per-plan monthly quota across ALL of the user's keys (UTC calendar month).
+  // null = unlimited. Counted from the same ApiUsage rows the usage page
+  // shows, so the number on the pricing page is the number enforced.
+  const monthlyCap = planLimit(plan, 'apiCallsPerMonth')
+  if (monthlyCap !== null) {
+    const used = await prisma.apiUsage.aggregate({
+      _sum: { count: true },
+      where: { apiKey: { userId: apiKey.userId }, day: { gte: monthStartUtc() } },
+    })
+    if ((used._sum.count ?? 0) >= monthlyCap) {
+      return { ok: false, status: 429, error: 'monthly quota exceeded', rate }
+    }
   }
 
   // Usage aggregation (per key × endpoint × UTC day).
@@ -87,6 +113,13 @@ export async function authenticateApiKey(
   ])
 
   return { ok: true, apiKey, rate }
+}
+
+/** Headers for an authenticateApiKey failure: rate-limit info + challenge. */
+export function apiErrorHeaders(auth: { status: number; rate?: RateLimitResult }): Record<string, string> {
+  const headers = rateHeaders(auth.rate)
+  if (auth.status === 401) headers['WWW-Authenticate'] = 'Bearer realm="cryptoguide-api"'
+  return headers
 }
 
 export function rateHeaders(rate?: RateLimitResult): Record<string, string> {

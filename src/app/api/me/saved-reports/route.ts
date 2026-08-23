@@ -35,7 +35,10 @@ export async function POST(request: NextRequest) {
   const parsed = saveSchema.safeParse(await request.json().catch(() => ({})))
   if (!parsed.success) return NextResponse.json({ error: 'invalid body' }, { status: 400 })
 
-  const exists = await prisma.report.findUnique({ where: { id: parsed.data.reportId } })
+  const exists = await prisma.report.findFirst({
+    where: { id: parsed.data.reportId, status: 'PUBLISHED' },
+    select: { id: true },
+  })
   if (!exists) return NextResponse.json({ error: 'report not found' }, { status: 404 })
 
   await prisma.savedReport.upsert({
