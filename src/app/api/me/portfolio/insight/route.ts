@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
 
   const provider = getAiProvider()
   try {
-    await consumeAiBudget()
+    await consumeAiBudget(1, { reserve: true })
     const commentary = await provider.explainPortfolio({
       weights: analytics.holdings
         .filter((h) => h.weightPct !== null)

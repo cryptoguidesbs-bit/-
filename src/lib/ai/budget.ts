@@ -26,17 +26,30 @@ function dailyLimit(): number {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 200
 }
 
+// Head-room kept free for first-party content generation (daily briefs and
+// research reports run near the END of the UTC budget day — KST mornings).
+// Bulk consumers (news summaries, portfolio commentary) pass
+// { reserve: true } and stop early so the brief/report calls always fit.
+function contentReserve(): number {
+  const parsed = Number(process.env.AI_CONTENT_RESERVE)
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : 30
+}
+
 /** Reserve one model call from today's budget. Throws when exhausted. */
-export async function consumeAiBudget(calls = 1): Promise<void> {
+export async function consumeAiBudget(
+  calls = 1,
+  opts: { reserve?: boolean } = {},
+): Promise<void> {
   const limit = dailyLimit()
+  const effectiveLimit = opts.reserve ? Math.max(0, limit - contentReserve()) : limit
   const day = todayUtc()
   const usage = await prisma.aiUsage.upsert({
     where: { day },
     update: { calls: { increment: calls } },
     create: { day, calls },
   })
-  if (usage.calls > limit) {
-    throw new AiBudgetExceededError(limit)
+  if (usage.calls > effectiveLimit) {
+    throw new AiBudgetExceededError(effectiveLimit)
   }
 }
 
