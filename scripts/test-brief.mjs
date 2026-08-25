@@ -231,6 +231,12 @@ ok(
   reserveSummarize.status === 200 && probeAfter?.aiStatus === 'PENDING',
   `status=${reserveSummarize.status} aiStatus=${probeAfter?.aiStatus} deferred=${reserveSummarize.json?.deferred}`,
 )
+const usageAfterDefer = await prisma.aiUsage.findUnique({ where: { day: TODAY } })
+ok(
+  'refused attempts are refunded (counter not inflated)',
+  usageAfterDefer?.calls === LIMIT - RESERVE,
+  `calls=${usageAfterDefer?.calls} expected=${LIMIT - RESERVE}`,
+)
 const RESERVE_BRIEF_DATE = '2020-01-03'
 const reserveBrief = await post('/api/brief/generate', { date: RESERVE_BRIEF_DATE })
 ok(
