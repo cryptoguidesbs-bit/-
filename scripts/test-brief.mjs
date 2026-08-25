@@ -205,6 +205,41 @@ ok(
 )
 const budgetRows = await prisma.marketBrief.count({ where: { briefDate: FAKE_BUDGET_DATE } })
 ok('no brief rows created while over budget', budgetRows === 0)
+
+// Content reserve: with the budget consumed up to the bulk-consumer ceiling
+// (limit - reserve), news summarization must defer while brief generation
+// still succeeds. This is the production regression (news summaries ate the
+// whole day's budget before the KST-morning brief cron = end of UTC day).
+const LIMIT = Number(process.env.AI_DAILY_CALL_LIMIT) > 0 ? Number(process.env.AI_DAILY_CALL_LIMIT) : 200
+const RESERVE = Number(process.env.AI_CONTENT_RESERVE) >= 0 ? Number(process.env.AI_CONTENT_RESERVE) : 30
+await prisma.aiUsage.update({ where: { day: TODAY }, data: { calls: LIMIT - RESERVE } })
+const reserveProbe = await prisma.newsItem.create({
+  data: {
+    urlHash: 'test-reserve-' + Date.now(),
+    title: 'Bitcoin holds steady as markets weigh macro data',
+    url: 'https://example.com/test-reserve-' + Date.now(),
+    source: 'CoinDesk',
+    region: 'US',
+    category: 'MARKET',
+    publishedAt: new Date(),
+  },
+})
+const reserveSummarize = await post('/api/news/summarize', {})
+const probeAfter = await prisma.newsItem.findUnique({ where: { id: reserveProbe.id } })
+ok(
+  'at the bulk ceiling: news summarize defers (stays PENDING)',
+  reserveSummarize.status === 200 && probeAfter?.aiStatus === 'PENDING',
+  `status=${reserveSummarize.status} aiStatus=${probeAfter?.aiStatus} deferred=${reserveSummarize.json?.deferred}`,
+)
+const RESERVE_BRIEF_DATE = '2020-01-03'
+const reserveBrief = await post('/api/brief/generate', { date: RESERVE_BRIEF_DATE })
+ok(
+  'at the bulk ceiling: brief generation still succeeds (reserved head-room)',
+  reserveBrief.status === 200 && reserveBrief.json?.tiers?.every((t) => t.status === 'published'),
+  JSON.stringify(reserveBrief.json?.tiers),
+)
+await prisma.newsItem.delete({ where: { id: reserveProbe.id } }).catch(() => {})
+await prisma.marketBrief.deleteMany({ where: { briefDate: RESERVE_BRIEF_DATE } })
 // Restore a sane counter.
 await prisma.aiUsage.update({ where: { day: TODAY }, data: { calls: usage?.calls ?? 10 } })
 
@@ -247,7 +282,7 @@ ok(
 )
 
 // --- cleanup --------------------------------------------------------------------------
-await prisma.marketBrief.deleteMany({ where: { briefDate: { in: [FAKE_VIOLATION_DATE, FAKE_BUDGET_DATE] } } })
+await prisma.marketBrief.deleteMany({ where: { briefDate: { in: [FAKE_VIOLATION_DATE, FAKE_BUDGET_DATE, '2020-01-03'] } } })
 await prisma.subscription.deleteMany({ where: { userId: dbUser.id } })
 await prisma.$disconnect()
 

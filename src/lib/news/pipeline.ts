@@ -156,7 +156,7 @@ export async function summarizePending(limit = 15): Promise<SummarizeReport> {
     while (attempts < MAX_AI_ATTEMPTS && !published && !deferred) {
       attempts += 1
       try {
-        await consumeAiBudget()
+        await consumeAiBudget(1, { reserve: true })
         const analysis = await provider.analyzeArticle({
           title: item.title,
           source: item.source,
