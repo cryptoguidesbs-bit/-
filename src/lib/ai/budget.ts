@@ -49,6 +49,12 @@ export async function consumeAiBudget(
     create: { day, calls },
   })
   if (usage.calls > effectiveLimit) {
+    // Refund the refused reservation: repeated over-ceiling attempts (the
+    // half-hourly summarizer keeps retrying all day) must not inflate the
+    // counter past the FULL limit, or briefs/reports get starved again.
+    await prisma.aiUsage
+      .update({ where: { day }, data: { calls: { decrement: calls } } })
+      .catch(() => {})
     throw new AiBudgetExceededError(effectiveLimit)
   }
 }
