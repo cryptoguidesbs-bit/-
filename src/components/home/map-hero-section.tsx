@@ -46,6 +46,12 @@ export async function MapHeroSection({ locale }: { locale: string }) {
       <p className="mt-3 text-xs leading-relaxed text-muted-foreground" data-testid="map-hero-disclaimer">
         {tMap('disclaimer')} {t('disclaimer')}
       </p>
+      <p className="mt-1.5 text-xs text-muted-foreground" data-testid="map-hero-trust">
+        {t('trust')}{' '}
+        <Link href="/data" className="font-medium text-primary hover:underline">
+          {t('trustLink')}
+        </Link>
+      </p>
     </section>
   )
 }
