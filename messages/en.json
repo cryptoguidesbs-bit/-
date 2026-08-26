@@ -57,7 +57,7 @@
   },
   "map": {
     "title": "Crypto Map",
-    "subtitle": "Find merchants, ATMs and online services that accept crypto, plus regulation status by country.",
+    "subtitle": "Traveling or local — find places that take crypto and check each country's rules, no sign-up needed.",
     "disclaimer": "This map is for informational purposes only and does not broker transactions. Merchant and ATM data comes from third parties (BTCMap/OpenStreetMap) and is not guaranteed to be accurate or current; per-country regulation status is for reference only and is not legal advice. You are responsible for your own visits, transactions and regulatory compliance.",
     "nearMe": "Near me",
     "onlineToggle": "Online services",
@@ -636,7 +636,9 @@
       "subtitle": "Real-time prices, AI news digests, daily market briefings and on-chain data — the information you need, without the noise.",
       "ctaPrimary": "Get started for free",
       "ctaSecondary": "Explore features",
-      "disclaimer": "CryptoGuide is an information service and does not provide investment advice."
+      "disclaimer": "CryptoGuide is an information service and does not provide investment advice.",
+      "trust": "Every data source, refresh cadence and limitation is documented in public.",
+      "trustLink": "How our data works →"
     },
     "ticker": {
       "live": "LIVE",
@@ -745,7 +747,7 @@
       "tiers": {
         "free": {
           "name": "Free",
-          "tagline": "The basics for following the crypto market",
+          "tagline": "For newcomers exploring crypto",
           "f1": "Basic real-time prices",
           "f2": "Limited news feed",
           "f3": "Limited market briefings",
@@ -753,7 +755,7 @@
         },
         "starter": {
           "name": "Starter",
-          "tagline": "Keep up with the market every day",
+          "tagline": "For readers who want the morning brief",
           "f1": "AI news digests",
           "f2": "Daily market briefing",
           "f3": "Basic dashboard",
@@ -761,7 +763,7 @@
         },
         "trader": {
           "name": "Trader",
-          "tagline": "A toolkit for active market analysis",
+          "tagline": "For traders who act on alerts and tools",
           "f1": "Everything in Starter",
           "f2": "Detailed AI briefings",
           "f3": "AI pattern analysis",
@@ -771,7 +773,7 @@
         },
         "pro": {
           "name": "Pro",
-          "tagline": "For teams that need deeper data",
+          "tagline": "For investors who go deep on research",
           "f1": "Everything in Trader",
           "f2": "Advanced on-chain / whale data",
           "f3": "Premium research reports (weekly/monthly/quarterly)",
@@ -779,7 +781,7 @@
         },
         "whale": {
           "name": "Whale",
-          "tagline": "Every feature and dataset, unlimited",
+          "tagline": "For teams that need data and API access",
           "f1": "Everything included",
           "f2": "API Center: {apiKeys} keys · {rpm} req/min · {monthly} calls/mo",
           "f3": "Data export · {webhooks} webhooks",
