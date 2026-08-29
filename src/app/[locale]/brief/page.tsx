@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { UpgradeRequired } from '@/components/entitlements/upgrade-required'
+import { ShareButtons } from '@/components/share-buttons'
 import { Link } from '@/i18n/navigation'
 import { pageAlternates } from '@/lib/seo'
 
@@ -81,6 +82,12 @@ export default async function BriefPage({ params: { locale }, searchParams }: Pr
         <>
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             <Badge variant="secondary">{brief.briefDate}</Badge>
+            <span className="ml-auto order-last">
+              <ShareButtons
+                text={`${t('title')} · ${brief.briefDate} — CryptoGuide`}
+                path={`/${locale}/brief`}
+              />
+            </span>
             <Badge variant="outline">
               {tier === 'DETAILED' ? t('tierDetailed') : t('tierStandard')}
             </Badge>

@@ -19,15 +19,19 @@ function absoluteUrl(href: string, locale: Locale) {
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  return routes.map((href) => ({
-    url: absoluteUrl(href, routing.defaultLocale),
-    lastModified: new Date(),
-    changeFrequency: 'weekly',
-    priority: href === '/' ? 1 : 0.7,
-    alternates: {
-      languages: Object.fromEntries(
-        routing.locales.map((locale) => [locale, absoluteUrl(href, locale)]),
-      ),
-    },
-  }))
+  // One entry per route AND locale (both listed as <loc>), each carrying the
+  // full hreflang alternate set — the most robust shape for Google.
+  return routing.locales.flatMap((locale) =>
+    routes.map((href) => ({
+      url: absoluteUrl(href, locale),
+      lastModified: new Date(),
+      changeFrequency: 'weekly' as const,
+      priority: href === '/' ? 1 : 0.7,
+      alternates: {
+        languages: Object.fromEntries(
+          routing.locales.map((l) => [l, absoluteUrl(href, l)]),
+        ),
+      },
+    })),
+  )
 }

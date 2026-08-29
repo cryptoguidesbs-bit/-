@@ -71,6 +71,9 @@ export default async function LocaleLayout({
   setRequestLocale(locale)
 
   const messages = await getMessages()
+  // The Data & methodology page renders entirely on the server — its large
+  // namespace never needs to ship to the browser.
+  const { data: _serverOnlyData, ...clientMessages } = messages as Record<string, unknown>
   const tCommon = await getTranslations({ locale, namespace: 'common' })
 
   return (
@@ -85,7 +88,7 @@ export default async function LocaleLayout({
           signUpFallbackRedirectUrl={`/${locale}`}
           afterSignOutUrl={`/${locale}`}
         >
-          <NextIntlClientProvider messages={messages}>
+          <NextIntlClientProvider messages={clientMessages as typeof messages}>
             {/* Dark-only theme: light palette stays in globals.css for a future
                 light mode, but the UI is forced to dark. */}
             <ThemeProvider

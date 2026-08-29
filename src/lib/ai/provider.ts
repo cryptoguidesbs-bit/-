@@ -398,9 +398,25 @@ class MockProvider implements AiProvider {
       bearish: 'The news could weigh on near-term sentiment.',
     }
 
+    // A mostly-Hangul headline pasted into an English sentence reads broken
+    // for EN readers; describe the story by source/category instead.
+    const hangulChars = (input.title.match(/[가-힣]/g) ?? []).length
+    const denseChars = Math.max(1, input.title.replace(/s/g, '').length)
+    const CATEGORY_EN: Record<string, string> = {
+      MARKET: 'a market development',
+      REGULATION: 'a regulatory development',
+      TECHNOLOGY: 'a technology update',
+      DEFI: 'a DeFi development',
+      MACRO: 'a macro development',
+      GENERAL: 'an industry development',
+    }
+    const enLead =
+      hangulChars / denseChars > 0.3
+        ? `${input.source} reports ${CATEGORY_EN[input.category] ?? 'an industry development'} (original headline in Korean).`
+        : `${input.source} reports "${short}".`
     return {
       summary_ko: `${input.source}에서 "${short}" 소식을 전했습니다. ${tailKo[sentiment]}`,
-      summary_en: `${input.source} reports "${short}". ${tailEn[sentiment]}`,
+      summary_en: `${enLead} ${tailEn[sentiment]}`,
       sentiment,
       confidence,
     }
