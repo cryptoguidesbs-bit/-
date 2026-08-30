@@ -36,16 +36,26 @@ export default function OpenGraphImage() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 46,
-              fontWeight: 800,
-              letterSpacing: -2,
-              color: 'white',
             }}
           >
-            CG
+            <svg width="82" height="82" viewBox="0 0 100 100">
+              <path
+                d="M 53.4 22.33 A 27.88 27.88 0 1 0 77.67 46.6"
+                fill="none"
+                stroke="#FFFFFF"
+                strokeWidth={10.66}
+                strokeLinecap="round"
+              />
+              <polygon points="77.25,22.75 45.07,45.07 54.93,54.93" fill="#34D399" />
+              <polygon points="34.34,65.66 54.93,54.93 45.07,45.07" fill="#C7D2FE" />
+              <circle cx="50" cy="50" r={4.1} fill="#6D5AE8" />
+            </svg>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: 56, fontWeight: 800, letterSpacing: -1.5 }}>CryptoGuide</div>
+            <div style={{ display: 'flex', fontSize: 56, fontWeight: 800, letterSpacing: -1.5 }}>
+              <span>Crypto</span>
+              <span style={{ color: '#34D399' }}>Guide</span>
+            </div>
             <div style={{ fontSize: 24, color: '#a5b4fc' }}>cryptoguide.live</div>
           </div>
         </div>
