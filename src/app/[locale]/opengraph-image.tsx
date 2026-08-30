@@ -52,7 +52,10 @@ export default function OpenGraphImage() {
             </svg>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ fontSize: 56, fontWeight: 800, letterSpacing: -1.5 }}>CryptoGuide</div>
+            <div style={{ display: 'flex', fontSize: 56, fontWeight: 800, letterSpacing: -1.5 }}>
+              <span>Crypto</span>
+              <span style={{ color: '#34D399' }}>Guide</span>
+            </div>
             <div style={{ fontSize: 24, color: '#a5b4fc' }}>cryptoguide.live</div>
           </div>
         </div>
