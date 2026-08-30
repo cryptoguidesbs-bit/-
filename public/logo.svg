@@ -1,10 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="CryptoGuide">
-  <defs>
-    <linearGradient id="cg" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-      <stop offset="0" stop-color="#4f46e5"/>
-      <stop offset="1" stop-color="#a855f7"/>
-    </linearGradient>
-  </defs>
-  <rect width="100" height="100" rx="20" fill="url(#cg)"/>
-  <text x="50" y="51" text-anchor="middle" dominant-baseline="central" font-family="'Arial Black', 'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="46" font-weight="800" letter-spacing="-1.5" fill="#ffffff">CG</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" role="img" aria-label="CryptoGuide"><defs><linearGradient id="cg" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#4f46e5"/><stop offset="1" stop-color="#a855f7"/></linearGradient></defs><rect width="100" height="100" rx="20" fill="url(#cg)"/><g transform="translate(50 50) scale(0.82) translate(-50 -50)"><path d="M 54.14 16.25 A 34 34 0 1 0 83.75 45.86" fill="none" stroke="#FFFFFF" stroke-width="13" stroke-linecap="round"/><polygon points="83.23,16.77 43.99,43.99 56.01,56.01" fill="#34D399"/><polygon points="30.91,69.09 56.01,56.01 43.99,43.99" fill="#C7D2FE"/><circle cx="50" cy="50" r="5" fill="#6D5AE8"/></g></svg>
