@@ -14,7 +14,8 @@ const patchSchema = z.object({
 })
 
 // PATCH /api/me/alerts/:id — toggle/update a rule (ownership enforced).
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const user = await getDbUser()
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
@@ -47,7 +48,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 }
 
 // DELETE /api/me/alerts/:id — remove a rule (ownership enforced).
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const user = await getDbUser()
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 

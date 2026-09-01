@@ -14,7 +14,8 @@ const patchSchema = z.object({
 })
 
 // PATCH /api/me/portfolio/:id — update a holding.
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await checkFeature('portfolio.tools')
   if (!gate.allowed) {
     return NextResponse.json({ error: 'forbidden' }, { status: gate.reason === 'auth' ? 401 : 403 })
@@ -38,7 +39,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 }
 
 // DELETE /api/me/portfolio/:id — remove a holding.
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await checkFeature('portfolio.tools')
   if (!gate.allowed) {
     return NextResponse.json({ error: 'forbidden' }, { status: gate.reason === 'auth' ? 401 : 403 })

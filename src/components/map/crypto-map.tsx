@@ -11,8 +11,8 @@ const colorFor = (category: string | null): string =>
   CATEGORY_COLOR[(category as MapCategory) in CATEGORY_COLOR ? (category as MapCategory) : 'other']
 
 import 'leaflet/dist/leaflet.css'
-import 'leaflet.markercluster/dist/MarkerCluster.css'
-import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
+import 'react-leaflet-cluster/dist/assets/MarkerCluster.css'
+import 'react-leaflet-cluster/dist/assets/MarkerCluster.Default.css'
 
 export type Place = {
   id: string

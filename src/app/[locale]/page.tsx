@@ -14,9 +14,15 @@ import { FaqSection } from '@/components/home/faq-section'
 import { HomeJsonLd } from '@/components/seo/home-json-ld'
 import { pageAlternates } from '@/lib/seo'
 
-type Props = { params: { locale: string } }
+type Props = { params: Promise<{ locale: string }> }
 
-export function generateMetadata({ params: { locale } }: Props): Metadata {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   return {
     alternates: pageAlternates('/', locale),
   }
@@ -25,7 +31,13 @@ export function generateMetadata({ params: { locale } }: Props): Metadata {
 // Section order tells the story: value proposition (hero) → live proof
 // (brief, news, markets) → why us → real screenshots → pricing → the map as
 // a bonus → FAQ.
-export default function HomePage({ params: { locale } }: Props) {
+export default async function HomePage(props: Props) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   setRequestLocale(locale)
 
   return (

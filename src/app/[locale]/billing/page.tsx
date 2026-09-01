@@ -21,18 +21,31 @@ const PLAN_TO_KEY: Record<string, 'starter' | 'trader' | 'pro' | 'whale'> = {
 }
 
 type Props = {
-  params: { locale: string }
-  searchParams: { session_id?: string }
+  params: Promise<{ locale: string }>
+  searchParams: Promise<{ session_id?: string }>
 }
 
-export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'billing' })
   return { title: t('title') }
 }
 
 const ENTITLED = new Set(['ACTIVE', 'TRIALING', 'PAST_DUE'])
 
-export default async function BillingPage({ params: { locale }, searchParams }: Props) {
+export default async function BillingPage(props: Props) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   setRequestLocale(locale)
 
   const { userId: clerkId } = await auth()

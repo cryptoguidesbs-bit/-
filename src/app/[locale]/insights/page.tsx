@@ -4,9 +4,15 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { PagePlaceholder } from '@/components/page-placeholder'
 import { pageAlternates } from '@/lib/seo'
 
-type Props = { params: { locale: string } }
+type Props = { params: Promise<{ locale: string }> }
 
-export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'pages.insights' })
   return {
     title: t('title'),
@@ -17,7 +23,13 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
   }
 }
 
-export default async function InsightsPage({ params: { locale } }: Props) {
+export default async function InsightsPage(props: Props) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   setRequestLocale(locale)
   const t = await getTranslations({ locale, namespace: 'pages.insights' })
 

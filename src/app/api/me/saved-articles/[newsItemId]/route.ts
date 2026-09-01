@@ -6,10 +6,8 @@ import { prisma } from '@/lib/prisma'
 export const dynamic = 'force-dynamic'
 
 // DELETE /api/me/saved-articles/:newsItemId — remove a bookmark.
-export async function DELETE(
-  _request: Request,
-  { params }: { params: { newsItemId: string } },
-) {
+export async function DELETE(_request: Request, props: { params: Promise<{ newsItemId: string }> }) {
+  const params = await props.params;
   const user = await getDbUser()
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 

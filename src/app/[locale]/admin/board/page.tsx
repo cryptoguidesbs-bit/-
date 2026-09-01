@@ -8,11 +8,17 @@ import { Card, CardContent } from '@/components/ui/card'
 
 export const metadata: Metadata = { title: 'Board', robots: { index: false } }
 
-type Props = { params: { locale: string } }
+type Props = { params: Promise<{ locale: string }> }
 
 // Operator wall-board ("dashboard mode") — ADMIN role only. Big numbers,
 // auto-refresh, meant to stay open full-screen on a monitor.
-export default async function AdminBoardPage({ params: { locale } }: Props) {
+export default async function AdminBoardPage(props: Props) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   setRequestLocale(locale)
 
   const user = await getDbUser()

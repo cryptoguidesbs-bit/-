@@ -17,14 +17,26 @@ import {
 } from '@/components/dashboard/dashboard-widgets'
 import { Link } from '@/i18n/navigation'
 
-type Props = { params: { locale: string } }
+type Props = { params: Promise<{ locale: string }> }
 
-export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'dashboard' })
   return { title: t('title') }
 }
 
-export default async function DashboardPage({ params: { locale } }: Props) {
+export default async function DashboardPage(props: Props) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   setRequestLocale(locale)
 
   const { userId: clerkId } = await auth()

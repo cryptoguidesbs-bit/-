@@ -4,15 +4,27 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { PrivacyControls } from '@/components/profile/privacy-controls'
 
-type Props = { params: { locale: string } }
+type Props = { params: Promise<{ locale: string }> }
 
-export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'auth' })
   return { title: t('profile') }
 }
 
 // Access is enforced in middleware (redirects signed-out users to sign-in).
-export default function ProfilePage({ params: { locale } }: Props) {
+export default async function ProfilePage(props: Props) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   setRequestLocale(locale)
 
   return (

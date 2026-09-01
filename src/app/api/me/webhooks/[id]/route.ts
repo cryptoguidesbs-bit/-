@@ -9,7 +9,8 @@ export const dynamic = 'force-dynamic'
 const patchSchema = z.object({ active: z.boolean() })
 
 // PATCH /api/me/webhooks/:id — enable/disable.
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const user = await getDbUser()
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 
@@ -25,7 +26,8 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 }
 
 // DELETE /api/me/webhooks/:id — remove.
-export async function DELETE(_request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const user = await getDbUser()
   if (!user) return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
 

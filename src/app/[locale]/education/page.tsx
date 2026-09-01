@@ -14,9 +14,15 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Link } from '@/i18n/navigation'
 import { pageAlternates } from '@/lib/seo'
 
-type Props = { params: { locale: string } }
+type Props = { params: Promise<{ locale: string }> }
 
-export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'education' })
   return {
     title: t('title'),
@@ -27,7 +33,13 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
 
 // Education hub — the full curriculum is visible to everyone; locked lessons
 // carry sign-up / upgrade CTAs (conversion funnel).
-export default async function EducationPage({ params: { locale } }: Props) {
+export default async function EducationPage(props: Props) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   setRequestLocale(locale)
   const t = await getTranslations({ locale, namespace: 'education' })
   const lang: 'ko' | 'en' = locale === 'ko' ? 'ko' : 'en'

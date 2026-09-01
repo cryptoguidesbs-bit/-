@@ -9,7 +9,8 @@ export const dynamic = 'force-dynamic'
 // GET /r/:code — referral landing. Sets the attribution cookie (30 days,
 // first-touch: an existing cookie is not overwritten) and redirects to the
 // landing page. Unknown codes redirect without a cookie.
-export async function GET(request: NextRequest, { params }: { params: { code: string } }) {
+export async function GET(request: NextRequest, props: { params: Promise<{ code: string }> }) {
+  const params = await props.params;
   const code = params.code.trim().toUpperCase().slice(0, 32)
   const response = NextResponse.redirect(new URL('/', request.url), 307)
 

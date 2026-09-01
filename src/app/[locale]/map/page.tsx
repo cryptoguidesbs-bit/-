@@ -6,9 +6,15 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { MapApp } from '@/components/map/map-app'
 import { pageAlternates } from '@/lib/seo'
 
-type Props = { params: { locale: string } }
+type Props = { params: Promise<{ locale: string }> }
 
-export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'map' })
   return {
     title: t('title'),
@@ -19,7 +25,13 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
 
 // Crypto Map — PUBLIC (also the home page's main view); read APIs are IP
 // rate-limited. Informational only; not transaction brokering.
-export default async function MapPage({ params: { locale } }: Props) {
+export default async function MapPage(props: Props) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   setRequestLocale(locale)
 
   const t = await getTranslations({ locale, namespace: 'map' })
