@@ -8,9 +8,15 @@ import { ApiDocs } from '@/components/api-center/api-docs'
 import { UpgradeRequired } from '@/components/entitlements/upgrade-required'
 import { pageAlternates } from '@/lib/seo'
 
-type Props = { params: { locale: string } }
+type Props = { params: Promise<{ locale: string }> }
 
-export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'apiCenter' })
   return {
     title: t('title'),
@@ -23,7 +29,13 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
 // (api.center) and are region-gated. The DOCUMENTATION is public — a buyer
 // has to be able to read what they would get before subscribing. API
 // responses always carry the disclaimer/terms meta.
-export default async function ApiCenterPage({ params: { locale } }: Props) {
+export default async function ApiCenterPage(props: Props) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   setRequestLocale(locale)
 
   const gate = await checkFeature('api.center')

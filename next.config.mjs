@@ -1,4 +1,4 @@
-import { withSentryConfig } from '@sentry/nextjs'
+import { withSentryConfig } from '@sentry/nextjs/config'
 import createNextIntlPlugin from 'next-intl/plugin'
 
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts')
@@ -90,10 +90,9 @@ const nextConfig = {
   // Client source maps add weight and expose source; keep them off in prod.
   productionBrowserSourceMaps: false,
   experimental: {
-    // Required in Next.js 14 for instrumentation.ts (Sentry server init).
-    instrumentationHook: true,
     // Per-icon/per-util imports instead of pulling whole barrels into the
     // client bundle — the biggest shared-chunk win for a lucide-heavy UI.
+    // (instrumentationHook is gone: instrumentation.ts is stable since 15.)
     optimizePackageImports: ['lucide-react', '@tanstack/react-query', 'date-fns'],
   },
   images: {
@@ -125,8 +124,6 @@ const sentryOptions = {
     disable: !process.env.SENTRY_AUTH_TOKEN,
   },
   telemetry: false,
-  widenClientFileUpload: true,
-  disableLogger: true,
 }
 
 export default withSentryConfig(withNextIntl(nextConfig), sentryOptions)

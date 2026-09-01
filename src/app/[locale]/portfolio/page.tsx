@@ -7,9 +7,15 @@ import { PortfolioManager } from '@/components/portfolio/portfolio-manager'
 import { UpgradeRequired } from '@/components/entitlements/upgrade-required'
 import { pageAlternates } from '@/lib/seo'
 
-type Props = { params: { locale: string } }
+type Props = { params: Promise<{ locale: string }> }
 
-export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'pages.portfolio' })
   return {
     title: t('title'),
@@ -19,7 +25,13 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
 }
 
 // Premium: portfolio tools require the Trader plan.
-export default async function PortfolioPage({ params: { locale } }: Props) {
+export default async function PortfolioPage(props: Props) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   setRequestLocale(locale)
 
   const gate = await checkFeature('portfolio.tools')

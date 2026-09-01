@@ -7,9 +7,15 @@ import { OnchainDashboard } from '@/components/onchain/onchain-dashboard'
 import { UpgradeRequired } from '@/components/entitlements/upgrade-required'
 import { pageAlternates } from '@/lib/seo'
 
-type Props = { params: { locale: string } }
+type Props = { params: Promise<{ locale: string }> }
 
-export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'onchain' })
   return {
     title: t('title'),
@@ -20,7 +26,13 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
 
 // Premium: whale & on-chain data requires the Pro plan
 // (onchain.advanced — region policy also applies).
-export default async function OnchainPage({ params: { locale } }: Props) {
+export default async function OnchainPage(props: Props) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   setRequestLocale(locale)
 
   const gate = await checkFeature('onchain.advanced')

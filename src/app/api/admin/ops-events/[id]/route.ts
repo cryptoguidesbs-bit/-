@@ -7,7 +7,8 @@ export const dynamic = 'force-dynamic'
 
 // PATCH /api/admin/ops-events/:id — mark resolved (same-kind alerts can
 // fire again afterwards).
-export async function PATCH(_request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(_request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const admin = await requireAdmin()
   if (!admin.ok) return admin.response
 

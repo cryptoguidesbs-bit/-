@@ -7,7 +7,8 @@ export const dynamic = 'force-dynamic'
 
 // Full report content by slug (Pro+). Only PUBLISHED reports are
 // ever served — drafts/held stay internal.
-export async function GET(request: NextRequest, { params }: { params: { slug: string } }) {
+export async function GET(request: NextRequest, props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const gate = await checkFeature('reports.premium')
   if (!gate.allowed) {
     return NextResponse.json(

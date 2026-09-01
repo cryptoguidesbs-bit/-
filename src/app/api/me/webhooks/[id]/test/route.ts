@@ -9,7 +9,8 @@ import { enforceRateLimit } from '@/lib/security/rate-limit'
 export const dynamic = 'force-dynamic'
 
 // POST /api/me/webhooks/:id/test — send a signed test.ping delivery.
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const gate = await checkFeature('api.center')
   if (!gate.allowed) {
     return NextResponse.json({ error: 'forbidden' }, { status: gate.reason === 'auth' ? 401 : 403 })

@@ -15,7 +15,8 @@ const patchSchema = z.object({
 })
 
 // PATCH /api/admin/members/:id — role / manual plan management.
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const admin = await requireAdmin()
   if (!admin.ok) return admin.response
 

@@ -10,10 +10,16 @@ import { Link } from '@/i18n/navigation'
 
 export const metadata: Metadata = { title: 'Admin', robots: { index: false } }
 
-type Props = { params: { locale: string } }
+type Props = { params: Promise<{ locale: string }> }
 
 // Operator console — ADMIN role only. Not linked from public navigation.
-export default async function AdminPage({ params: { locale } }: Props) {
+export default async function AdminPage(props: Props) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   setRequestLocale(locale)
 
   const user = await getDbUser()

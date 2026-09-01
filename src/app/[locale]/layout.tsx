@@ -24,11 +24,17 @@ export function generateStaticParams() {
 
 const OG_LOCALES: Record<string, string> = { ko: 'ko_KR', en: 'en_US' }
 
-export async function generateMetadata({
-  params: { locale },
-}: {
-  params: { locale: string }
-}): Promise<Metadata> {
+export async function generateMetadata(
+  props: {
+    params: Promise<{ locale: string }>
+  }
+): Promise<Metadata> {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'metadata' })
 
   return {
@@ -57,13 +63,22 @@ export async function generateMetadata({
   }
 }
 
-export default async function LocaleLayout({
-  children,
-  params: { locale },
-}: {
-  children: React.ReactNode
-  params: { locale: string }
-}) {
+export default async function LocaleLayout(
+  props: {
+    children: React.ReactNode
+    params: Promise<{ locale: string }>
+  }
+) {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
+  const {
+    children
+  } = props;
+
   if (!routing.locales.includes(locale as (typeof routing.locales)[number])) {
     notFound()
   }

@@ -47,8 +47,8 @@ export type Entitlements = {
 // Country from the hosting platform's geo header. Locally there is none →
 // null (policies decide via allowUnknown). Behind Vercel/Cloudflare the
 // header is set by the platform and cannot be spoofed by clients.
-function requestCountry(): string | null {
-  const h = headers()
+async function requestCountry(): Promise<string | null> {
+  const h = await headers()
   return (
     h.get('x-vercel-ip-country')?.toUpperCase() ?? h.get('cf-ipcountry')?.toUpperCase() ?? null
   )
@@ -101,8 +101,8 @@ function evaluate(
 
 /** Check a single feature for the current request. */
 export async function checkFeature(feature: FeatureKey): Promise<FeatureCheck> {
-  const country = requestCountry()
-  const [{ signedIn, plan }, overrides] = await Promise.all([
+  const [country, { signedIn, plan }, overrides] = await Promise.all([
+    requestCountry(),
     resolvePlanAndRole(),
     getRegionOverrides(),
   ])
@@ -120,8 +120,8 @@ export async function checkFeature(feature: FeatureKey): Promise<FeatureCheck> {
 
 /** Full feature matrix for the current request (signed-out → FREE). */
 export async function getEntitlements(): Promise<Entitlements> {
-  const country = requestCountry()
-  const [{ signedIn, plan, role }, overrides] = await Promise.all([
+  const [country, { signedIn, plan, role }, overrides] = await Promise.all([
+    requestCountry(),
     resolvePlanAndRole(),
     getRegionOverrides(),
   ])

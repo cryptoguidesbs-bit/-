@@ -13,9 +13,16 @@ import { SaveReportButton } from '@/components/reports/save-report-button'
 import { UpgradeRequired } from '@/components/entitlements/upgrade-required'
 import { Link } from '@/i18n/navigation'
 
-type Props = { params: { locale: string; slug: string } }
+type Props = { params: Promise<{ locale: string; slug: string }> }
 
-export async function generateMetadata({ params: { locale, slug } }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
+
+  const {
+    locale,
+    slug
+  } = params;
+
   const report = await prisma.report.findUnique({
     where: { slug_locale: { slug, locale: locale === 'ko' ? 'ko' : 'en' } },
     select: { title: true, summary: true, status: true },
@@ -46,12 +53,12 @@ function RenderMarkdown({ content }: { content: string }) {
               </h2>
               {rest.length > 0 && <BlockLines lines={rest} />}
             </div>
-          )
+          );
         }
         return <BlockLines key={index} lines={lines} />
       })}
     </div>
-  )
+  );
 }
 
 function BlockLines({ lines }: { lines: string[] }) {
@@ -70,10 +77,17 @@ function BlockLines({ lines }: { lines: string[] }) {
         </ul>
       )}
     </>
-  )
+  );
 }
 
-export default async function ReportDetailPage({ params: { locale, slug } }: Props) {
+export default async function ReportDetailPage(props: Props) {
+  const params = await props.params;
+
+  const {
+    locale,
+    slug
+  } = params;
+
   setRequestLocale(locale)
 
   const gate = await checkFeature('reports.premium')

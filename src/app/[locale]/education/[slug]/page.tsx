@@ -11,9 +11,16 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Link } from '@/i18n/navigation'
 
-type Props = { params: { locale: string; slug: string } }
+type Props = { params: Promise<{ locale: string; slug: string }> }
 
-export async function generateMetadata({ params: { locale, slug } }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
+
+  const {
+    locale,
+    slug
+  } = params;
+
   const lesson = getLesson(slug)
   if (!lesson) return {}
   const lang: 'ko' | 'en' = locale === 'ko' ? 'ko' : 'en'
@@ -43,7 +50,7 @@ function RenderLesson({ content }: { content: string }) {
                 <p className="text-sm leading-relaxed text-muted-foreground">{rest.join(' ')}</p>
               )}
             </div>
-          )
+          );
         }
         return (
           <p key={index} className="text-sm leading-relaxed text-muted-foreground">
@@ -52,7 +59,7 @@ function RenderLesson({ content }: { content: string }) {
         )
       })}
     </div>
-  )
+  );
 }
 
 // Funnel gate: sign-in CTA for member lessons, upgrade CTA for starter.
@@ -86,7 +93,14 @@ function LessonGateCard({ gate, t }: { gate: LessonGate; t: (key: string) => str
   )
 }
 
-export default async function LessonPage({ params: { locale, slug } }: Props) {
+export default async function LessonPage(props: Props) {
+  const params = await props.params;
+
+  const {
+    locale,
+    slug
+  } = params;
+
   setRequestLocale(locale)
 
   const lesson = getLesson(slug)

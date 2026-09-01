@@ -6,13 +6,20 @@ import { LegalDocument } from '@/components/legal/legal-document'
 import { isLegalSlug, legalSlugs } from '@/config/legal'
 import { pageAlternates } from '@/lib/seo'
 
-type Props = { params: { locale: string; slug: string } }
+type Props = { params: Promise<{ locale: string; slug: string }> }
 
 export function generateStaticParams() {
   return legalSlugs.map((slug) => ({ slug }))
 }
 
-export async function generateMetadata({ params: { locale, slug } }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
+
+  const {
+    locale,
+    slug
+  } = params;
+
   if (!isLegalSlug(slug)) return {}
   const t = await getTranslations({ locale, namespace: `legal.${slug}` })
   return {
@@ -26,7 +33,14 @@ export async function generateMetadata({ params: { locale, slug } }: Props): Pro
 // and rendered from their `legal.<slug>` translations. Automatic ko/en via
 // next-intl. NOTE: these are review-ready drafts; production launch is gated
 // on the attorney review tracked in docs/legal-review.md.
-export default async function LegalPage({ params: { locale, slug } }: Props) {
+export default async function LegalPage(props: Props) {
+  const params = await props.params;
+
+  const {
+    locale,
+    slug
+  } = params;
+
   if (!isLegalSlug(slug)) notFound()
   setRequestLocale(locale)
   return <LegalDocument locale={locale} slug={slug} />

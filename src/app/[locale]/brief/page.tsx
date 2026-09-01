@@ -16,11 +16,17 @@ import { Link } from '@/i18n/navigation'
 import { pageAlternates } from '@/lib/seo'
 
 type Props = {
-  params: { locale: string }
-  searchParams: { tier?: string }
+  params: Promise<{ locale: string }>
+  searchParams: Promise<{ tier?: string }>
 }
 
-export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'brief' })
   return {
     title: t('title'),
@@ -41,7 +47,14 @@ function Disclaimer({ text }: { text: string }) {
   )
 }
 
-export default async function BriefPage({ params: { locale }, searchParams }: Props) {
+export default async function BriefPage(props: Props) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   setRequestLocale(locale)
   const t = await getTranslations({ locale, namespace: 'brief' })
   const lang: 'ko' | 'en' = locale === 'ko' ? 'ko' : 'en'

@@ -14,14 +14,20 @@ import { pageAlternates } from '@/lib/seo'
 import { cn } from '@/lib/utils'
 
 type Props = {
-  params: { locale: string }
-  searchParams: { cadence?: string; category?: string }
+  params: Promise<{ locale: string }>
+  searchParams: Promise<{ cadence?: string; category?: string }>
 }
 
 const CADENCES = ['WEEKLY', 'MONTHLY', 'QUARTERLY'] as const
 const CATEGORIES = ['ETF', 'MACRO', 'ONCHAIN'] as const
 
-export async function generateMetadata({ params: { locale } }: Props): Promise<Metadata> {
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   const t = await getTranslations({ locale, namespace: 'reports' })
   return {
     title: t('title'),
@@ -31,7 +37,14 @@ export async function generateMetadata({ params: { locale } }: Props): Promise<M
 }
 
 // Premium research (Pro+, reports.premium). Non-personalized.
-export default async function ReportsPage({ params: { locale }, searchParams }: Props) {
+export default async function ReportsPage(props: Props) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
+
+  const {
+    locale
+  } = params;
+
   setRequestLocale(locale)
 
   const gate = await checkFeature('reports.premium')
