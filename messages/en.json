@@ -1,7 +1,8 @@
 {
   "metadata": {
     "title": "CryptoGuide",
-    "description": "Real-time prices, AI news digests, daily market briefings and on-chain data. The clearest way to read the crypto market."
+    "description": "Live prices, AI news digests, a daily morning brief and on-chain data in one subscription. One tab instead of ten. Information, not investment advice.",
+    "titleFull": "CryptoGuide — Prices, News, On-chain & AI Briefs in One Place"
   },
   "privacy": {
     "title": "Privacy & Data",
@@ -634,14 +635,20 @@
   "home": {
     "hero": {
       "badge": "AI-powered crypto market intelligence",
-      "title": "The clearest way to",
-      "titleHighlight": "read the crypto market",
-      "subtitle": "Real-time prices, AI news digests, daily market briefings and on-chain data — the information you need, without the noise.",
-      "ctaPrimary": "Get started for free",
-      "ctaSecondary": "Explore features",
+      "title": "Prices · news · on-chain · AI briefs,",
+      "titleHighlight": "all in one place",
+      "subtitle": "Stop juggling tabs. From live prices to the AI brief published every morning, everything you need to read the market lives on one screen.",
+      "ctaPrimary": "Start free",
+      "ctaSecondary": "See a sample daily brief",
       "disclaimer": "CryptoGuide is an information service and does not provide investment advice.",
       "trust": "Every data source, refresh cadence and limitation is documented in public.",
-      "trustLink": "How our data works →"
+      "trustLink": "How our data works →",
+      "chips": {
+        "c1": "Live prices & market gauges",
+        "c2": "AI news digests",
+        "c3": "Daily brief & reports",
+        "c4": "On-chain whale tracking"
+      }
     },
     "ticker": {
       "live": "LIVE",
@@ -703,22 +710,20 @@
       }
     },
     "preview": {
-      "title": "Dashboard Preview",
-      "subtitle": "A preview of the dashboard you get after signing up.",
-      "chartLabel": "Live chart (example screen)",
-      "w1": {
-        "title": "AI daily briefing",
-        "description": "Get a market summary before the day starts."
+      "title": "See the real thing first",
+      "subtitle": "Not mockups — actual screens from the live service. Both pages are open to everyone, no login needed.",
+      "open": "Open it yourself →",
+      "caption": "Captured from the live service; data shown is as of capture time.",
+      "brief": {
+        "caption": "AI Daily Brief",
+        "description": "Published automatically every morning from market data and news digests.",
+        "alt": "CryptoGuide AI daily brief, actual screen"
       },
-      "w2": {
-        "title": "Event alerts",
-        "description": "Set alerts for price and on-chain events, detected within minutes."
-      },
-      "w3": {
-        "title": "Portfolio tools",
-        "description": "Organize and track everything you hold."
-      },
-      "caption": "This screen is a design preview, not real data."
+      "news": {
+        "caption": "News + AI digests",
+        "description": "Collected every 30 minutes from US, European and Asian outlets, with a news-tone sentiment gauge.",
+        "alt": "CryptoGuide news and AI digests, actual screen"
+      }
     },
     "pricing": {
       "title": "Pricing",
@@ -871,6 +876,11 @@
         "question": "Do you offer an API?",
         "answer": "The API Center is available on the Whale plan, together with data export."
       }
+    },
+    "mapBonus": {
+      "badge": "BONUS",
+      "title": "Bonus — the global crypto payments map",
+      "subtitle": "A bonus alongside the subscription: browse crypto-accepting merchants, ATMs and per-country regulation — no login needed."
     }
   },
   "entitlements": {
