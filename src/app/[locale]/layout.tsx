@@ -34,20 +34,20 @@ export async function generateMetadata({
   return {
     metadataBase: new URL(siteUrl),
     title: {
-      default: t('title'),
+      default: t('titleFull'),
       template: `%s | ${t('title')}`,
     },
     description: t('description'),
     openGraph: {
       type: 'website',
       siteName: t('title'),
-      title: t('title'),
+      title: t('titleFull'),
       description: t('description'),
       locale: OG_LOCALES[locale] ?? locale,
     },
     twitter: {
       card: 'summary_large_image',
-      title: t('title'),
+      title: t('titleFull'),
       description: t('description'),
     },
     robots: {
