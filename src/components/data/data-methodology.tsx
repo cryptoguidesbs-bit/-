@@ -5,6 +5,7 @@ import { Link } from '@/i18n/navigation'
 
 type Item = { heading: string; body: string }
 type Row = { what: string; cadence: string }
+type ScoreRow = { input: string; source: string; normalize: string; weight: string }
 
 // Public "Data & methodology" page — written to match the code that runs
 // (sources, cadences, AI rules, limitations, retention). Plain server
@@ -13,6 +14,7 @@ export async function DataMethodology({ locale }: { locale: string }) {
   const t = await getTranslations({ locale, namespace: 'data' })
   const sources = t.raw('sources.items') as Item[]
   const rows = t.raw('cadence.rows') as Row[]
+  const scoreRows = t.raw('score.rows') as ScoreRow[]
   const rules = t.raw('ai.rules') as string[]
   const limitations = t.raw('limitations.items') as Item[]
   const mapItems = t.raw('map.items') as string[]
@@ -85,6 +87,35 @@ export async function DataMethodology({ locale }: { locale: string }) {
         <h3 className="text-sm font-semibold">{t('ai.fallbackTitle')}</h3>
         <p className={body}>{t('ai.fallback')}</p>
         <p className={body}>{t('ai.notAdvice')}</p>
+      </section>
+
+      <section id="score" className="space-y-3" data-testid="data-score">
+        <h2 className={h2}>{t('score.title')}</h2>
+        <p className={body}>{t('score.intro')}</p>
+        <div className="overflow-x-auto rounded-lg border">
+          <table className="w-full min-w-[640px] text-sm">
+            <thead>
+              <tr className="border-b bg-card/50 text-left">
+                <th className="px-3 py-2 font-medium">{t('score.columns.input')}</th>
+                <th className="px-3 py-2 font-medium">{t('score.columns.source')}</th>
+                <th className="px-3 py-2 font-medium">{t('score.columns.normalize')}</th>
+                <th className="px-3 py-2 font-medium">{t('score.columns.weight')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {scoreRows.map((r, i) => (
+                <tr key={i} className="border-b last:border-0 align-top">
+                  <td className="px-3 py-2 font-medium">{r.input}</td>
+                  <td className="px-3 py-2 text-muted-foreground">{r.source}</td>
+                  <td className="px-3 py-2 text-muted-foreground">{r.normalize}</td>
+                  <td className="px-3 py-2 tabular-nums">{r.weight}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className={body}>{t('score.bands')}</p>
+        <p className={body}>{t('score.notAdvice')}</p>
       </section>
 
       <section id="limitations" className="space-y-4" data-testid="data-limitations">

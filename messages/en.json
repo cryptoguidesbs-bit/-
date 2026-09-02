@@ -34,6 +34,14 @@
       "cta": "한국어로 보기",
       "dismiss": "닫기",
       "translatedText": "브라우저 자동 번역 대신 한국어 원문으로 보시겠어요?"
+    },
+    "dataStatus": {
+      "unavailable": "Data unavailable",
+      "partial": "Partial data — some inputs are missing",
+      "partialNamed": "Partial data — missing: {missing}",
+      "updated": "Updated {age}",
+      "stale": "Delayed — last good value {age}",
+      "unknownTime": "unknown time"
     }
   },
   "nav": {
@@ -57,7 +65,9 @@
       "tools": "My tools",
       "more": "More"
     },
-    "topNav": "Main navigation"
+    "topNav": "Main navigation",
+    "score": "Market Score",
+    "screener": "Screener"
   },
   "map": {
     "title": "Crypto Map",
@@ -1262,6 +1272,10 @@
         {
           "heading": "AI brief and reports",
           "body": "The daily brief and the weekly, monthly and quarterly reports are written from the inputs above: the current BTC/ETH/SOL quotes, the Fear & Greed reading, the last 24 hours of published headlines and, for reports, the on-chain series. Nothing else goes in."
+        },
+        {
+          "heading": "Coin Screener · whole-market aggregates",
+          "body": "The screener's top-100 table (price, 1h/24h/7d change, volume, market cap) comes from CoinGecko coins/markets in a single call, with CoinPaprika tickers as fallback. The Market Score's total-market-cap change and BTC dominance come from CoinGecko /global (fallback: CoinPaprika /global). All are keyless public APIs."
         }
       ]
     },
@@ -1324,6 +1338,14 @@
         {
           "what": "Crypto Map",
           "cadence": "Merchant and ATM data is synced from BTCMap about once a day (only entries changed since the last sync). Regulation status changes when we edit it."
+        },
+        {
+          "what": "Coin Screener",
+          "cadence": "The server keeps the table for 2 minutes and the page refetches every 2 minutes."
+        },
+        {
+          "what": "Market Score",
+          "cadence": "The server holds the score for 60 seconds and the page refetches every 60 seconds; inputs follow their own cadences."
         }
       ]
     },
@@ -1460,6 +1482,56 @@
       "privacy": "Privacy Policy",
       "terms": "Terms of Service",
       "apiCenter": "API Center"
+    },
+    "score": {
+      "title": "How the Market Score is computed",
+      "intro": "The Market Score is a weighted average of the six inputs below, each normalized to 0–100 (v1). It is a fixed formula with no AI in the loop; when an input is missing, the score uses the remaining weights and the page says \"partial data\". With fewer than three inputs, no score is produced.",
+      "columns": {
+        "input": "Input",
+        "source": "Data",
+        "normalize": "Normalization",
+        "weight": "Weight"
+      },
+      "rows": [
+        {
+          "input": "BTC 24h change",
+          "source": "Same feed as the dashboard (CoinGecko → CoinPaprika → Binance)",
+          "normalize": "50 + change × 8 (saturates at ±6.25%)",
+          "weight": "20%"
+        },
+        {
+          "input": "Total market cap 24h change",
+          "source": "CoinGecko /global → CoinPaprika /global",
+          "normalize": "50 + change × 10 (saturates at ±5%)",
+          "weight": "15%"
+        },
+        {
+          "input": "Share of majors up",
+          "source": "24h change of the 8 ticker coins",
+          "normalize": "share up × 100",
+          "weight": "15%"
+        },
+        {
+          "input": "Fear & Greed",
+          "source": "Alternative.me",
+          "normalize": "index value as-is",
+          "weight": "20%"
+        },
+        {
+          "input": "News tone",
+          "source": "Our news pipeline, 24h headline tone",
+          "normalize": "50 ± confidence ÷ 2 (bullish +, bearish −)",
+          "weight": "20%"
+        },
+        {
+          "input": "Volatility calm",
+          "source": "Size of the BTC 24h move",
+          "normalize": "100 − |change| × 12.5 (an 8% move scores 0)",
+          "weight": "10%"
+        }
+      ],
+      "bands": "Bands: 0–19 cold · 20–39 risk-off · 40–59 neutral · 60–79 risk-on · 80–100 overheated. The score is held for 60 seconds and otherwise follows the refresh cadence of its inputs.",
+      "notAdvice": "The Market Score is a reference gauge that summarizes market conditions; it is not a trading recommendation. Derivatives (funding, open interest) and on-chain metrics are not part of v1."
     }
   },
   "enterprise": {
@@ -1519,5 +1591,94 @@
     "bottomTitle": "Start the conversation",
     "bottomSubtitle": "Tell us what your organization needs and we will scope the contract and quote.",
     "disclaimer": "CryptoGuide provides non-personalized information and does not provide investment advice, trading signals or personalized recommendations. The same principle applies to every partnership and contract."
+  },
+  "score": {
+    "metaTitle": "Market Score",
+    "title": "Market Score",
+    "subtitle": "A 0–100 read of market conditions. Six inputs we already publish, combined with published weights — and when data is missing, we say so.",
+    "cardSubtitle": "Market temperature 0–100 · inputs shown",
+    "cardLink": "See the breakdown",
+    "partialShort": "partial data",
+    "howToRead": "Closer to 0 means risk-off (cold); closer to 100 means risk-on (overheated). It is not a directional signal — it summarizes the state the market is in right now.",
+    "bands": {
+      "cold": "Cold (strong risk-off)",
+      "riskOff": "Risk-off",
+      "neutral": "Neutral",
+      "riskOn": "Risk-on",
+      "overheated": "Overheated",
+      "unavailable": "Not computed"
+    },
+    "bandSummary": {
+      "cold": "The market has cooled sharply",
+      "riskOff": "Risk-off behaviour dominates",
+      "neutral": "No clear tilt either way",
+      "riskOn": "Risk-on behaviour dominates",
+      "overheated": "The market is in an overheated range",
+      "unavailable": "Not enough inputs to compute a score"
+    },
+    "reasonTitle": "Why this score",
+    "reasonSubtitle": "DATA → SCORE → REASON — inputs and weights, in the open",
+    "columns": {
+      "input": "Input",
+      "raw": "Actual value",
+      "normalized": "Normalized (0–100)",
+      "weight": "Weight · contribution"
+    },
+    "components": {
+      "momentum": {
+        "name": "BTC 24h change",
+        "explain": "Bitcoin price change over 24 hours"
+      },
+      "marketCap": {
+        "name": "Total market cap 24h change",
+        "explain": "One-day change in total crypto market cap"
+      },
+      "breadth": {
+        "name": "Share of majors up",
+        "explain": "Share of tracked major coins up over 24 hours"
+      },
+      "fearGreed": {
+        "name": "Fear & Greed",
+        "explain": "Alternative.me Crypto Fear & Greed index"
+      },
+      "newsTone": {
+        "name": "News tone",
+        "explain": "Headline-tone analysis of news collected in the last 24 hours"
+      },
+      "stability": {
+        "name": "Volatility calm",
+        "explain": "Lower when the BTC 24h move is large"
+      },
+      "weightWithContribution": "{weight}% · +{contribution} pts",
+      "unavailable": "no data"
+    },
+    "methodNote": "The normalization formulas and weights are documented on the data page.",
+    "methodLink": "See the methodology →",
+    "retry": "Retry",
+    "disclaimer": "The Market Score is a reference gauge for interpreting market conditions, not a trading recommendation or investment advice. It combines public market data with a fixed formula and does not predict future prices or returns. You are solely responsible for your own investment decisions."
+  },
+  "screener": {
+    "metaTitle": "Coin Screener",
+    "title": "Coin Screener",
+    "subtitle": "Price, changes, volume and market cap for the top 100 coins by market cap. Sort and search to scan the market.",
+    "presets": {
+      "all": "All",
+      "gainers": "Top 24h gainers",
+      "losers": "Top 24h losers",
+      "volume": "Top volume"
+    },
+    "searchPlaceholder": "Search symbol or name",
+    "retry": "Retry",
+    "noMatch": "No coins match",
+    "columns": {
+      "rank": "Coin",
+      "price": "Price",
+      "change1hPct": "1h",
+      "change24hPct": "24h",
+      "change7dPct": "7d",
+      "volume24hUsd": "Volume (24h)",
+      "marketCapUsd": "Market cap"
+    },
+    "disclaimer": "The screener sorts and filters public market data; it does not recommend buying or selling any coin. Data comes from CoinGecko (fallback: CoinPaprika), refreshes about every 2 minutes, and shows the last good value when a source is delayed. Investment decisions are your own responsibility."
   }
 }

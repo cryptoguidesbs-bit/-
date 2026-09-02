@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Section } from '@/components/home/section'
+import { MarketScoreCard } from '@/components/score/market-score-card'
 import { cn } from '@/lib/utils'
 
 const indexFormat = new Intl.NumberFormat('en-US', {
@@ -207,7 +208,10 @@ export function MarketDashboardSection() {
   return (
     <Section id="market" title={t('title')} subtitle={t('subtitle')}>
       <div className="space-y-6">
-        <FearGreedCard />
+        <div className="grid gap-4 lg:grid-cols-2">
+          <MarketScoreCard />
+          <FearGreedCard />
+        </div>
 
         {/* Crypto */}
         <div className="space-y-3">
