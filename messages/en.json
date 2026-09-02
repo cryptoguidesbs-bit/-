@@ -833,7 +833,8 @@
           "success": "Thanks. We've received your request and will be in touch.",
           "error": "We could not send your request. Please try again shortly.",
           "privacyNote": "We use these details only to respond to your inquiry. See our Privacy Policy for details."
-        }
+        },
+        "detailsLink": "Learn more about Enterprise →"
       },
       "waitlist": {
         "cta": "Notify me at launch",
@@ -881,6 +882,17 @@
       "badge": "BONUS",
       "title": "Bonus — the global crypto payments map",
       "subtitle": "A bonus alongside the subscription: browse crypto-accepting merchants, ATMs and per-country regulation — no login needed."
+    },
+    "waitlistSection": {
+      "title": "Get notified when paid plans open",
+      "subtitle": "Paid plans (Starter and up) are being prepared for launch. Leave your email and you will be the first to know — the Free plan is available right now.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@example.com",
+      "submit": "Notify me",
+      "sending": "Submitting…",
+      "success": "You are on the list. We will email you at launch.",
+      "error": "Could not submit. Please try again in a moment.",
+      "privacyNote": "Your email is used only to announce the paid-plan launch."
     }
   },
   "entitlements": {
@@ -1443,5 +1455,63 @@
       "terms": "Terms of Service",
       "apiCenter": "API Center"
     }
+  },
+  "enterprise": {
+    "metaTitle": "Enterprise",
+    "metaDescription": "Crypto intelligence for teams and institutions — REST API, data feeds and briefing/report partnerships under a custom contract. Information, not investment advice.",
+    "badge": "ENTERPRISE",
+    "title": "The crypto intelligence hub for teams and institutions",
+    "subtitle": "Market data, news, on-chain feeds and AI briefings, delivered to fit your organization. Every contract stays within non-personalized information.",
+    "fromPrice": "From {price}/mo · custom contract",
+    "ctaContact": "Contact sales",
+    "ctaPricing": "See all plans",
+    "targetsTitle": "Who we work with",
+    "targetsSubtitle": "Beyond a financial contract, we also propose data feeds, content partnerships and PoC collaborations.",
+    "targets": {
+      "funds": {
+        "name": "Funds & trading desks",
+        "use": "Market data and the daily brief inside your research workflow"
+      },
+      "exchanges": {
+        "name": "Exchanges & wallets",
+        "use": "News digests and sentiment content syndicated into your product"
+      },
+      "finance": {
+        "name": "Banking & brokerage research",
+        "use": "Market monitoring plus recurring report delivery"
+      },
+      "web3": {
+        "name": "Web3 startups",
+        "use": "Prices and on-chain data over REST API and webhooks"
+      },
+      "media": {
+        "name": "Media & research firms",
+        "use": "Daily brief and data citations, content collaboration"
+      },
+      "legal": {
+        "name": "Accounting & law firms",
+        "use": "Per-country regulation data and market context"
+      }
+    },
+    "featuresTitle": "What Enterprise includes",
+    "featuresSubtitle": "Everything in Whale, plus contract-scoped capabilities.",
+    "coopTitle": "Ways to work together",
+    "coop": {
+      "data": {
+        "title": "Data feeds",
+        "desc": "REST API and webhook integrations, plus datasets such as the payments map"
+      },
+      "content": {
+        "title": "Content partnership",
+        "desc": "AI daily brief and recurring reports supplied to your channels"
+      },
+      "poc": {
+        "title": "Open-innovation PoC",
+        "desc": "Pilots built on already-shipped assets — low additional build cost"
+      }
+    },
+    "bottomTitle": "Start the conversation",
+    "bottomSubtitle": "Tell us what your organization needs and we will scope the contract and quote.",
+    "disclaimer": "CryptoGuide provides non-personalized information and does not provide investment advice, trading signals or personalized recommendations. The same principle applies to every partnership and contract."
   }
 }

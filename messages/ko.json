@@ -833,7 +833,8 @@
           "success": "문의가 접수되었습니다. 곧 연락드리겠습니다.",
           "error": "문의를 보내지 못했습니다. 잠시 후 다시 시도해 주세요.",
           "privacyNote": "입력하신 정보는 문의 회신 목적에만 사용됩니다. 자세한 내용은 개인정보처리방침을 확인해 주세요."
-        }
+        },
+        "detailsLink": "Enterprise 자세히 보기 →"
       },
       "waitlist": {
         "cta": "오픈 알림 받기",
@@ -881,6 +882,17 @@
       "badge": "BONUS",
       "title": "보너스 — 전 세계 크립토 결제 지도",
       "subtitle": "구독과 별개로 제공되는 보너스 기능입니다. 크립토로 결제할 수 있는 매장·ATM과 국가별 규제 현황을 로그인 없이 확인하세요."
+    },
+    "waitlistSection": {
+      "title": "유료 플랜 오픈 알림 받기",
+      "subtitle": "Starter 이상 유료 플랜은 오픈 준비 중입니다. 이메일을 남겨 주시면 오픈 시 가장 먼저 알려드립니다. 그 전까지 Free 플랜은 지금 바로 이용할 수 있습니다.",
+      "emailLabel": "이메일",
+      "emailPlaceholder": "you@example.com",
+      "submit": "오픈 알림 받기",
+      "sending": "신청 중…",
+      "success": "신청되었습니다. 오픈 시 이메일로 알려드리겠습니다.",
+      "error": "신청하지 못했습니다. 잠시 후 다시 시도해 주세요.",
+      "privacyNote": "입력하신 이메일은 유료 플랜 오픈 안내를 보내는 데만 사용합니다."
     }
   },
   "entitlements": {
@@ -1443,5 +1455,63 @@
       "terms": "이용약관",
       "apiCenter": "API Center"
     }
+  },
+  "enterprise": {
+    "metaTitle": "Enterprise",
+    "metaDescription": "팀·기관을 위한 크립토 인텔리전스 — REST API, 데이터 공급, 브리핑·리포트 제휴를 맞춤 계약으로 제공합니다. 투자 자문이 아닌 정보를 제공합니다.",
+    "badge": "ENTERPRISE",
+    "title": "팀·기관을 위한 크립토 인텔리전스 허브",
+    "subtitle": "시세·뉴스·온체인 데이터와 AI 브리핑을 조직의 워크플로에 맞춰 공급합니다. 모든 계약은 비개인화 정보 제공 범위에서 설계됩니다.",
+    "fromPrice": "월 {price}부터 · 맞춤 계약",
+    "ctaContact": "Enterprise 문의",
+    "ctaPricing": "전체 요금제 보기",
+    "targetsTitle": "이런 조직과 함께합니다",
+    "targetsSubtitle": "재무적 계약 외에 데이터 제공 · 콘텐츠 제휴 · PoC 협력도 병행 제안합니다.",
+    "targets": {
+      "funds": {
+        "name": "운용사 · 트레이딩 데스크",
+        "use": "시장 데이터와 데일리 브리핑을 내부 리서치 워크플로에 공급"
+      },
+      "exchanges": {
+        "name": "거래소 · 지갑 서비스",
+        "use": "뉴스 요약 · 시장 심리 콘텐츠를 자사 서비스에 제휴 공급"
+      },
+      "finance": {
+        "name": "은행 · 증권 리서치",
+        "use": "가상자산 시장 동향 모니터링과 정기 리포트 수급"
+      },
+      "web3": {
+        "name": "웹3 스타트업",
+        "use": "REST API · 웹훅으로 시세 · 온체인 데이터 연동"
+      },
+      "media": {
+        "name": "미디어 · 리서치 기관",
+        "use": "데일리 브리핑 · 데이터 인용과 콘텐츠 협력"
+      },
+      "legal": {
+        "name": "회계 · 법률 펌",
+        "use": "국가별 규제 현황 데이터와 시장 컨텍스트 참조"
+      }
+    },
+    "featuresTitle": "Enterprise 제공 범위",
+    "featuresSubtitle": "Whale 플랜의 모든 기능에 더해, 계약 범위에 따라 제공됩니다.",
+    "coopTitle": "협력 모델",
+    "coop": {
+      "data": {
+        "title": "데이터 제공",
+        "desc": "공개 REST API · 웹훅 기반 데이터 연동과 결제 지도 등 보유 데이터셋 활용 협의"
+      },
+      "content": {
+        "title": "콘텐츠 제휴",
+        "desc": "AI 데일리 브리핑 · 정기 리포트를 기관 채널에 공급"
+      },
+      "poc": {
+        "title": "오픈이노베이션 PoC",
+        "desc": "이미 구현된 자산 기반의 실증 과제 — 추가 개발 부담이 낮습니다"
+      }
+    },
+    "bottomTitle": "도입 논의를 시작해 보세요",
+    "bottomSubtitle": "조직의 요구 사항을 알려주시면 계약 범위와 견적을 안내드립니다.",
+    "disclaimer": "CryptoGuide는 비개인화 정보를 제공하며 투자 자문 · 매매 신호 · 맞춤형 투자 권고를 제공하지 않습니다. 협력 · 계약 범위에서도 동일한 원칙이 적용됩니다."
   }
 }
