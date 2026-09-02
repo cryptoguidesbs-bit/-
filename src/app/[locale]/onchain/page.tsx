@@ -5,7 +5,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { checkFeature } from '@/lib/entitlements'
 import { OnchainDashboard } from '@/components/onchain/onchain-dashboard'
 import { UpgradeRequired } from '@/components/entitlements/upgrade-required'
-import { pageAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 
 type Props = { params: Promise<{ locale: string }> }
 
@@ -17,11 +17,12 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   } = params;
 
   const t = await getTranslations({ locale, namespace: 'onchain' })
-  return {
-    title: t('title'),
+  return pageMeta({
+    locale,
+    path: '/onchain',
+    title: t('metaTitle'),
     description: t('subtitle'),
-    alternates: pageAlternates('/onchain', locale),
-  }
+  })
 }
 
 // Premium: whale & on-chain data requires the Pro plan

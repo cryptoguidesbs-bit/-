@@ -6,7 +6,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { checkFeature } from '@/lib/entitlements'
 import { ReferralCenter } from '@/components/referral/referral-center'
 import { UpgradeRequired } from '@/components/entitlements/upgrade-required'
-import { pageAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 
 type Props = { params: Promise<{ locale: string }> }
 
@@ -18,11 +18,12 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   } = params;
 
   const t = await getTranslations({ locale, namespace: 'referral' })
-  return {
+  return pageMeta({
+    locale,
+    path: '/referral',
     title: t('title'),
     description: t('subtitle'),
-    alternates: pageAlternates('/referral', locale),
-  }
+  })
 }
 
 // Referral program — open to every signed-in member (growth funnel).

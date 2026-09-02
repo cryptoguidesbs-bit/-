@@ -310,7 +310,8 @@
     "authExample": "Authentication example",
     "rateLimitNote": "Rate limit: 60 requests per minute per key. Exceeding it returns 429 with a Retry-After header.",
     "metaNote": "Every response includes a meta field with the disclaimer and usage terms (no redistribution).",
-    "docsTitle": "Documentation"
+    "docsTitle": "Documentation",
+    "metaTitle": "API Center"
   },
   "referral": {
     "title": "Referral Program",
@@ -426,7 +427,8 @@
     "gatePlanTitle": "This lesson opens with the Starter plan",
     "gatePlanDescription": "Advanced lessons are included with the Starter plan and above. Beginner and intermediate lessons stay free.",
     "gatePlanCta": "View pricing",
-    "note": "This content explains concepts for informational purposes only. It is not investment advice or a recommendation to take any action."
+    "note": "This content explains concepts for informational purposes only. It is not investment advice or a recommendation to take any action.",
+    "metaTitle": "Education"
   },
   "reports": {
     "title": "Premium Research",
@@ -448,7 +450,8 @@
     "backToList": "Back to reports",
     "save": "Save report",
     "unsave": "Unsave",
-    "empty": "No reports published yet."
+    "empty": "No reports published yet.",
+    "metaTitle": "Premium Research"
   },
   "patterns": {
     "title": "AI Pattern",
@@ -466,7 +469,8 @@
       "headShoulders": "Head & Shoulders"
     },
     "empty": "No patterns detected in this window.",
-    "unavailable": "Candle data is unavailable. Please try again shortly."
+    "unavailable": "Candle data is unavailable. Please try again shortly.",
+    "metaTitle": "AI Pattern"
   },
   "onchain": {
     "title": "Whale & On-chain",
@@ -485,7 +489,8 @@
     "hashRate": "Hash rate",
     "minerRevenue": "Miner revenue (Miner Flow)",
     "stablecoinTitle": "Stablecoin Supply (market cap)",
-    "sources": "Data: Blockchair · blockchain.info · CoinGecko. For information only; data may be delayed or inaccurate."
+    "sources": "Data: Blockchair · blockchain.info · CoinGecko. For information only; data may be delayed or inaccurate.",
+    "metaTitle": "Whale & On-chain"
   },
   "brief": {
     "title": "AI Market Brief",
@@ -502,7 +507,8 @@
       "altcoin": "Altcoin Analysis",
       "macro": "Macro Summary",
       "today": "Today's Market Brief"
-    }
+    },
+    "metaTitle": "AI Market Brief"
   },
   "news": {
     "title": "News",

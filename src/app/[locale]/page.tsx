@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { setRequestLocale } from 'next-intl/server'
+import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { MarketTicker } from '@/components/home/market-ticker'
 import { HeroSection } from '@/components/home/hero-section'
@@ -13,7 +13,7 @@ import { PricingSection } from '@/components/home/pricing-section'
 import { MapBonusSection } from '@/components/home/map-bonus-section'
 import { FaqSection } from '@/components/home/faq-section'
 import { HomeJsonLd } from '@/components/seo/home-json-ld'
-import { pageAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 
 type Props = { params: Promise<{ locale: string }> }
 
@@ -24,9 +24,11 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
     locale
   } = params;
 
-  return {
-    alternates: pageAlternates('/', locale),
-  }
+  const t = await getTranslations({ locale, namespace: 'metadata' })
+  const meta = pageMeta({ locale, path: '/', title: t('titleFull'), description: t('description') })
+  // The layout's title template would double the brand suffix on the home
+  // title — pin it as absolute.
+  return { ...meta, title: { absolute: t('titleFull') } }
 }
 
 // Section order tells the story: value proposition (hero) → live proof

@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { UpgradeRequired } from '@/components/entitlements/upgrade-required'
 import { Link } from '@/i18n/navigation'
-import { pageAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 import { cn } from '@/lib/utils'
 
 type Props = {
@@ -29,11 +29,12 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   } = params;
 
   const t = await getTranslations({ locale, namespace: 'reports' })
-  return {
-    title: t('title'),
+  return pageMeta({
+    locale,
+    path: '/reports',
+    title: t('metaTitle'),
     description: t('subtitle'),
-    alternates: pageAlternates('/reports', locale),
-  }
+  })
 }
 
 // Premium research (Pro+, reports.premium). Non-personalized.

@@ -310,7 +310,8 @@
     "authExample": "인증 예시",
     "rateLimitNote": "레이트 리밋: 키당 분당 60회. 초과 시 429와 Retry-After 헤더가 반환됩니다.",
     "metaNote": "모든 응답의 meta 필드에 면책 조항과 이용 조건(재배포 금지)이 포함됩니다.",
-    "docsTitle": "문서"
+    "docsTitle": "문서",
+    "metaTitle": "API 센터"
   },
   "referral": {
     "title": "리퍼럴 프로그램",
@@ -426,7 +427,8 @@
     "gatePlanTitle": "Starter 플랜부터 열리는 레슨입니다",
     "gatePlanDescription": "고급 레슨은 Starter 이상 플랜에서 볼 수 있습니다. 입문·중급 레슨은 계속 무료입니다.",
     "gatePlanCta": "요금제 살펴보기",
-    "note": "본 교육 콘텐츠는 개념 설명을 위한 정보 제공 목적 자료이며, 투자 자문이나 특정 행동의 권유가 아닙니다."
+    "note": "본 교육 콘텐츠는 개념 설명을 위한 정보 제공 목적 자료이며, 투자 자문이나 특정 행동의 권유가 아닙니다.",
+    "metaTitle": "크립토 교육"
   },
   "reports": {
     "title": "Premium Research",
@@ -448,7 +450,8 @@
     "backToList": "리포트 목록으로",
     "save": "리포트 저장",
     "unsave": "저장 해제",
-    "empty": "아직 발행된 리포트가 없습니다."
+    "empty": "아직 발행된 리포트가 없습니다.",
+    "metaTitle": "프리미엄 리서치"
   },
   "patterns": {
     "title": "AI Pattern",
@@ -466,7 +469,8 @@
       "headShoulders": "헤드앤숄더 (H&S)"
     },
     "empty": "현재 구간에서 감지된 패턴이 없습니다.",
-    "unavailable": "캔들 데이터를 불러올 수 없습니다. 잠시 후 다시 시도해 주세요."
+    "unavailable": "캔들 데이터를 불러올 수 없습니다. 잠시 후 다시 시도해 주세요.",
+    "metaTitle": "AI 차트 패턴"
   },
   "onchain": {
     "title": "Whale & On-chain",
@@ -485,7 +489,8 @@
     "hashRate": "해시레이트",
     "minerRevenue": "채굴 수입 (Miner Flow)",
     "stablecoinTitle": "Stablecoin Supply (시가총액)",
-    "sources": "데이터: Blockchair · blockchain.info · CoinGecko. 정보 제공 목적이며 지연·오차가 있을 수 있습니다."
+    "sources": "데이터: Blockchair · blockchain.info · CoinGecko. 정보 제공 목적이며 지연·오차가 있을 수 있습니다.",
+    "metaTitle": "온체인 · 웨일 추적"
   },
   "brief": {
     "title": "AI Market Brief",
@@ -502,7 +507,8 @@
       "altcoin": "알트코인 분석",
       "macro": "매크로 요약",
       "today": "오늘의 마켓 브리핑"
-    }
+    },
+    "metaTitle": "AI 데일리 브리핑"
   },
   "news": {
     "title": "뉴스",
@@ -1457,7 +1463,7 @@
     }
   },
   "enterprise": {
-    "metaTitle": "Enterprise",
+    "metaTitle": "기업 · 기관용 Enterprise",
     "metaDescription": "팀·기관을 위한 크립토 인텔리전스 — REST API, 데이터 공급, 브리핑·리포트 제휴를 맞춤 계약으로 제공합니다. 투자 자문이 아닌 정보를 제공합니다.",
     "badge": "ENTERPRISE",
     "title": "팀·기관을 위한 크립토 인텔리전스 허브",

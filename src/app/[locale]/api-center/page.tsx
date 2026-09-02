@@ -6,7 +6,7 @@ import { checkFeature } from '@/lib/entitlements'
 import { ApiCenter } from '@/components/api-center/api-center'
 import { ApiDocs } from '@/components/api-center/api-docs'
 import { UpgradeRequired } from '@/components/entitlements/upgrade-required'
-import { pageAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 
 type Props = { params: Promise<{ locale: string }> }
 
@@ -18,11 +18,12 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   } = params;
 
   const t = await getTranslations({ locale, namespace: 'apiCenter' })
-  return {
-    title: t('title'),
+  return pageMeta({
+    locale,
+    path: '/api-center',
+    title: t('metaTitle'),
     description: t('subtitle'),
-    alternates: pageAlternates('/api-center', locale),
-  }
+  })
 }
 
 // Premium: key management / usage / webhooks require the Whale plan
