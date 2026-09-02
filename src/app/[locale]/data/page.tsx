@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { DataMethodology } from '@/components/data/data-methodology'
-import { pageAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 
 type Props = { params: Promise<{ locale: string }> }
 
@@ -14,11 +14,12 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   } = params;
 
   const t = await getTranslations({ locale, namespace: 'data' })
-  return {
+  return pageMeta({
+    locale,
+    path: '/data',
     title: t('title'),
     description: t('subtitle'),
-    alternates: pageAlternates('/data', locale),
-  }
+  })
 }
 
 // Public transparency page: sources, refresh cadences, AI rules, limits,

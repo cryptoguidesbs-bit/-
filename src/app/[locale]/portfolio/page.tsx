@@ -5,7 +5,7 @@ import { checkFeature } from '@/lib/entitlements'
 import { PortfolioAnalytics } from '@/components/portfolio/portfolio-analytics'
 import { PortfolioManager } from '@/components/portfolio/portfolio-manager'
 import { UpgradeRequired } from '@/components/entitlements/upgrade-required'
-import { pageAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 
 type Props = { params: Promise<{ locale: string }> }
 
@@ -17,11 +17,12 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   } = params;
 
   const t = await getTranslations({ locale, namespace: 'pages.portfolio' })
-  return {
+  return pageMeta({
+    locale,
+    path: '/portfolio',
     title: t('title'),
     description: t('description'),
-    alternates: pageAlternates('/portfolio', locale),
-  }
+  })
 }
 
 // Premium: portfolio tools require the Trader plan.

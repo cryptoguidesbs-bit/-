@@ -133,11 +133,36 @@ export type SummarizeReport = {
 
 export async function summarizePending(limit = 15): Promise<SummarizeReport> {
   const provider = getAiProvider()
-  const pending = await prisma.newsItem.findMany({
+
+  // Heal rows held by the budget-deferral inflation bug: they were marked
+  // HELD with reason 'unknown' without a single real provider attempt (the
+  // deferral path used to count attempts, so starved items hit MAX unseen).
+  // Requeue them; a genuine failure re-holds with a concrete reason. This is
+  // a no-op once no such rows remain.
+  await prisma.newsItem.updateMany({
+    where: { aiStatus: 'HELD', aiHoldReason: 'unknown' },
+    data: { aiStatus: 'PENDING', aiAttempts: 0, aiHoldReason: null },
+  })
+
+  // Mostly newest-first so the visible top of the feed gets summaries, with
+  // a small oldest-first lane so backlog left over from budget-exhausted
+  // stretches still drains instead of being starved forever.
+  const freshQuota = Math.max(1, Math.ceil(limit * 0.8))
+  const fresh = await prisma.newsItem.findMany({
     where: { aiStatus: 'PENDING' },
     orderBy: { publishedAt: 'desc' },
-    take: limit,
+    take: freshQuota,
   })
+  const backlogQuota = limit - fresh.length
+  const backlog =
+    backlogQuota > 0
+      ? await prisma.newsItem.findMany({
+          where: { aiStatus: 'PENDING', id: { notIn: fresh.map((f) => f.id) } },
+          orderBy: { publishedAt: 'asc' },
+          take: backlogQuota,
+        })
+      : []
+  const pending = [...fresh, ...backlog]
 
   const report: SummarizeReport = {
     processed: pending.length,
@@ -189,7 +214,11 @@ export async function summarizePending(limit = 15): Promise<SummarizeReport> {
         }
       } catch (error) {
         if (error instanceof AiRateLimitError || error instanceof AiBudgetExceededError) {
-          // Back off (rate limit / daily cost cap): keep PENDING for a later run.
+          // Back off (rate limit / daily cost cap): keep PENDING for a later
+          // run. No provider call happened, so this must NOT count as an
+          // attempt — otherwise budget-starved items inflate to MAX across
+          // runs and get held without ever being analyzed.
+          attempts -= 1
           await prisma.newsItem.update({
             where: { id: item.id },
             data: { aiAttempts: attempts },
@@ -203,11 +232,22 @@ export async function summarizePending(limit = 15): Promise<SummarizeReport> {
     }
 
     if (!published && !deferred) {
-      await prisma.newsItem.update({
-        where: { id: item.id },
-        data: { aiStatus: 'HELD', aiAttempts: attempts, aiHoldReason: lastReason },
-      })
-      report.held += 1
+      if (lastReason === 'unknown') {
+        // The while loop never ran (aiAttempts arrived at MAX via legacy
+        // deferral inflation) — nothing was actually tried this pass. Reset
+        // instead of holding sight-unseen; a later run gets a real attempt.
+        await prisma.newsItem.update({
+          where: { id: item.id },
+          data: { aiAttempts: 0 },
+        })
+        report.deferred += 1
+      } else {
+        await prisma.newsItem.update({
+          where: { id: item.id },
+          data: { aiStatus: 'HELD', aiAttempts: attempts, aiHoldReason: lastReason },
+        })
+        report.held += 1
+      }
     }
   }
 

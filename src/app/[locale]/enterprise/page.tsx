@@ -16,7 +16,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Link } from '@/i18n/navigation'
-import { pageAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 
 type Props = { params: Promise<{ locale: string }> }
 
@@ -43,11 +43,12 @@ const ENTERPRISE_FEATURE_COUNT = 14
 export async function generateMetadata(props: Props): Promise<Metadata> {
   const { locale } = await props.params
   const t = await getTranslations({ locale, namespace: 'enterprise' })
-  return {
+  return pageMeta({
+    locale,
+    path: '/enterprise',
     title: t('metaTitle'),
     description: t('metaDescription'),
-    alternates: pageAlternates('/enterprise', locale),
-  }
+  })
 }
 
 export default async function EnterprisePage(props: Props) {

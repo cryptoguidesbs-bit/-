@@ -6,7 +6,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { checkFeature } from '@/lib/entitlements'
 import { PatternExplorer } from '@/components/patterns/pattern-explorer'
 import { UpgradeRequired } from '@/components/entitlements/upgrade-required'
-import { pageAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 
 type Props = { params: Promise<{ locale: string }> }
 
@@ -18,11 +18,12 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   } = params;
 
   const t = await getTranslations({ locale, namespace: 'patterns' })
-  return {
-    title: t('title'),
+  return pageMeta({
+    locale,
+    path: '/patterns',
+    title: t('metaTitle'),
     description: t('subtitle'),
-    alternates: pageAlternates('/patterns', locale),
-  }
+  })
 }
 
 // Premium: AI pattern detection requires the Trader plan

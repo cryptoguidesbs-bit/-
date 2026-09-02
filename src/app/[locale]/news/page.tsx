@@ -3,7 +3,7 @@ import { TrackView } from '@/components/analytics/track-view'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { NewsExplorer } from '@/components/news/news-explorer'
-import { pageAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 
 type Props = { params: Promise<{ locale: string }> }
 
@@ -15,11 +15,12 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   } = params;
 
   const t = await getTranslations({ locale, namespace: 'news' })
-  return {
+  return pageMeta({
+    locale,
+    path: '/news',
     title: t('title'),
     description: t('subtitle'),
-    alternates: pageAlternates('/news', locale),
-  }
+  })
 }
 
 export default async function NewsPage(props: Props) {

@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { LegalDocument } from '@/components/legal/legal-document'
 import { isLegalSlug, legalSlugs } from '@/config/legal'
-import { pageAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 
 type Props = { params: Promise<{ locale: string; slug: string }> }
 
@@ -22,11 +22,12 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
   if (!isLegalSlug(slug)) return {}
   const t = await getTranslations({ locale, namespace: `legal.${slug}` })
-  return {
+  return pageMeta({
+    locale,
+    path: `/legal/${slug}`,
     title: t('title'),
     description: t('subtitle'),
-    alternates: pageAlternates(`/legal/${slug}`, locale),
-  }
+  })
 }
 
 // All four documents (terms / privacy / disclaimer / refund) are published

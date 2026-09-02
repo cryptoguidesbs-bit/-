@@ -4,7 +4,7 @@ import { MapPin } from 'lucide-react'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { MapApp } from '@/components/map/map-app'
-import { pageAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 
 type Props = { params: Promise<{ locale: string }> }
 
@@ -16,11 +16,12 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   } = params;
 
   const t = await getTranslations({ locale, namespace: 'map' })
-  return {
+  return pageMeta({
+    locale,
+    path: '/map',
     title: t('title'),
     description: t('subtitle'),
-    alternates: pageAlternates('/map', locale),
-  }
+  })
 }
 
 // Crypto Map — PUBLIC (also the home page's main view); read APIs are IP

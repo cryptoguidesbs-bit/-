@@ -13,7 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { UpgradeRequired } from '@/components/entitlements/upgrade-required'
 import { ShareButtons } from '@/components/share-buttons'
 import { Link } from '@/i18n/navigation'
-import { pageAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 
 type Props = {
   params: Promise<{ locale: string }>
@@ -28,11 +28,12 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   } = params;
 
   const t = await getTranslations({ locale, namespace: 'brief' })
-  return {
-    title: t('title'),
+  return pageMeta({
+    locale,
+    path: '/brief',
+    title: t('metaTitle'),
     description: t('subtitle'),
-    alternates: pageAlternates('/brief', locale),
-  }
+  })
 }
 
 function Disclaimer({ text }: { text: string }) {

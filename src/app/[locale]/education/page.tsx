@@ -12,7 +12,7 @@ import { getAccessSnapshot } from '@/lib/education/access'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Link } from '@/i18n/navigation'
-import { pageAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 
 type Props = { params: Promise<{ locale: string }> }
 
@@ -24,11 +24,12 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   } = params;
 
   const t = await getTranslations({ locale, namespace: 'education' })
-  return {
-    title: t('title'),
+  return pageMeta({
+    locale,
+    path: '/education',
+    title: t('metaTitle'),
     description: t('subtitle'),
-    alternates: pageAlternates('/education', locale),
-  }
+  })
 }
 
 // Education hub — the full curriculum is visible to everyone; locked lessons

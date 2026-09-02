@@ -5,7 +5,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { checkFeature } from '@/lib/entitlements'
 import { AlertCenter } from '@/components/alerts/alert-center'
 import { UpgradeRequired } from '@/components/entitlements/upgrade-required'
-import { pageAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 
 type Props = { params: Promise<{ locale: string }> }
 
@@ -17,11 +17,12 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   } = params;
 
   const t = await getTranslations({ locale, namespace: 'alerts' })
-  return {
+  return pageMeta({
+    locale,
+    path: '/alerts',
     title: t('title'),
     description: t('subtitle'),
-    alternates: pageAlternates('/alerts', locale),
-  }
+  })
 }
 
 // Premium: realtime alerts require the Trader plan (alerts.realtime).

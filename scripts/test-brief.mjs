@@ -245,6 +245,50 @@ ok(
   JSON.stringify(reserveBrief.json?.tiers),
 )
 await prisma.newsItem.delete({ where: { id: reserveProbe.id } }).catch(() => {})
+
+// Regression (2026-09-02 HELD incident): a budget deferral must NOT count as
+// an attempt — starved items used to inflate aiAttempts across runs and then
+// get HELD ('unknown') without a single real analysis.
+ok(
+  'budget deferral does not consume an attempt (aiAttempts stays 0)',
+  probeAfter?.aiAttempts === 0,
+  `aiAttempts=${probeAfter?.aiAttempts}`,
+)
+// Legacy-inflated rows (PENDING at MAX attempts) must be reset, not held.
+await prisma.aiUsage.update({ where: { day: TODAY }, data: { calls: LIMIT - RESERVE } })
+const inflated = await prisma.newsItem.create({
+  data: {
+    urlHash: 'test-inflated-' + Date.now(),
+    title: 'Ethereum fees ease as network activity cools',
+    url: 'https://example.com/test-inflated-' + Date.now(),
+    source: 'CoinDesk', region: 'US', category: 'MARKET',
+    publishedAt: new Date(), aiAttempts: 2,
+  },
+})
+// Legacy bug-signature rows (HELD with reason 'unknown') must be requeued.
+const heldUnknown = await prisma.newsItem.create({
+  data: {
+    urlHash: 'test-heldunknown-' + Date.now(),
+    title: 'Stablecoin volumes hold near recent averages',
+    url: 'https://example.com/test-heldunknown-' + Date.now(),
+    source: 'CoinDesk', region: 'US', category: 'MARKET',
+    publishedAt: new Date(), aiStatus: 'HELD', aiAttempts: 2, aiHoldReason: 'unknown',
+  },
+})
+await post('/api/news/summarize', {})
+const inflatedAfter = await prisma.newsItem.findUnique({ where: { id: inflated.id } })
+const heldAfter = await prisma.newsItem.findUnique({ where: { id: heldUnknown.id } })
+ok(
+  'PENDING row at MAX attempts is reset (not held sight-unseen)',
+  inflatedAfter?.aiStatus === 'PENDING' && inflatedAfter?.aiAttempts === 0,
+  `status=${inflatedAfter?.aiStatus} attempts=${inflatedAfter?.aiAttempts}`,
+)
+ok(
+  "HELD('unknown') row is requeued to PENDING (heal path)",
+  heldAfter?.aiStatus !== 'HELD' && heldAfter?.aiHoldReason === null,
+  `status=${heldAfter?.aiStatus} reason=${heldAfter?.aiHoldReason}`,
+)
+await prisma.newsItem.deleteMany({ where: { id: { in: [inflated.id, heldUnknown.id] } } }).catch(() => {})
 await prisma.marketBrief.deleteMany({ where: { briefDate: RESERVE_BRIEF_DATE } })
 // Restore a sane counter.
 await prisma.aiUsage.update({ where: { day: TODAY }, data: { calls: usage?.calls ?? 10 } })
