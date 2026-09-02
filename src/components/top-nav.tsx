@@ -23,7 +23,7 @@ export function TopNav() {
         href={href}
         aria-current={active ? 'page' : undefined}
         className={cn(
-          'flex h-9 shrink-0 items-center gap-1.5 rounded-md px-2.5 text-sm font-medium transition-colors',
+          'flex h-9 shrink-0 items-center gap-1 rounded-md px-2 text-sm font-medium transition-colors',
           active
             ? 'bg-secondary text-foreground'
             : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground',
@@ -45,10 +45,10 @@ export function TopNav() {
         {primaryNavItems.map(renderLink)}
         {navGroups.map((group) => (
           <Fragment key={group.key}>
-            <span aria-hidden className="mx-1.5 h-5 w-px shrink-0 bg-border" />
-            <span className="hidden shrink-0 pr-1 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/60 xl:inline">
-              {t(`groups.${group.key}`)}
-            </span>
+            {/* Groups are marked by dividers only: 16 destinations no longer
+                leave room for the group captions at 1280–1536px (the mobile
+                menu keeps its group headings). */}
+            <span aria-hidden className="mx-1.5 h-5 w-px shrink-0 bg-border" title={t(`groups.${group.key}`)} />
             {group.items.map(renderLink)}
           </Fragment>
         ))}

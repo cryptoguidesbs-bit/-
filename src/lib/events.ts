@@ -21,6 +21,8 @@ export const PRODUCT_EVENTS = [
   'patterns_view',
   'onchain_view',
   'education_view',
+  'score_view',
+  'screener_view',
   // actions (server-side, on success)
   'signup',
   'alert_rule_created',

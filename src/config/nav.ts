@@ -4,9 +4,11 @@ import {
   Code2,
   FileText,
   Fish,
+  Gauge,
   Gift,
   GraduationCap,
   Home,
+  ListFilter,
   MapPin,
   Newspaper,
   Shapes,
@@ -16,6 +18,8 @@ import type { LucideIcon } from 'lucide-react'
 
 export type NavKey =
   | 'home'
+  | 'score'
+  | 'screener'
   | 'news'
   | 'brief'
   | 'patterns'
@@ -55,6 +59,8 @@ export const navGroups: NavGroup[] = [
   {
     key: 'market',
     items: [
+      { key: 'score', href: '/score', icon: Gauge },
+      { key: 'screener', href: '/screener', icon: ListFilter },
       { key: 'news', href: '/news', icon: Newspaper },
       { key: 'brief', href: '/brief', icon: Sparkles },
       { key: 'onchain', href: '/onchain', icon: Fish },
