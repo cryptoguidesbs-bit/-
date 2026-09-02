@@ -22,11 +22,7 @@ const CADENCES = ['WEEKLY', 'MONTHLY', 'QUARTERLY'] as const
 const CATEGORIES = ['ETF', 'MACRO', 'ONCHAIN'] as const
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   const t = await getTranslations({ locale, namespace: 'reports' })
   return pageMeta({
@@ -39,12 +35,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
 // Premium research (Pro+, reports.premium). Non-personalized.
 export default async function ReportsPage(props: Props) {
-  const searchParams = await props.searchParams;
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const searchParams = await props.searchParams
+  const { locale } = await props.params
 
   setRequestLocale(locale)
 
@@ -74,7 +66,8 @@ export default async function ReportsPage(props: Props) {
 
   const filterHref = (key: 'cadence' | 'category', value: string) => {
     const params = new URLSearchParams()
-    if (key === 'cadence' ? value : cadence) params.set('cadence', key === 'cadence' ? value : cadence)
+    if (key === 'cadence' ? value : cadence)
+      params.set('cadence', key === 'cadence' ? value : cadence)
     if (key === 'category' ? value : category)
       params.set('category', key === 'category' ? value : category)
     const qs = params.toString()
@@ -162,7 +155,7 @@ function FilterChip({ href, active, label }: { href: string; active: boolean; la
         'rounded-full border px-3 py-1.5 text-xs font-medium transition-colors',
         active
           ? 'border-primary bg-primary/10 text-primary'
-          : 'text-muted-foreground hover:border-primary/40 hover:text-foreground',
+          : 'text-muted-foreground hover:border-primary/40 hover:text-foreground'
       )}
     >
       {label}

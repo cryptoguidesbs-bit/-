@@ -20,22 +20,14 @@ import { Link } from '@/i18n/navigation'
 type Props = { params: Promise<{ locale: string }> }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   const t = await getTranslations({ locale, namespace: 'dashboard' })
   return { title: t('title') }
 }
 
 export default async function DashboardPage(props: Props) {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   setRequestLocale(locale)
 

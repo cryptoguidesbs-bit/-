@@ -26,11 +26,7 @@ type Props = {
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   const t = await getTranslations({ locale, namespace: 'billing' })
   return { title: t('title') }
@@ -39,12 +35,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 const ENTITLED = new Set(['ACTIVE', 'TRIALING', 'PAST_DUE'])
 
 export default async function BillingPage(props: Props) {
-  const searchParams = await props.searchParams;
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const searchParams = await props.searchParams
+  const { locale } = await props.params
 
   setRequestLocale(locale)
 
@@ -116,9 +108,7 @@ export default async function BillingPage(props: Props) {
           <div className="flex items-baseline gap-3">
             <p className="text-2xl font-bold">{sub && hasPaidPlan ? sub.plan : 'FREE'}</p>
             {sub?.interval && hasPaidPlan && (
-              <span className="text-sm text-muted-foreground">
-                {t(`interval.${sub.interval}`)}
-              </span>
+              <span className="text-sm text-muted-foreground">{t(`interval.${sub.interval}`)}</span>
             )}
           </div>
 

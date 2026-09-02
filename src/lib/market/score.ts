@@ -3,7 +3,14 @@ import 'server-only'
 import { aggregateSentiment } from '@/lib/news/pipeline'
 import { globalSources, type GlobalData } from './global-sources'
 import { resilientFetch, type MarketResult } from './resilient'
-import { cryptoSources, sentimentSources, tickerSources, type AssetQuote, type SentimentData, type TickerQuote } from './sources'
+import {
+  cryptoSources,
+  sentimentSources,
+  tickerSources,
+  type AssetQuote,
+  type SentimentData,
+  type TickerQuote,
+} from './sources'
 
 // ---------------------------------------------------------------------------
 // Market Score (v1) — a 0–100 market-condition gauge.
@@ -33,13 +40,16 @@ export type ScoreComponentKey = keyof typeof SCORE_WEIGHTS
 
 export type ScoreComponent = {
   key: ScoreComponentKey
+  /** Nominal weight (%) from SCORE_WEIGHTS. */
   weight: number
+  /** Weight (%) actually applied once missing inputs are rescaled away; equals `weight` when nothing is missing. */
+  effectiveWeight: number | null
   available: boolean
   /** Raw input in its natural unit (%, index points, share) — null if missing. */
   raw: number | null
   /** 0–100 after normalization — null if missing. */
   normalized: number | null
-  /** Points this input contributed to the final score (weight-adjusted). */
+  /** Points this input contributed to the final score (effective-weight basis). */
   contribution: number | null
   source: string | null
   updatedAt: string | null
@@ -60,6 +70,8 @@ export type MarketScore = {
 }
 
 const MIN_INPUTS = 3
+// News tone older than this is served as stale (the pipeline runs every 30 min).
+const NEWS_TONE_STALE_MS = 6 * 3_600_000
 
 const clamp = (v: number) => Math.max(0, Math.min(100, v))
 
@@ -103,12 +115,13 @@ const MEMO_MS = 60_000
 function component(
   key: ScoreComponentKey,
   raw: number | null,
-  meta: { source: string | null; updatedAt: string | null; stale: boolean },
+  meta: { source: string | null; updatedAt: string | null; stale: boolean }
 ): ScoreComponent {
   const available = typeof raw === 'number' && Number.isFinite(raw)
   return {
     key,
     weight: SCORE_WEIGHTS[key],
+    effectiveWeight: null,
     available,
     raw: available ? raw : null,
     normalized: available ? Math.round(normalize(key, raw)) : null,
@@ -117,10 +130,14 @@ function component(
   }
 }
 
-const metaOf = (r: MarketResult<unknown>) => ({ source: r.source, updatedAt: r.updatedAt, stale: r.stale })
+const metaOf = (r: MarketResult<unknown>) => ({
+  source: r.source,
+  updatedAt: r.updatedAt,
+  stale: r.stale,
+})
 
 export async function computeMarketScore(
-  opts: { blocked?: boolean; cacheSuffix?: string } = {},
+  opts: { blocked?: boolean; cacheSuffix?: string } = {}
 ): Promise<MarketScore> {
   const { blocked = false, cacheSuffix = '' } = opts
   const memoKey = `${cacheSuffix}|${blocked ? 'blocked' : 'live'}`
@@ -131,20 +148,30 @@ export async function computeMarketScore(
   // upstream calls beyond what the dashboard already makes.
   const [prices, tickers, fng, global, tone] = await Promise.all([
     resilientFetch<AssetQuote[]>(`crypto-prices${cacheSuffix}`, cryptoSources, {
-      timeoutMs: 5_000, retries: 1, freshMs: 20_000, blocked,
+      timeoutMs: 5_000,
+      retries: 1,
+      freshMs: 20_000,
+      blocked,
     }),
     resilientFetch<TickerQuote[]>(`market-tickers${cacheSuffix}`, tickerSources, {
-      timeoutMs: 5_000, retries: 1, freshMs: 15_000, blocked,
+      timeoutMs: 5_000,
+      retries: 1,
+      freshMs: 15_000,
+      blocked,
     }),
     resilientFetch<SentimentData>(`sentiment${cacheSuffix}`, sentimentSources, {
-      timeoutMs: 5_000, retries: 1, freshMs: 5 * 60_000, blocked,
+      timeoutMs: 5_000,
+      retries: 1,
+      freshMs: 5 * 60_000,
+      blocked,
     }),
     resilientFetch<GlobalData>(`market-global${cacheSuffix}`, globalSources, {
-      timeoutMs: 6_000, retries: 1, freshMs: 5 * 60_000, blocked,
+      timeoutMs: 6_000,
+      retries: 1,
+      freshMs: 5 * 60_000,
+      blocked,
     }),
-    blocked
-      ? Promise.resolve(null)
-      : aggregateSentiment(24).catch(() => null),
+    blocked ? Promise.resolve(null) : aggregateSentiment(24).catch(() => null),
   ])
 
   const btc = prices.data?.find((q) => q.id === 'BTC') ?? null
@@ -156,18 +183,22 @@ export async function computeMarketScore(
       ? (tickerRows.filter((t) => t.changePct > 0).length / tickerRows.length) * 100
       : null
 
-  const toneRaw =
-    tone && tone.sampleSize > 0
-      ? tone.label === 'bullish'
-        ? tone.confidence
-        : tone.label === 'bearish'
-          ? -tone.confidence
-          : 0
-      : null
+  const toneUsable = !!tone && tone.sampleSize > 0
+  const toneRaw = toneUsable
+    ? tone.label === 'bullish'
+      ? tone.confidence
+      : tone.label === 'bearish'
+        ? -tone.confidence
+        : 0
+    : null
+  // updatedAt = newest article in the sample, like the other inputs report
+  // when their upstream last answered; stale once the sample is hours old.
+  const toneAge =
+    toneUsable && tone.latestAt ? Date.now() - new Date(tone.latestAt).getTime() : null
   const toneMeta = {
-    source: tone && tone.sampleSize > 0 ? 'news-tone' : null,
-    updatedAt: tone && tone.sampleSize > 0 ? new Date().toISOString() : null,
-    stale: false,
+    source: toneUsable ? 'news-tone' : null,
+    updatedAt: toneUsable ? tone.latestAt : null,
+    stale: toneAge !== null && toneAge > NEWS_TONE_STALE_MS,
   }
 
   const components: ScoreComponent[] = [
@@ -186,7 +217,9 @@ export async function computeMarketScore(
     const total = available.reduce((s, c) => s + (c.normalized as number) * c.weight, 0)
     score = Math.round(total / weightSum)
     for (const c of available) {
-      c.contribution = Math.round(((c.normalized as number) * c.weight) / weightSum * 10) / 10
+      // Missing inputs hand their weight to the rest, proportionally.
+      c.effectiveWeight = Math.round((c.weight / weightSum) * 1000) / 10
+      c.contribution = Math.round((((c.normalized as number) * c.weight) / weightSum) * 10) / 10
     }
   }
 

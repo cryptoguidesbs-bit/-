@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { assertUpstreamOk, type Source } from './resilient'
+import { fetchJson, type Source } from './resilient'
 
 // Top-100 coins by market cap for the Coin Screener. Plain market data only
 // (price, changes, volume, market cap) — no derived "signals". CoinGecko
@@ -51,7 +51,8 @@ type CoinPaprikaRow = {
   }
 }
 
-const num = (v: number | null | undefined) => (typeof v === 'number' && Number.isFinite(v) ? v : null)
+const num = (v: number | null | undefined) =>
+  typeof v === 'number' && Number.isFinite(v) ? v : null
 
 export const screenerSources: Source<ScreenerRow[]>[] = [
   {
@@ -60,9 +61,7 @@ export const screenerSources: Source<ScreenerRow[]>[] = [
       const url =
         'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc' +
         `&per_page=${SCREENER_SIZE}&page=1&price_change_percentage=1h,24h,7d`
-      const res = await fetch(url, { signal, cache: 'no-store', headers: { accept: 'application/json' } })
-      assertUpstreamOk(res, 'coingecko-markets')
-      const json = (await res.json()) as CoinGeckoRow[]
+      const json = await fetchJson<CoinGeckoRow[]>(url, signal, 'coingecko-markets')
       const rows = json
         .filter((r) => typeof r.current_price === 'number')
         .map((r, i) => ({
@@ -84,14 +83,16 @@ export const screenerSources: Source<ScreenerRow[]>[] = [
   {
     name: 'coinpaprika-tickers',
     async fetch(signal) {
-      const res = await fetch('https://api.coinpaprika.com/v1/tickers?quotes=USD', {
+      const json = await fetchJson<CoinPaprikaRow[]>(
+        'https://api.coinpaprika.com/v1/tickers?quotes=USD',
         signal,
-        cache: 'no-store',
-      })
-      assertUpstreamOk(res, 'coinpaprika-tickers')
-      const json = (await res.json()) as CoinPaprikaRow[]
+        'coinpaprika-tickers'
+      )
       const rows = json
-        .filter((r) => typeof r.rank === 'number' && r.rank > 0 && typeof r.quotes?.USD?.price === 'number')
+        .filter(
+          (r) =>
+            typeof r.rank === 'number' && r.rank > 0 && typeof r.quotes?.USD?.price === 'number'
+        )
         .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
         .slice(0, SCREENER_SIZE)
         .map((r) => {

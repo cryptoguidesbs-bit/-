@@ -8,6 +8,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server'
 
 import { routing } from '@/i18n/routing'
+import { ogLocale } from '@/lib/seo'
 import { siteUrl } from '@/lib/site'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { QueryProvider } from '@/components/providers/query-provider'
@@ -22,18 +23,10 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))
 }
 
-const OG_LOCALES: Record<string, string> = { ko: 'ko_KR', en: 'en_US' }
-
-export async function generateMetadata(
-  props: {
-    params: Promise<{ locale: string }>
-  }
-): Promise<Metadata> {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+export async function generateMetadata(props: {
+  params: Promise<{ locale: string }>
+}): Promise<Metadata> {
+  const { locale } = await props.params
 
   const t = await getTranslations({ locale, namespace: 'metadata' })
 
@@ -49,7 +42,7 @@ export async function generateMetadata(
       siteName: t('title'),
       title: t('titleFull'),
       description: t('description'),
-      locale: OG_LOCALES[locale] ?? locale,
+      locale: ogLocale(locale),
     },
     twitter: {
       card: 'summary_large_image',
@@ -63,21 +56,13 @@ export async function generateMetadata(
   }
 }
 
-export default async function LocaleLayout(
-  props: {
-    children: React.ReactNode
-    params: Promise<{ locale: string }>
-  }
-) {
-  const params = await props.params;
+export default async function LocaleLayout(props: {
+  children: React.ReactNode
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await props.params
 
-  const {
-    locale
-  } = params;
-
-  const {
-    children
-  } = props;
+  const { children } = props
 
   if (!routing.locales.includes(locale as (typeof routing.locales)[number])) {
     notFound()

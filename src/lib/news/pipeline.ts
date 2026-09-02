@@ -5,7 +5,7 @@ import type { NewsCategory } from '@prisma/client'
 
 import { MAX_ITEMS_PER_SOURCE, newsSources } from '@/config/news-sources'
 import { getAiProvider, AiRateLimitError } from '@/lib/ai/provider'
-import { consumeAiBudget, AiBudgetExceededError } from '@/lib/ai/budget'
+import { consumeAiBudget, AiBudgetExceededError, aiCallSpacing } from '@/lib/ai/budget'
 import { sanityCheck } from '@/lib/ai/sanity'
 import { prisma } from '@/lib/prisma'
 import { fetchRss } from './rss'
@@ -28,7 +28,8 @@ const CATEGORY_RULES: { category: NewsCategory; pattern: RegExp }[] = [
   },
   {
     category: 'MACRO',
-    pattern: /\b(fed|cpi|inflation|interest rate|treasury|macro|recession|gdp|dollar)\b|연준|금리|물가/i,
+    pattern:
+      /\b(fed|cpi|inflation|interest rate|treasury|macro|recession|gdp|dollar)\b|연준|금리|물가/i,
   },
   {
     category: 'TECHNOLOGY',
@@ -71,7 +72,7 @@ export async function ingestNews(): Promise<IngestReport> {
     newsSources.map(async (source) => {
       const items = (await fetchRss(source.url)).slice(0, MAX_ITEMS_PER_SOURCE)
       return { source, items }
-    }),
+    })
   )
 
   for (const result of results) {
@@ -147,7 +148,7 @@ export async function summarizePending(limit = 15): Promise<SummarizeReport> {
   // Mostly newest-first so the visible top of the feed gets summaries, with
   // a small oldest-first lane so backlog left over from budget-exhausted
   // stretches still drains instead of being starved forever.
-  const freshQuota = Math.max(1, Math.ceil(limit * 0.8))
+  const freshQuota = Math.max(1, Math.floor(limit * 0.8))
   const fresh = await prisma.newsItem.findMany({
     where: { aiStatus: 'PENDING' },
     orderBy: { publishedAt: 'desc' },
@@ -172,13 +173,40 @@ export async function summarizePending(limit = 15): Promise<SummarizeReport> {
     model: provider.model,
   }
 
-  for (const item of pending) {
+  let budgetExhausted = false
+  for (const [index, item] of pending.entries()) {
+    if (item.aiAttempts >= MAX_AI_ATTEMPTS) {
+      // Legacy row that reached MAX via the old deferral inflation without
+      // a real analysis: reset so a later run gets a genuine attempt. Needs
+      // no provider call, so it runs even when the budget is exhausted.
+      await prisma.newsItem.update({ where: { id: item.id }, data: { aiAttempts: 0 } })
+      report.deferred += 1
+      continue
+    }
+    if (budgetExhausted) {
+      // The daily cap applies to every remaining item — count them as
+      // deferred without a budget upsert+refund round-trip each.
+      report.deferred += pending.length - index
+      break
+    }
     let attempts = item.aiAttempts
     let lastReason = 'unknown'
     let published = false
     let deferred = false
 
     while (attempts < MAX_AI_ATTEMPTS && !published && !deferred) {
+      // Claim the attempt atomically (compare-and-swap on aiAttempts) so a
+      // concurrent run — the ingest cron's inline summarize, an admin
+      // trigger — never analyzes the same row twice.
+      const claimed = await prisma.newsItem.updateMany({
+        where: { id: item.id, aiStatus: 'PENDING', aiAttempts: attempts },
+        data: { aiAttempts: { increment: 1 } },
+      })
+      if (claimed.count === 0) {
+        // Another worker owns this row now — leave it to them.
+        deferred = true
+        break
+      }
       attempts += 1
       try {
         await consumeAiBudget(1, { reserve: true })
@@ -187,6 +215,8 @@ export async function summarizePending(limit = 15): Promise<SummarizeReport> {
           source: item.source,
           category: item.category,
         })
+        // Same pacing the brief/report generators use between provider calls.
+        await aiCallSpacing()
         const sanity = sanityCheck(analysis, item.title)
         if (sanity.ok) {
           await prisma.newsItem.update({
@@ -214,10 +244,9 @@ export async function summarizePending(limit = 15): Promise<SummarizeReport> {
         }
       } catch (error) {
         if (error instanceof AiRateLimitError || error instanceof AiBudgetExceededError) {
-          // Back off (rate limit / daily cost cap): keep PENDING for a later
-          // run. No provider call happened, so this must NOT count as an
-          // attempt — otherwise budget-starved items inflate to MAX across
-          // runs and get held without ever being analyzed.
+          // No provider call happened: release the claim so this does NOT
+          // count as an attempt (budget-starved items used to inflate to
+          // MAX across runs and get held without ever being analyzed).
           attempts -= 1
           await prisma.newsItem.update({
             where: { id: item.id },
@@ -225,6 +254,7 @@ export async function summarizePending(limit = 15): Promise<SummarizeReport> {
           })
           report.deferred += 1
           deferred = true
+          if (error instanceof AiBudgetExceededError) budgetExhausted = true
         } else {
           lastReason = `provider error: ${String((error as Error).message).slice(0, 120)}`
         }
@@ -264,6 +294,8 @@ export type MarketSentiment = {
   sampleSize: number
   method: 'news-tone'
   windowHours: number
+  /** publishedAt of the newest article in the sample (ISO) — the data's real age. */
+  latestAt: string | null
 }
 
 export async function aggregateSentiment(windowHours = 24): Promise<MarketSentiment> {
@@ -275,22 +307,31 @@ export async function aggregateSentiment(windowHours = 24): Promise<MarketSentim
       sentiment: { not: null },
       confidence: { not: null },
     },
-    select: { sentiment: true, confidence: true },
+    select: { sentiment: true, confidence: true, publishedAt: true },
   })
 
   if (items.length === 0) {
-    return { label: 'neutral', confidence: 0, sampleSize: 0, method: 'news-tone', windowHours }
+    return {
+      label: 'neutral',
+      confidence: 0,
+      sampleSize: 0,
+      method: 'news-tone',
+      windowHours,
+      latestAt: null,
+    }
   }
 
   let weighted = 0
   let totalWeight = 0
   let confidenceSum = 0
+  let latest = 0
   for (const item of items) {
     const weight = item.confidence ?? 0
     totalWeight += weight
     confidenceSum += weight
     if (item.sentiment === 'BULLISH') weighted += weight
     if (item.sentiment === 'BEARISH') weighted -= weight
+    latest = Math.max(latest, item.publishedAt.getTime())
   }
 
   const score = totalWeight > 0 ? weighted / totalWeight : 0
@@ -302,5 +343,6 @@ export async function aggregateSentiment(windowHours = 24): Promise<MarketSentim
     sampleSize: items.length,
     method: 'news-tone',
     windowHours,
+    latestAt: latest ? new Date(latest).toISOString() : null,
   }
 }

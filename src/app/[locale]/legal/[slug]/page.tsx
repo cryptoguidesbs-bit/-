@@ -13,12 +13,7 @@ export function generateStaticParams() {
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params;
-
-  const {
-    locale,
-    slug
-  } = params;
+  const { locale, slug } = await props.params
 
   if (!isLegalSlug(slug)) return {}
   const t = await getTranslations({ locale, namespace: `legal.${slug}` })
@@ -35,12 +30,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 // next-intl. NOTE: these are review-ready drafts; production launch is gated
 // on the attorney review tracked in docs/legal-review.md.
 export default async function LegalPage(props: Props) {
-  const params = await props.params;
-
-  const {
-    locale,
-    slug
-  } = params;
+  const { locale, slug } = await props.params
 
   if (!isLegalSlug(slug)) notFound()
   setRequestLocale(locale)

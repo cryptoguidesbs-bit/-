@@ -13,18 +13,19 @@ type Props = { params: Promise<{ locale: string }> }
 // Operator wall-board ("dashboard mode") — ADMIN role only. Big numbers,
 // auto-refresh, meant to stay open full-screen on a monitor.
 export default async function AdminBoardPage(props: Props) {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   setRequestLocale(locale)
 
   const user = await getDbUser()
   if (!user || user.role !== 'ADMIN') {
     return (
-      <div className="flex justify-center py-16" data-testid="admin-denied" lang="ko" translate="no">
+      <div
+        className="flex justify-center py-16"
+        data-testid="admin-denied"
+        lang="ko"
+        translate="no"
+      >
         <Card className="w-full max-w-md">
           <CardContent className="flex flex-col items-center gap-3 p-8 text-center">
             <ShieldAlert className="h-8 w-8 text-muted-foreground" />

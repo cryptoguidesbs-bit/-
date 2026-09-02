@@ -2,7 +2,7 @@ import 'server-only'
 
 import { BINANCE_REST_URL, marketSymbols } from '@/config/market'
 import { cryptoAssets, traditionalAssets } from '@/config/assets'
-import { assertUpstreamOk, type Source } from './resilient'
+import { assertUpstreamOk, fetchJson, type Source } from './resilient'
 
 // ---------------------------------------------------------------------------
 // Shared shapes served to the client
@@ -48,13 +48,11 @@ export const cryptoSources: Source<AssetQuote[]>[] = [
     name: 'coingecko',
     async fetch(signal) {
       const ids = cryptoAssets.map((a) => a.coingeckoId).join(',')
-      const res = await fetch(`${COINGECKO_URL}/coins/markets?vs_currency=usd&ids=${ids}`, {
+      const json = await fetchJson<CoinGeckoMarket[]>(
+        `${COINGECKO_URL}/coins/markets?vs_currency=usd&ids=${ids}`,
         signal,
-        cache: 'no-store',
-        headers: { accept: 'application/json' },
-      })
-      assertUpstreamOk(res, 'coingecko')
-      const json = (await res.json()) as CoinGeckoMarket[]
+        'coingecko'
+      )
       return cryptoAssets.map((asset) => {
         const row = json.find((r) => r.id === asset.coingeckoId)
         if (typeof row?.current_price !== 'number') {
@@ -74,12 +72,11 @@ export const cryptoSources: Source<AssetQuote[]>[] = [
     async fetch(signal) {
       return Promise.all(
         cryptoAssets.map(async (asset) => {
-          const res = await fetch(`${COINPAPRIKA_URL}/tickers/${asset.paprikaId}`, {
+          const json = await fetchJson<CoinPaprikaTicker>(
+            `${COINPAPRIKA_URL}/tickers/${asset.paprikaId}`,
             signal,
-            cache: 'no-store',
-          })
-          assertUpstreamOk(res, 'coinpaprika')
-          const json = (await res.json()) as CoinPaprikaTicker
+            'coinpaprika'
+          )
           const usd = json.quotes?.USD
           if (typeof usd?.price !== 'number') throw new Error(`coinpaprika missing ${asset.id}`)
           return {
@@ -88,7 +85,7 @@ export const cryptoSources: Source<AssetQuote[]>[] = [
             price: usd.price,
             changePct: usd.percent_change_24h ?? 0,
           }
-        }),
+        })
       )
     },
   },
@@ -98,7 +95,7 @@ export const cryptoSources: Source<AssetQuote[]>[] = [
       const symbols = JSON.stringify(cryptoAssets.map((a) => a.binanceSymbol))
       const res = await fetch(
         `${BINANCE_REST_URL}/ticker/24hr?symbols=${encodeURIComponent(symbols)}`,
-        { signal, cache: 'no-store' },
+        { signal, cache: 'no-store' }
       )
       assertUpstreamOk(res, 'binance')
       const json = (await res.json()) as {
@@ -137,13 +134,11 @@ export const tickerSources: Source<TickerQuote[]>[] = [
     name: 'coingecko',
     async fetch(signal) {
       const ids = marketSymbols.map((m) => m.coingeckoId).join(',')
-      const res = await fetch(`${COINGECKO_URL}/coins/markets?vs_currency=usd&ids=${ids}`, {
+      const json = await fetchJson<CoinGeckoMarket[]>(
+        `${COINGECKO_URL}/coins/markets?vs_currency=usd&ids=${ids}`,
         signal,
-        cache: 'no-store',
-        headers: { accept: 'application/json' },
-      })
-      assertUpstreamOk(res, 'coingecko')
-      const json = (await res.json()) as CoinGeckoMarket[]
+        'coingecko'
+      )
       return marketSymbols.map((m) => {
         const row = json.find((r) => r.id === m.coingeckoId)
         if (typeof row?.current_price !== 'number') {
@@ -163,12 +158,11 @@ export const tickerSources: Source<TickerQuote[]>[] = [
     async fetch(signal) {
       return Promise.all(
         marketSymbols.map(async (m) => {
-          const res = await fetch(`${COINPAPRIKA_URL}/tickers/${m.paprikaId}`, {
+          const json = await fetchJson<CoinPaprikaTicker>(
+            `${COINPAPRIKA_URL}/tickers/${m.paprikaId}`,
             signal,
-            cache: 'no-store',
-          })
-          assertUpstreamOk(res, 'coinpaprika')
-          const json = (await res.json()) as CoinPaprikaTicker
+            'coinpaprika'
+          )
           const usd = json.quotes?.USD
           if (typeof usd?.price !== 'number') throw new Error(`coinpaprika missing ${m.symbol}`)
           return {
@@ -177,7 +171,7 @@ export const tickerSources: Source<TickerQuote[]>[] = [
             changePct: usd.percent_change_24h ?? 0,
             volumeQuote: usd.volume_24h ?? 0,
           }
-        }),
+        })
       )
     },
   },
@@ -187,7 +181,7 @@ export const tickerSources: Source<TickerQuote[]>[] = [
       const symbols = JSON.stringify(marketSymbols.map((m) => m.symbol))
       const res = await fetch(
         `${BINANCE_REST_URL}/ticker/24hr?symbols=${encodeURIComponent(symbols)}`,
-        { signal, cache: 'no-store' },
+        { signal, cache: 'no-store' }
       )
       assertUpstreamOk(res, 'binance')
       const json = (await res.json()) as {
@@ -239,7 +233,7 @@ function yahooSource(host: string): Source<AssetQuote[]> {
               signal,
               cache: 'no-store',
               headers: { 'user-agent': 'Mozilla/5.0 (compatible; CryptoGuide/1.0)' },
-            },
+            }
           )
           assertUpstreamOk(res, host)
           const json = (await res.json()) as YahooChart
@@ -255,7 +249,7 @@ function yahooSource(host: string): Source<AssetQuote[]> {
             price,
             changePct: ((price - prev) / prev) * 100,
           }
-        }),
+        })
       )
       return quotes
     },

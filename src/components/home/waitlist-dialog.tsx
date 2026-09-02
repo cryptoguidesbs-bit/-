@@ -1,10 +1,12 @@
 'use client'
 
-import { useEffect, useId, useRef, useState } from 'react'
+import { useId, useRef } from 'react'
 import { X } from 'lucide-react'
-import { useLocale, useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
 
 import type { PricingTierKey } from '@/config/pricing'
+import { useDialogShell } from '@/hooks/use-dialog-shell'
+import { useWaitlistSignup } from '@/hooks/use-waitlist-signup'
 import { Button } from '@/components/ui/button'
 
 type Props = { plan: PricingTierKey | null; onClose: () => void }
@@ -12,55 +14,23 @@ type Props = { plan: PricingTierKey | null; onClose: () => void }
 /**
  * Free-first launch: paid checkout is disabled (no LLC yet, so Stripe live
  * cannot be activated). Paid-plan CTAs open this small dialog instead and
- * collect an email for the launch waitlist (POST /api/waitlist).
+ * collect an email for the launch waitlist, tagged with the plan.
  */
 export function WaitlistDialog({ plan, onClose }: Props) {
   const t = useTranslations('home.pricing.waitlist')
-  const locale = useLocale()
   const titleId = useId()
   const emailRef = useRef<HTMLInputElement>(null)
-  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const { status, submit, reset } = useWaitlistSignup()
 
   const open = plan !== null
-
-  useEffect(() => {
-    if (!open) return
-    setStatus('idle')
-    const id = window.setTimeout(() => emailRef.current?.focus(), 0)
-    return () => window.clearTimeout(id)
-  }, [open])
-
-  useEffect(() => {
-    if (!open) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', onKey)
-    const previous = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = previous
-    }
-  }, [open, onClose])
+  useDialogShell({ open, onClose, initialFocusRef: emailRef, onOpen: reset })
 
   if (!open) return null
 
-  const submit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = new FormData(event.currentTarget)
-    setStatus('sending')
-    try {
-      const res = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email: String(form.get('email') ?? ''), plan, locale }),
-      })
-      if (!res.ok) throw new Error('waitlist failed')
-      setStatus('sent')
-    } catch {
-      setStatus('error')
-    }
+    void submit(String(form.get('email') ?? ''), plan)
   }
 
   return (
@@ -100,7 +70,7 @@ export function WaitlistDialog({ plan, onClose }: Props) {
             </Button>
           </div>
         ) : (
-          <form className="mt-5 space-y-4" onSubmit={submit}>
+          <form className="mt-5 space-y-4" onSubmit={onSubmit}>
             <div className="space-y-1.5">
               <label htmlFor="wl-email" className="text-xs font-medium text-muted-foreground">
                 {t('email')}

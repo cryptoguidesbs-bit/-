@@ -21,11 +21,7 @@ type Props = {
 }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   const t = await getTranslations({ locale, namespace: 'brief' })
   return pageMeta({
@@ -49,12 +45,8 @@ function Disclaimer({ text }: { text: string }) {
 }
 
 export default async function BriefPage(props: Props) {
-  const searchParams = await props.searchParams;
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const searchParams = await props.searchParams
+  const { locale } = await props.params
 
   setRequestLocale(locale)
   const t = await getTranslations({ locale, namespace: 'brief' })
@@ -96,7 +88,7 @@ export default async function BriefPage(props: Props) {
         <>
           <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
             <Badge variant="secondary">{brief.briefDate}</Badge>
-            <span className="ml-auto order-last">
+            <span className="order-last ml-auto">
               <ShareButtons
                 text={`${t('title')} · ${brief.briefDate} — CryptoGuide`}
                 path={`/${locale}/brief`}

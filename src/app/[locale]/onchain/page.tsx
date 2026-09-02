@@ -10,11 +10,7 @@ import { pageMeta } from '@/lib/seo'
 type Props = { params: Promise<{ locale: string }> }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   const t = await getTranslations({ locale, namespace: 'onchain' })
   return pageMeta({
@@ -28,11 +24,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 // Premium: whale & on-chain data requires the Pro plan
 // (onchain.advanced — region policy also applies).
 export default async function OnchainPage(props: Props) {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   setRequestLocale(locale)
 

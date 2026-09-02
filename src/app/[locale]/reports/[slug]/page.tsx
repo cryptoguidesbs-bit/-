@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { AlertTriangle, ArrowLeft, Sparkles } from 'lucide-react'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
-import { pageAlternates } from '@/lib/seo'
+import { pageMeta } from '@/lib/seo'
 
 import { checkFeature } from '@/lib/entitlements'
 import { recordAccess } from '@/lib/billing/usage'
@@ -16,23 +16,19 @@ import { Link } from '@/i18n/navigation'
 type Props = { params: Promise<{ locale: string; slug: string }> }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params;
-
-  const {
-    locale,
-    slug
-  } = params;
+  const { locale, slug } = await props.params
 
   const report = await prisma.report.findUnique({
     where: { slug_locale: { slug, locale: locale === 'ko' ? 'ko' : 'en' } },
     select: { title: true, summary: true, status: true },
   })
   if (!report || report.status !== 'PUBLISHED') return {}
-  return {
+  return pageMeta({
+    locale,
+    path: `/reports/${slug}`,
     title: report.title,
     description: report.summary ?? undefined,
-    alternates: pageAlternates(`/reports/${slug}`, locale),
-  }
+  })
 }
 
 // Minimal markdown rendering for our controlled report format
@@ -53,12 +49,12 @@ function RenderMarkdown({ content }: { content: string }) {
               </h2>
               {rest.length > 0 && <BlockLines lines={rest} />}
             </div>
-          );
+          )
         }
         return <BlockLines key={index} lines={lines} />
       })}
     </div>
-  );
+  )
 }
 
 function BlockLines({ lines }: { lines: string[] }) {
@@ -77,16 +73,11 @@ function BlockLines({ lines }: { lines: string[] }) {
         </ul>
       )}
     </>
-  );
+  )
 }
 
 export default async function ReportDetailPage(props: Props) {
-  const params = await props.params;
-
-  const {
-    locale,
-    slug
-  } = params;
+  const { locale, slug } = await props.params
 
   setRequestLocale(locale)
 

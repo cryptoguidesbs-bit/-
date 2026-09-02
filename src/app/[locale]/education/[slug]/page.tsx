@@ -14,12 +14,7 @@ import { Link } from '@/i18n/navigation'
 type Props = { params: Promise<{ locale: string; slug: string }> }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params;
-
-  const {
-    locale,
-    slug
-  } = params;
+  const { locale, slug } = await props.params
 
   const lesson = getLesson(slug)
   if (!lesson) return {}
@@ -51,7 +46,7 @@ function RenderLesson({ content }: { content: string }) {
                 <p className="text-sm leading-relaxed text-muted-foreground">{rest.join(' ')}</p>
               )}
             </div>
-          );
+          )
         }
         return (
           <p key={index} className="text-sm leading-relaxed text-muted-foreground">
@@ -60,7 +55,7 @@ function RenderLesson({ content }: { content: string }) {
         )
       })}
     </div>
-  );
+  )
 }
 
 // Funnel gate: sign-in CTA for member lessons, upgrade CTA for starter.
@@ -95,12 +90,7 @@ function LessonGateCard({ gate, t }: { gate: LessonGate; t: (key: string) => str
 }
 
 export default async function LessonPage(props: Props) {
-  const params = await props.params;
-
-  const {
-    locale,
-    slug
-  } = params;
+  const { locale, slug } = await props.params
 
   setRequestLocale(locale)
 

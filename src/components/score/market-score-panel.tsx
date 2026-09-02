@@ -47,7 +47,10 @@ function ComponentRow({ c }: { c: ScoreComponent }) {
   const pct = c.normalized ?? 0
   return (
     <div
-      className={cn('grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 py-3 sm:grid-cols-[1.4fr_1fr_1fr_auto]', !c.available && 'opacity-60')}
+      className={cn(
+        'grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 py-3 sm:grid-cols-[1.4fr_1fr_1fr_auto]',
+        !c.available && 'opacity-60'
+      )}
       data-testid={`score-component-${c.key}`}
     >
       <div>
@@ -57,12 +60,24 @@ function ComponentRow({ c }: { c: ScoreComponent }) {
       <p className="text-right text-sm tabular-nums sm:text-left">{rawLabel(c)}</p>
       <div className="col-span-2 flex items-center gap-2 sm:col-span-1">
         <div className="h-2 flex-1 overflow-hidden rounded-full bg-secondary">
-          <div className="h-full rounded-full bg-gradient-to-r from-sky-400 via-yellow-400 to-red-500" style={{ width: `${pct}%` }} />
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-sky-400 via-yellow-400 to-red-500"
+            style={{ width: `${pct}%` }}
+          />
         </div>
-        <span className="w-8 text-right text-xs tabular-nums text-muted-foreground">{c.normalized ?? '—'}</span>
+        <span className="w-8 text-right text-xs tabular-nums text-muted-foreground">
+          {c.normalized ?? '—'}
+        </span>
       </div>
       <p className="text-right text-xs tabular-nums text-muted-foreground">
-        {c.available ? t('weightWithContribution', { weight: c.weight, contribution: c.contribution ?? 0 }) : t('unavailable')}
+        {c.available
+          ? t('weightWithContribution', {
+              // When an input is missing the remaining weights are rescaled —
+              // show the weight that was actually applied.
+              weight: c.effectiveWeight ?? c.weight,
+              contribution: c.contribution ?? 0,
+            })
+          : t('unavailable')}
       </p>
     </div>
   )
@@ -98,7 +113,9 @@ export function MarketScorePanel() {
     )
   }
 
-  const ordered = COMPONENT_ORDER.map((k) => data.components.find((c) => c.key === k)).filter(Boolean) as ScoreComponent[]
+  const ordered = COMPONENT_ORDER.map((k) => data.components.find((c) => c.key === k)).filter(
+    Boolean
+  ) as ScoreComponent[]
   const missingNames = data.missing.map((k) => tc(`${k}.name`))
   const bandLabel = data.band ? t(`bands.${data.band}`) : t('bands.unavailable')
 
