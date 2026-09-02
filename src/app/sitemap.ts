@@ -12,6 +12,7 @@ const routes = [
   ...navItems.map((item) => item.href),
   ...legalSlugs.map((s) => `/legal/${s}`),
   '/data',
+  '/enterprise',
 ]
 
 function absoluteUrl(href: string, locale: Locale) {

@@ -8,6 +8,7 @@ import { NewsSection } from '@/components/home/news-section'
 import { MarketDashboardSection } from '@/components/home/market-dashboard-section'
 import { WhySection } from '@/components/home/why-section'
 import { DashboardPreviewSection } from '@/components/home/dashboard-preview-section'
+import { WaitlistSection } from '@/components/home/waitlist-section'
 import { PricingSection } from '@/components/home/pricing-section'
 import { MapBonusSection } from '@/components/home/map-bonus-section'
 import { FaqSection } from '@/components/home/faq-section'
@@ -50,6 +51,7 @@ export default async function HomePage(props: Props) {
       <MarketDashboardSection />
       <WhySection locale={locale} />
       <DashboardPreviewSection locale={locale} />
+      <WaitlistSection />
       <PricingSection />
       <MapBonusSection locale={locale} />
       <FaqSection />

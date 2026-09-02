@@ -14,5 +14,8 @@ export default getRequestConfig(async ({ requestLocale }) => {
     // Server rendering is pinned to UTC so markup is deterministic.
     // User-local display happens in client components (see lib/datetime.ts).
     timeZone: 'UTC',
+    // Explicit `now` for relativeTime formatting — same value the implicit
+    // fallback would use, but without next-intl's dev warning.
+    now: new Date(),
   }
 })

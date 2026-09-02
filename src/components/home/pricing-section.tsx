@@ -15,7 +15,7 @@ import {
 } from '@/config/pricing'
 import { paymentsMode } from '@/lib/payments/mode'
 import type { BillingInterval } from '@/lib/payments/plans'
-import { useRouter } from '@/i18n/navigation'
+import { Link, useRouter } from '@/i18n/navigation'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -227,6 +227,15 @@ export function PricingSection() {
                 )}
 
                 <p className="text-xs text-muted-foreground">{t(`tiers.${tier.key}.tagline`)}</p>
+                {tier.contact && (
+                  <Link
+                    href="/enterprise"
+                    className="text-xs font-medium text-primary hover:underline"
+                    data-testid="enterprise-details-link"
+                  >
+                    {t('enterprise.detailsLink')}
+                  </Link>
+                )}
               </CardHeader>
               <CardContent className="flex flex-1 flex-col gap-4">
                 <ul className="flex-1 space-y-2.5">
