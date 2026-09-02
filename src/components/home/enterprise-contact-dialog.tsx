@@ -1,9 +1,10 @@
 'use client'
 
-import { useEffect, useId, useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { X } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 
+import { useDialogShell } from '@/hooks/use-dialog-shell'
 import { Button } from '@/components/ui/button'
 
 type Props = { open: boolean; onClose: () => void }
@@ -21,31 +22,9 @@ export function EnterpriseContactDialog({ open, onClose }: Props) {
   const locale = useLocale()
   const titleId = useId()
   const firstFieldRef = useRef<HTMLInputElement>(null)
-
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
 
-  // Reset whenever the dialog is (re)opened, and focus the first field.
-  useEffect(() => {
-    if (!open) return
-    setStatus('idle')
-    const id = window.setTimeout(() => firstFieldRef.current?.focus(), 0)
-    return () => window.clearTimeout(id)
-  }, [open])
-
-  // Close on Escape; lock body scroll while open.
-  useEffect(() => {
-    if (!open) return
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', onKey)
-    const previous = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.removeEventListener('keydown', onKey)
-      document.body.style.overflow = previous
-    }
-  }, [open, onClose])
+  useDialogShell({ open, onClose, initialFocusRef: firstFieldRef, onOpen: () => setStatus('idle') })
 
   if (!open) return null
 

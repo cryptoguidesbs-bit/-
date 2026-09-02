@@ -42,6 +42,24 @@ export class RateLimitError extends Error {
   }
 }
 
+// The one-liner every keyless JSON upstream (CoinGecko, CoinPaprika, …)
+// needs: no-store fetch with the abort signal, status check, typed body.
+export async function fetchJson<T>(
+  url: string,
+  signal: AbortSignal,
+  sourceName: string,
+  init: RequestInit = {}
+): Promise<T> {
+  const res = await fetch(url, {
+    signal,
+    cache: 'no-store',
+    ...init,
+    headers: { accept: 'application/json', ...(init.headers ?? {}) },
+  })
+  assertUpstreamOk(res, sourceName)
+  return (await res.json()) as T
+}
+
 const RATE_LIMIT_COOLDOWN_MS = 60_000
 
 function toResult<T>(entry: CacheEntry, stale: boolean): MarketResult<T> {
@@ -64,7 +82,7 @@ export async function resilientFetch<T>(
     freshMs?: number
     /** Test hook: skip all upstream calls, as if the network were down. */
     blocked?: boolean
-  } = {},
+  } = {}
 ): Promise<MarketResult<T>> {
   const { timeoutMs = 5_000, retries = 1, freshMs = 30_000, blocked = false } = opts
 

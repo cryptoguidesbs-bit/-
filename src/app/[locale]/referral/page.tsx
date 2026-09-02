@@ -11,11 +11,7 @@ import { pageMeta } from '@/lib/seo'
 type Props = { params: Promise<{ locale: string }> }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   const t = await getTranslations({ locale, namespace: 'referral' })
   return pageMeta({
@@ -30,11 +26,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 // Monetary rewards are region-gated: in non-whitelisted countries the
 // program (link/ranking) still works but no commission accrues.
 export default async function ReferralPage(props: Props) {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   setRequestLocale(locale)
 

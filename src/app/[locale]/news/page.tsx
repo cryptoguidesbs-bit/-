@@ -8,11 +8,7 @@ import { pageMeta } from '@/lib/seo'
 type Props = { params: Promise<{ locale: string }> }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   const t = await getTranslations({ locale, namespace: 'news' })
   return pageMeta({
@@ -24,11 +20,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 }
 
 export default async function NewsPage(props: Props) {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   setRequestLocale(locale)
   const t = await getTranslations({ locale, namespace: 'news' })

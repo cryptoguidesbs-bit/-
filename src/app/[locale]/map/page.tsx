@@ -9,11 +9,7 @@ import { pageMeta } from '@/lib/seo'
 type Props = { params: Promise<{ locale: string }> }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   const t = await getTranslations({ locale, namespace: 'map' })
   return pageMeta({
@@ -27,11 +23,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 // Crypto Map — PUBLIC (also the home page's main view); read APIs are IP
 // rate-limited. Informational only; not transaction brokering.
 export default async function MapPage(props: Props) {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   setRequestLocale(locale)
 

@@ -700,8 +700,6 @@
         "greed": "Greed",
         "extremeGreed": "Extreme greed"
       },
-      "staleNotice": "Delayed — last value as of {time}",
-      "unavailable": "Data is temporarily unavailable. We will retry automatically.",
       "retry": "Retry",
       "source": "Sources: CoinGecko · CoinPaprika · Binance · Yahoo Finance · Alternative.me. For informational purposes only."
     },
@@ -1531,7 +1529,7 @@
         }
       ],
       "bands": "Bands: 0–19 cold · 20–39 risk-off · 40–59 neutral · 60–79 risk-on · 80–100 overheated. The score is held for 60 seconds and otherwise follows the refresh cadence of its inputs.",
-      "notAdvice": "The Market Score is a reference gauge that summarizes market conditions; it is not a trading recommendation. Derivatives (funding, open interest) and on-chain metrics are not part of v1."
+      "notAdvice": "The Market Score is a reference gauge that summarizes market conditions; it is not a trading recommendation. \"BTC 24h change\" and \"Volatility calm\" derive from the same raw number (the BTC 24h move), so 30% of the weight rests on one input. When an input is missing the remaining weights are rescaled proportionally, and the \"contribution\" shown uses the rescaled weights. Derivatives (funding, open interest) and on-chain metrics are not part of v1."
     }
   },
   "enterprise": {

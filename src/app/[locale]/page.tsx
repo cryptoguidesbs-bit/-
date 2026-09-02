@@ -18,11 +18,7 @@ import { pageMeta } from '@/lib/seo'
 type Props = { params: Promise<{ locale: string }> }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   const t = await getTranslations({ locale, namespace: 'metadata' })
   const meta = pageMeta({ locale, path: '/', title: t('titleFull'), description: t('description') })
@@ -35,11 +31,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 // (brief, news, markets) → why us → real screenshots → pricing → the map as
 // a bonus → FAQ.
 export default async function HomePage(props: Props) {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   setRequestLocale(locale)
 

@@ -1,6 +1,6 @@
 import 'server-only'
 
-import { assertUpstreamOk, type Source } from './resilient'
+import { fetchJson, type Source } from './resilient'
 
 // Whole-market aggregates used by the Market Score: total market cap change,
 // BTC dominance, total volume. CoinGecko primary, CoinPaprika fallback —
@@ -33,13 +33,11 @@ export const globalSources: Source<GlobalData>[] = [
   {
     name: 'coingecko-global',
     async fetch(signal) {
-      const res = await fetch('https://api.coingecko.com/api/v3/global', {
+      const json = await fetchJson<CoinGeckoGlobal>(
+        'https://api.coingecko.com/api/v3/global',
         signal,
-        cache: 'no-store',
-        headers: { accept: 'application/json' },
-      })
-      assertUpstreamOk(res, 'coingecko-global')
-      const json = (await res.json()) as CoinGeckoGlobal
+        'coingecko-global'
+      )
       const d = json.data
       if (
         typeof d?.total_market_cap?.usd !== 'number' ||
@@ -58,13 +56,15 @@ export const globalSources: Source<GlobalData>[] = [
   {
     name: 'coinpaprika-global',
     async fetch(signal) {
-      const res = await fetch('https://api.coinpaprika.com/v1/global', {
+      const json = await fetchJson<CoinPaprikaGlobal>(
+        'https://api.coinpaprika.com/v1/global',
         signal,
-        cache: 'no-store',
-      })
-      assertUpstreamOk(res, 'coinpaprika-global')
-      const json = (await res.json()) as CoinPaprikaGlobal
-      if (typeof json.market_cap_usd !== 'number' || typeof json.market_cap_change_24h !== 'number') {
+        'coinpaprika-global'
+      )
+      if (
+        typeof json.market_cap_usd !== 'number' ||
+        typeof json.market_cap_change_24h !== 'number'
+      ) {
         throw new Error('coinpaprika-global missing fields')
       }
       return {

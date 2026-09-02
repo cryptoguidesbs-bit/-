@@ -1,36 +1,23 @@
 'use client'
 
-import { useState } from 'react'
 import { BellRing, Check } from 'lucide-react'
-import { useLocale, useTranslations } from 'next-intl'
+import { useTranslations } from 'next-intl'
 
+import { useWaitlistSignup } from '@/hooks/use-waitlist-signup'
 import { Button } from '@/components/ui/button'
 import { Reveal } from '@/components/home/reveal'
 
-// Visible waitlist capture above the pricing grid. Posts to the same
-// /api/waitlist endpoint as the per-plan dialog; without a plan value the
-// API records a generic signup (plan = null), so the two entry points never
-// conflict — a later per-plan submit upgrades the row's plan interest.
+// Visible waitlist capture above the pricing grid. Submits without a plan
+// (generic interest); a later per-plan submit from the pricing dialog
+// upgrades the same row — see useWaitlistSignup.
 export function WaitlistSection() {
   const t = useTranslations('home.waitlistSection')
-  const locale = useLocale()
-  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const { status, submit } = useWaitlistSignup()
 
-  const submit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = new FormData(event.currentTarget)
-    setStatus('sending')
-    try {
-      const res = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ email: String(form.get('email') ?? ''), locale }),
-      })
-      if (!res.ok) throw new Error('waitlist failed')
-      setStatus('sent')
-    } catch {
-      setStatus('error')
-    }
+    void submit(String(form.get('email') ?? ''))
   }
 
   return (
@@ -57,7 +44,10 @@ export function WaitlistSection() {
                 {t('success')}
               </p>
             ) : (
-              <form onSubmit={submit} className="flex w-full max-w-md items-center gap-2 md:w-auto">
+              <form
+                onSubmit={onSubmit}
+                className="flex w-full max-w-md items-center gap-2 md:w-auto"
+              >
                 <input
                   type="email"
                   name="email"

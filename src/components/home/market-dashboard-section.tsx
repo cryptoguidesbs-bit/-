@@ -1,7 +1,7 @@
 'use client'
 
-import { AlertTriangle, RefreshCw } from 'lucide-react'
-import { useLocale, useTranslations } from 'next-intl'
+import { RefreshCw } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 
 import { cryptoAssets, traditionalAssets } from '@/config/assets'
 import { useCryptoPrices, useIndices, useSentiment } from '@/hooks/use-market-data'
@@ -11,6 +11,8 @@ import { formatPercent, formatUsd } from '@/lib/format'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { DataStatus } from '@/components/data-status'
+import { GaugeCard } from '@/components/home/gauge-card'
 import { Section } from '@/components/home/section'
 import { MarketScoreCard } from '@/components/score/market-score-card'
 import { cn } from '@/lib/utils'
@@ -24,33 +26,14 @@ const indexFormat = new Intl.NumberFormat('en-US', {
 // Shared bits
 // ---------------------------------------------------------------------------
 
-function StaleNotice({ updatedAt }: { updatedAt: string | null }) {
-  const t = useTranslations('home.dashboard')
-  const locale = useLocale()
-  const time = updatedAt
-    ? new Intl.DateTimeFormat(locale === 'ko' ? 'ko-KR' : 'en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-      }).format(new Date(updatedAt))
-    : '—'
-
-  return (
-    <p
-      className="flex items-center gap-1.5 text-xs text-yellow-500"
-      data-testid="stale-notice"
-    >
-      <AlertTriangle className="h-3.5 w-3.5" />
-      {t('staleNotice', { time })}
-    </p>
-  )
-}
-
+// Nothing to show (no last-good value either): say so, offer a retry. The
+// wording comes from the site-wide DataStatus convention.
 function UnavailableCard({ onRetry }: { onRetry: () => void }) {
   const t = useTranslations('home.dashboard')
   return (
     <Card className="col-span-full" data-testid="market-unavailable">
       <CardContent className="flex items-center justify-between gap-4 p-4">
-        <p className="text-sm text-muted-foreground">{t('unavailable')}</p>
+        <DataStatus updatedAt={null} unavailable />
         <Button variant="outline" size="sm" onClick={onRetry}>
           <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
           {t('retry')}
@@ -83,7 +66,7 @@ function AssetCard({
               'rounded-md px-2 py-1 text-xs font-medium tabular-nums',
               quote.changePct >= 0
                 ? 'bg-emerald-500/10 text-emerald-500'
-                : 'bg-red-500/10 text-red-500',
+                : 'bg-red-500/10 text-red-500'
             )}
           >
             {formatPercent(quote.changePct)}
@@ -119,7 +102,7 @@ function CardSkeletons({ count }: { count: number }) {
 }
 
 // ---------------------------------------------------------------------------
-// Fear & Greed gauge
+// Fear & Greed gauge — low = fear (red), high = greed (green)
 // ---------------------------------------------------------------------------
 
 const CLASSIFICATION_KEY: Record<string, string> = {
@@ -129,6 +112,8 @@ const CLASSIFICATION_KEY: Record<string, string> = {
   Greed: 'greed',
   'Extreme Greed': 'extremeGreed',
 }
+
+const FNG_METER_GRADIENT = 'bg-gradient-to-t from-red-500 via-yellow-500 to-emerald-500'
 
 function fngColor(value: number) {
   if (value <= 24) return 'text-red-500'
@@ -141,46 +126,34 @@ function fngColor(value: number) {
 function FearGreedCard() {
   const t = useTranslations('home.dashboard')
   const { data: result, isLoading, refetch } = useSentiment()
+  const value = result?.data?.value ?? null
 
   return (
-    <Card data-testid="fear-greed">
-      <CardContent className="flex items-center justify-between gap-6 p-5">
-        <div className="space-y-1">
-          <p className="font-semibold">{t('fngTitle')}</p>
-          <p className="text-xs text-muted-foreground">Crypto Fear &amp; Greed Index</p>
-          {result?.stale && result.data && <StaleNotice updatedAt={result.updatedAt} />}
-        </div>
-
-        {isLoading && <Skeleton className="h-14 w-32" />}
-
-        {!isLoading && result?.data && (
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className={cn('text-4xl font-bold tabular-nums', fngColor(result.data.value))}>
-                {result.data.value}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {t(`classification.${CLASSIFICATION_KEY[result.data.classification] ?? 'neutral'}`)}
-              </p>
-            </div>
-            {/* 0–100 meter */}
-            <div className="h-16 w-2 overflow-hidden rounded-full bg-secondary">
-              <div
-                className="w-full rounded-full bg-gradient-to-t from-red-500 via-yellow-500 to-emerald-500"
-                style={{ height: `${result.data.value}%`, marginTop: `${100 - result.data.value}%` }}
-              />
-            </div>
-          </div>
-        )}
-
-        {!isLoading && !result?.data && (
+    <GaugeCard
+      testId="fear-greed"
+      title={t('fngTitle')}
+      subtitle="Crypto Fear & Greed Index"
+      footer={
+        result?.stale && result.data ? <DataStatus updatedAt={result.updatedAt} stale /> : undefined
+      }
+      loading={isLoading && value === null ? <Skeleton className="h-14 w-32" /> : undefined}
+      aside={
+        !isLoading && value === null ? (
           <Button variant="outline" size="sm" onClick={() => void refetch()}>
             <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
             {t('retry')}
           </Button>
-        )}
-      </CardContent>
-    </Card>
+        ) : undefined
+      }
+      value={value}
+      valueClass={value === null ? undefined : fngColor(value)}
+      caption={
+        result?.data
+          ? t(`classification.${CLASSIFICATION_KEY[result.data.classification] ?? 'neutral'}`)
+          : undefined
+      }
+      meterGradient={FNG_METER_GRADIENT}
+    />
   )
 }
 
@@ -218,7 +191,7 @@ export function MarketDashboardSection() {
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-muted-foreground">{t('crypto')}</p>
             {crypto.data?.stale && crypto.data.data && (
-              <StaleNotice updatedAt={crypto.data.updatedAt} />
+              <DataStatus updatedAt={crypto.data.updatedAt} stale />
             )}
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
@@ -242,7 +215,7 @@ export function MarketDashboardSection() {
           <div className="flex items-center justify-between">
             <p className="text-sm font-medium text-muted-foreground">{t('traditional')}</p>
             {indices.data?.stale && indices.data.data && (
-              <StaleNotice updatedAt={indices.data.updatedAt} />
+              <DataStatus updatedAt={indices.data.updatedAt} stale />
             )}
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -250,7 +223,9 @@ export function MarketDashboardSection() {
             {indices.data?.data?.map((quote) => {
               const asset = traditionalAssets.find((a) => a.id === quote.id)
               const formatted =
-                asset?.kind === 'commodity' ? formatUsd(quote.price) : indexFormat.format(quote.price)
+                asset?.kind === 'commodity'
+                  ? formatUsd(quote.price)
+                  : indexFormat.format(quote.price)
               return <AssetCard key={quote.id} quote={quote} formatted={formatted} />
             })}
             {!indices.isLoading && !indices.data?.data && (

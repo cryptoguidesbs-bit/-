@@ -11,11 +11,7 @@ import { pageMeta } from '@/lib/seo'
 type Props = { params: Promise<{ locale: string }> }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   const t = await getTranslations({ locale, namespace: 'patterns' })
   return pageMeta({
@@ -29,11 +25,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 // Premium: AI pattern detection requires the Trader plan
 // (analysis.patterns). Output is non-personalized.
 export default async function PatternsPage(props: Props) {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   setRequestLocale(locale)
 

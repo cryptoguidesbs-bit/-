@@ -11,11 +11,7 @@ import { pageMeta } from '@/lib/seo'
 type Props = { params: Promise<{ locale: string }> }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   const t = await getTranslations({ locale, namespace: 'apiCenter' })
   return pageMeta({
@@ -31,11 +27,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 // has to be able to read what they would get before subscribing. API
 // responses always carry the disclaimer/terms meta.
 export default async function ApiCenterPage(props: Props) {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   setRequestLocale(locale)
 

@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 
+import { parseRss } from '@/lib/news/rss'
+
 export const revalidate = 120
 
 export type NewsItem = {
@@ -54,48 +56,22 @@ const FALLBACK_NEWS: NewsItem[] = [
   },
 ]
 
-function extractTag(chunk: string, tag: string): string {
-  const match = chunk.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`))
-  if (!match) return ''
-  return match[1].replace('<![CDATA[', '').replace(']]>', '').trim()
-}
-
-function decodeEntities(value: string): string {
-  return value
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#0?39;/g, "'")
-    .replace(/&apos;/g, "'")
-}
-
-function parseRss(xml: string, source: string): NewsItem[] {
-  return xml
-    .split('<item>')
-    .slice(1)
-    .map((chunk, index) => {
-      const title = decodeEntities(extractTag(chunk, 'title'))
-      const url = extractTag(chunk, 'link') || extractTag(chunk, 'guid')
-      const pubDate = extractTag(chunk, 'pubDate')
-      const timestamp = pubDate ? Date.parse(pubDate) : NaN
-      return {
-        id: `${source}-${index}`,
-        title,
-        source,
-        url,
-        publishedAt: Number.isNaN(timestamp) ? null : timestamp,
-      }
-    })
-    .filter((item) => item.title && item.url.startsWith('http'))
-}
-
+// Live headline proxy for the home page — same parser as the ingestion
+// pipeline (lib/news/rss), just a different shape for the client.
 export async function GET() {
   for (const feed of FEEDS) {
     try {
       const res = await fetch(feed.url, { next: { revalidate: 120 } })
       if (!res.ok) continue
-      const items = parseRss(await res.text(), feed.source).slice(0, 8)
+      const items: NewsItem[] = parseRss(await res.text())
+        .slice(0, 8)
+        .map((item, index) => ({
+          id: `${feed.source}-${index}`,
+          title: item.title,
+          source: feed.source,
+          url: item.url,
+          publishedAt: item.publishedAt ? item.publishedAt.getTime() : null,
+        }))
       if (items.length > 0) {
         return NextResponse.json({ items, live: true })
       }

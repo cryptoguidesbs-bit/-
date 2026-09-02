@@ -10,11 +10,7 @@ import { pageMeta } from '@/lib/seo'
 type Props = { params: Promise<{ locale: string }> }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   const t = await getTranslations({ locale, namespace: 'alerts' })
   return pageMeta({
@@ -28,11 +24,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 // Premium: realtime alerts require the Trader plan (alerts.realtime).
 // Alerts are event notifications only — never action directives.
 export default async function AlertsPage(props: Props) {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   setRequestLocale(locale)
 

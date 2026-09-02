@@ -1,7 +1,7 @@
 import 'server-only'
 
 import { BINANCE_REST_URL } from '@/config/market'
-import { assertUpstreamOk, resilientFetch, type Source } from './resilient'
+import { fetchJson, resilientFetch, type Source } from './resilient'
 
 // USD spot prices for arbitrary crypto symbols (portfolio/watchlist
 // enrichment). One cached fetch of a full price list serves all requests;
@@ -13,9 +13,11 @@ type PriceRow = { symbol: string; price: string }
 const allPricesSource: Source<Record<string, number>> = {
   name: 'binance-all-prices',
   async fetch(signal) {
-    const res = await fetch(`${BINANCE_REST_URL}/ticker/price`, { signal, cache: 'no-store' })
-    assertUpstreamOk(res, 'binance-all-prices')
-    const rows = (await res.json()) as PriceRow[]
+    const rows = await fetchJson<PriceRow[]>(
+      `${BINANCE_REST_URL}/ticker/price`,
+      signal,
+      'binance-all-prices'
+    )
     const map: Record<string, number> = {}
     for (const row of rows) {
       if (row.symbol.endsWith('USDT')) {
@@ -31,12 +33,11 @@ type PaprikaRow = { symbol?: string; rank?: number; quotes?: { USD?: { price?: n
 const paprikaAllPricesSource: Source<Record<string, number>> = {
   name: 'coinpaprika-all-prices',
   async fetch(signal) {
-    const res = await fetch('https://api.coinpaprika.com/v1/tickers?quotes=USD', {
+    const rows = await fetchJson<PaprikaRow[]>(
+      'https://api.coinpaprika.com/v1/tickers?quotes=USD',
       signal,
-      cache: 'no-store',
-    })
-    assertUpstreamOk(res, 'coinpaprika-all-prices')
-    const rows = (await res.json()) as PaprikaRow[]
+      'coinpaprika-all-prices'
+    )
     const map: Record<string, number> = {}
     // Rows are rank-ordered; many coins share a symbol, so first (highest
     // market cap) wins — matches what users mean by "BTC", "ETH", ….
@@ -63,7 +64,7 @@ export async function getUsdQuotes(symbols: string[]): Promise<Record<string, nu
       timeoutMs: 6_000,
       retries: 1,
       freshMs: 15_000,
-    },
+    }
   )
   const map = result.data ?? {}
 

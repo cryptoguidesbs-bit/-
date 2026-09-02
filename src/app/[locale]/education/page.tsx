@@ -3,11 +3,7 @@ import { TrackView } from '@/components/analytics/track-view'
 import { Clock, GraduationCap, Lock } from 'lucide-react'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 
-import {
-  EDUCATION_LEVELS,
-  EDUCATION_TRACKS,
-  lessons,
-} from '@/config/education'
+import { EDUCATION_LEVELS, EDUCATION_TRACKS, lessons } from '@/config/education'
 import { getAccessSnapshot } from '@/lib/education/access'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -17,11 +13,7 @@ import { pageMeta } from '@/lib/seo'
 type Props = { params: Promise<{ locale: string }> }
 
 export async function generateMetadata(props: Props): Promise<Metadata> {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   const t = await getTranslations({ locale, namespace: 'education' })
   return pageMeta({
@@ -35,11 +27,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 // Education hub — the full curriculum is visible to everyone; locked lessons
 // carry sign-up / upgrade CTAs (conversion funnel).
 export default async function EducationPage(props: Props) {
-  const params = await props.params;
-
-  const {
-    locale
-  } = params;
+  const { locale } = await props.params
 
   setRequestLocale(locale)
   const t = await getTranslations({ locale, namespace: 'education' })
